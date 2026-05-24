@@ -1,0 +1,25 @@
+.recipes-section {
+  width: 100%;
+  padding: 80px 8%;
+  background-color: #f3efe6;
+}
+.recipes-subtitle {
+  display: block;
+  text-align: center;
+  color: #f47c12;
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.recipes-section h2 {
+  text-align: center;
+  font-size: 42px;
+  color: #2c1d18;
+  margin-bottom: 50px;
+}
+.recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  justify-items: center;
+}
