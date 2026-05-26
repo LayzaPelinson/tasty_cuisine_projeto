@@ -1,5 +1,11 @@
+import RecipesHero from '../components/RecipesHero'
+
 function Recipes() {
-    return <h1>Receitas</h1>
+  return (
+    <>
+      <RecipesHero />
+    </>
+  )
 }
 
 export default Recipes

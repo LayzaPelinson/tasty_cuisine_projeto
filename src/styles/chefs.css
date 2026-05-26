@@ -1,0 +1,95 @@
+.chefs-page {
+  width: 100%;
+  padding: 40px 2% 100px;
+  background-color: #f4efe6;
+}
+/* GRID DOS CHEFS */
+.chefs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-bottom: 120px;
+}
+/* CARD */
+.chef-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transition: 0.4s;
+}
+.chef-card:hover {
+  transform: translateY(-8px);
+}
+/* IMAGEM */
+.chef-card img {
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+}
+/* OVERLAY */
+.chef-overlay {
+  position: absolute;
+  bottom: 70px;
+  left: 20px;
+  color: white;
+}
+.chef-overlay h3 {
+  font-size: 32px;
+  margin-bottom: 6px;
+  color: #ff8b38;
+}
+.chef-overlay p {
+  font-size: 17px;
+}
+/* FOOTER */
+.chef-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px 20px;
+  font-size: 15px;
+  color: #666;
+}
+/* SECTION */
+.chef-story {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 70px;
+}
+/* TEXTO */
+.story-text {
+  flex: 1;
+}
+.story-text h1 {
+  font-size: 78px;
+  line-height: 1.1;
+  margin-bottom: 35px;
+  color: #2d1b12;
+}
+.story-text p {
+  font-size: 22px;
+  line-height: 1.9;
+  color: #6d625c;
+  margin-bottom: 28px;
+  max-width: 720px;
+}
+/* IMAGENS */
+.story-images {
+  display: flex;
+  gap: 25px;
+  align-items: flex-end;
+}
+.large-img {
+  width: 500px;
+  height: 650px;
+  object-fit: cover;
+  border-radius: 24px;
+}
+.small-img {
+  width: 360px;
+  height: 520px;
+  object-fit: cover;
+  border-radius: 24px;
+}
