@@ -3,15 +3,15 @@ import recipes from '../data/recipes'
 
 import '../styles/recipesSection.css'
 
-function RecipesSection() {
+function RecipesSection({ showHeader = true }) {
   return (
     <section className="recipes-section">
-      <span className="recipes-subtitle">
-        Receitas em Destaque
-      </span>
-      <h2>
-        As mais populares da nossa comunidade.
-      </h2>
+      {showHeader && (
+        <>
+          <span className="recipes-subtitle">Receitas em Destaque</span>
+          <h2>As mais populares da nossa comunidade.</h2>
+        </>
+      )}
       <div className="recipes-grid">
         {recipes.map((recipe) => (
           <RecipeCard

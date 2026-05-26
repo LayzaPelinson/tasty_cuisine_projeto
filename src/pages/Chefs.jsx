@@ -1,5 +1,7 @@
 import '../styles/chefs.css'
 
+import '../styles/global.css'
+
 import { chefs } from '../data/chefs'
 
 import ChefCard from '../components/ChefCard'

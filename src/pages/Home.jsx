@@ -1,5 +1,7 @@
 import '../styles/home.css'
 
+import '../styles/global.css'
+
 import { Link } from 'react-router-dom'
 
 import Categories from '../components/Categories'
@@ -43,15 +45,18 @@ function Home() {
                         src={food1}
                         alt="Deliciosa refeição"
                         className="img-large"
+                        loading="eager"
                     />
                     <div className="image-column">
                         <img
                             src={food2}
                             alt="Deliciosa refeição"
+                            loading="lazy"
                         />
                         <img
                             src={food3}
                             alt="Deliciosa refeição"
+                            loading="lazy"
                         />
                     </div>
                 </div>

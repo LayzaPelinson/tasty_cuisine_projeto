@@ -1,17 +1,12 @@
 import '../styles/recipesHero.css'
-
 import heroBg from '../assets/img/TastyCuisine_Banner.jpg'
-
-import {FiSearch} from 'react-icons/fi'
-
+import { FiSearch } from 'react-icons/fi'
 
 function RecipesHero() {
   return (
     <section
       className="recipes-hero"
-      style={{
-        backgroundImage: `url(${heroBg})`
-      }}
+      style={{ backgroundImage: `url(${heroBg})` }}
     >
       <div className="recipes-content">
         <h1>

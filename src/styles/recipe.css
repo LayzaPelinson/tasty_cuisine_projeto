@@ -1,0 +1,13 @@
+.recipes-page {
+  width: 100%;
+  background: #f5f1e8;
+  padding: 60px 7%;
+  margin-top: 40px;
+}
+.recipes-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  align-items: start;
+}
