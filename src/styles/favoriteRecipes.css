@@ -1,0 +1,10 @@
+.favorite-recipes h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  color: #f58220;
+  margin-bottom: 30px;
+}
+.favorite-grid {
+  display: flex;
+  gap: 30px;
+}

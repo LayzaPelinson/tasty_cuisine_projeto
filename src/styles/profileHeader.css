@@ -1,0 +1,33 @@
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #d9d4c9;
+}
+.profile-user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.profile-avatar {
+  font-size: 42px;
+  color: #5d338c;
+}
+.profile-user h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px;
+  color: #f58220;
+  margin-bottom: 5px;
+}
+.profile-user p {
+  font-size: 16px;
+  color: #5f5f5f;
+}
+.edit-profile-btn {
+  border: none;
+  background: #f58220;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+}
