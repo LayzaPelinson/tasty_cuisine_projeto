@@ -1,8 +1,7 @@
 import '../styles/home.css'
-
 import '../styles/global.css'
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import Categories from '../components/Categories'
 import RecipesSection from '../components/RecipesSection'
@@ -12,6 +11,7 @@ import food2 from '../assets/img/food2.jpg'
 import food3 from '../assets/img/food3.jpg'
 
 function Home() {
+    const navigate = useNavigate()
     return (
         <>
             <section className="home">
@@ -61,7 +61,7 @@ function Home() {
                     </div>
                 </div>
             </section>
-            <Categories />
+            <Categories onSelect={(cat) => navigate(`/recipes?categoria=${encodeURIComponent(cat)}`)} />
             <RecipesSection />
         </>
     )

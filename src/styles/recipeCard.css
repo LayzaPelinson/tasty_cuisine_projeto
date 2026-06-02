@@ -53,6 +53,10 @@
   color: #ffffff;
   transform: scale(1.08);
 }
+.favorite-btn.favorited {
+  background-color: #ff2222;
+  color: #ffffff;
+}
 .recipe-content {
   padding: 20px;
 }

@@ -33,3 +33,17 @@
   color: #2d2d2d;
   font-weight: 500;
 }
+.category-card.active img {
+  box-shadow: 0 0 0 3px #e07a2f, 0 6px 18px rgba(0,0,0,0.18);
+  transform: scale(1.05);
+}
+.category-card.active p {
+  color: #e07a2f;
+  font-weight: 700;
+}
+.no-results {
+  text-align: center;
+  color: #888;
+  font-size: 18px;
+  padding: 40px 0;
+}

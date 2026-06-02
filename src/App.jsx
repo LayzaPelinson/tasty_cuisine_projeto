@@ -9,6 +9,7 @@ import RecipeDetails from './pages/RecipeDetails'
 
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import { FavoritesProvider } from './hooks/useFavorites.jsx'
 
 import './styles/app.css'
 
@@ -21,6 +22,7 @@ function ScrollToTop() {
 function App() {
   return (
     <BrowserRouter>
+    <FavoritesProvider>
     <div className="app">
       <ScrollToTop />
       <Header />
@@ -38,6 +40,7 @@ function App() {
       </main>
       <Footer />
       </div>
+    </FavoritesProvider>
     </BrowserRouter>
   )
 }

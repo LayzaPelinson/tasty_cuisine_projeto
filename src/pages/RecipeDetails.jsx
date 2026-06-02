@@ -1,15 +1,18 @@
-import { Link, useParams, useNavigate } from 'react-router-dom'
-
+import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useFavorites } from '../hooks/useFavorites.jsx'
 import recipes from '../data/recipes'
-
 import '../styles/recipeDetails.css'
 
 function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const recipe = recipes.find(
-    item => item.id === Number(id)
-  )
+  const { isFavorite, toggle, addToHistory } = useFavorites()
+  const recipe = recipes.find(item => item.id === Number(id))
+
+  useEffect(() => {
+    if (recipe) addToHistory(recipe.id)
+  }, [recipe?.id])
   if (!recipe) {
     return <h1>Receita não encontrada</h1>
   }
@@ -48,8 +51,11 @@ function RecipeDetails() {
             {recipe.description}
           </p>
           <div className="recipe-actions">
-            <button className="save-btn">
-              ♥ Receita Salva
+            <button
+              className={`save-btn${isFavorite(recipe.id) ? ' saved' : ''}`}
+              onClick={() => toggle(recipe.id)}
+            >
+              ♥ {isFavorite(recipe.id) ? 'Receita Salva' : 'Salvar Receita'}
             </button>
             <button className="share-btn">
               ↗ Compartilhar
