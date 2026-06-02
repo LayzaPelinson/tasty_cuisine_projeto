@@ -27,8 +27,8 @@ function RecipeCard({ recipe }) {
           <span>⏱ {recipe.time}</span>
           <span>👨‍🍳 {recipe.chef}</span>
         </div>
-        <span className={`difficulty ${recipe.levelClass}`}>
-          {recipe.level}
+        <span className={`difficulty`}>
+          {recipe.difficulty}
         </span>
       </div>
     </div>
