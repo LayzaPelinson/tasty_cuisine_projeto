@@ -7,6 +7,7 @@ import ProfileHeader from '../components/ProfileHeader'
 import ProfileTabs from '../components/ProfileTabs'
 import FavoriteRecipes from '../components/FavoriteRecipes'
 import PreferencesPanel from '../components/PreferencesPanel'
+import HistoryPanel from '../components/HistoryPanel'
 
 function Profile() {
   const [activeTab, setActiveTab] = useState('favorites')
@@ -19,6 +20,9 @@ function Profile() {
       />
       {activeTab === 'favorites' && (
         <FavoriteRecipes />
+      )}
+      {activeTab === 'history' && (
+        <HistoryPanel />
       )}
       {activeTab === 'preferences' && (
         <PreferencesPanel />

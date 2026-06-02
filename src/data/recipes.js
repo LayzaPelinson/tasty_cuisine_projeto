@@ -1,34 +1,37 @@
+import ratatouille from '../assets/img/ratatouille.jpg'
+
 const recipes = [
   {
     id: 1,
-    title: 'Ratatouille Provençal',
-    image:
-      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601',
-
+    title: 'Ratatouille',
+    image: ratatouille,
     category: 'Jantar',
+    difficulty: 'Médio',
     time: '45 min',
-    chef: 'Marie Laurent',
-    level: 'Médio',
-    levelClass: 'medium',
+    chef: 'Remy',
     description:
-      'Um clássico provençal cheio de sabor, com legumes frescos assados lentamente em azeite e ervas aromáticas.',
+      'Um clássico da culinária francesa preparado com berinjela, abobrinha, tomate e ervas aromáticas.',
+    chefTip:
+      'Corte todos os vegetais em espessuras semelhantes para garantir um cozimento uniforme.',
     ingredients: [
+      '1 berinjela',
       '2 abobrinhas',
-      '2 berinjelas',
       '3 tomates',
-      '1 pimentão vermelho',
       '1 cebola',
-      'Azeite',
-      'Alho',
-      'Tomilho',
-      'Sal e pimenta'
+      '2 dentes de alho',
+      'Azeite de oliva',
+      'Sal e pimenta a gosto',
+      'Ervas finas'
     ],
     instructions: [
-      'Corte todos os legumes em rodelas finas.',
+      'Lave e corte todos os vegetais em fatias finas.',
       'Refogue a cebola e o alho no azeite.',
-      'Adicione os legumes em camadas na panela.',
-      'Tempere com tomilho, sal e pimenta.',
-      'Cozinhe em fogo baixo por 30 minutos.'
+      'Distribua os vegetais em uma travessa.',
+      'Tempere com sal, pimenta e ervas.',
+      'Cubra com papel-alumínio.',
+      'Asse por aproximadamente 40 minutos.',
+      'Retire o papel e asse por mais 10 minutos.',
+      'Sirva quente.'
     ]
   }
 ]
