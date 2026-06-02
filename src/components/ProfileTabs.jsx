@@ -1,11 +1,48 @@
 import '../styles/profileTabs.css'
 
-function ProfileTabs() {
+function ProfileTabs({
+  activeTab,
+  setActiveTab
+}) {
   return (
     <div className="profile-tabs">
-      <button>💗 Favoritos</button>
-      <button>🕘 Histórico</button>
-      <button>⚙️ Preferências</button>
+
+      <button
+        className={
+          activeTab === 'favorites'
+            ? 'active'
+            : ''
+        }
+        onClick={() =>
+          setActiveTab('favorites')
+        }
+      >
+        💗 Favoritos
+      </button>
+      <button
+        className={
+          activeTab === 'history'
+            ? 'active'
+            : ''
+        }
+        onClick={() =>
+          setActiveTab('history')
+        }
+      >
+        🕘 Histórico
+      </button>
+      <button
+        className={
+          activeTab === 'preferences'
+            ? 'active'
+            : ''
+        }
+        onClick={() =>
+          setActiveTab('preferences')
+        }
+      >
+        ⚙️ Preferências
+      </button>
     </div>
   )
 }
