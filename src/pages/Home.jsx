@@ -62,7 +62,7 @@ function Home() {
                 </div>
             </section>
             <Categories onSelect={(cat) => navigate(`/recipes?categoria=${encodeURIComponent(cat)}`)} />
-            <RecipesSection />
+            <RecipesSection limit={4} />
         </>
     )
 }

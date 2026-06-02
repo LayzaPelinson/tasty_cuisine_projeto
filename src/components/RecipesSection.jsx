@@ -2,10 +2,11 @@ import RecipeCard from './RecipeCard'
 import recipes from '../data/recipes'
 import '../styles/recipesSection.css'
 
-function RecipesSection({ showHeader = true, category }) {
+function RecipesSection({ showHeader = true, category, limit }) {
   const filtered = category
     ? recipes.filter((r) => r.category === category)
     : recipes
+  const displayed = limit ? filtered.slice(0, limit) : filtered
 
   return (
     <section className="recipes-section">
@@ -19,7 +20,7 @@ function RecipesSection({ showHeader = true, category }) {
         <p className="no-results">Nenhuma receita encontrada para esta categoria.</p>
       ) : (
         <div className="recipes-grid">
-          {filtered.map((recipe) => (
+          {displayed.map((recipe) => (
             <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </div>
