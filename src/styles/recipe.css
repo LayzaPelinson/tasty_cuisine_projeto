@@ -7,7 +7,7 @@
 .recipes-grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, 280px);
   gap: 32px;
   align-items: start;
 }

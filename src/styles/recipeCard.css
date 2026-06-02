@@ -3,6 +3,7 @@
 }
 .recipe-card {
   width: 280px;
+  height: 346px;
   background-color: white;
   border-radius: 28px;
   overflow: hidden;
@@ -63,14 +64,17 @@
 .recipe-content h3 {
   font-size: 28px;
   color: #f47c12;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .recipe-info {
   display: flex;
   gap: 16px;
   color: #666;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   font-size: 14px;
 }
 .difficulty {

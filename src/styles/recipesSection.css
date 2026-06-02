@@ -19,7 +19,7 @@
 }
 .recipes-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 280px);
   gap: 30px;
   justify-items: center;
 }
