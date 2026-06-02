@@ -26,7 +26,7 @@ function RecipeDetails() {
           src={recipe.image}
           alt={recipe.title}
         />
-        <div className="recipe-info">
+        <div className="recipe-details-info">
           <h1>{recipe.title}</h1>
           <div className="recipe-tags">
             <span className="tag">
@@ -57,7 +57,7 @@ function RecipeDetails() {
           </div>
         </div>
       </div>
-      <div className="recipe-content">
+      <div className="recipe-details-content">
         <div className="ingredients">
           <h2>Ingredientes</h2>
           <ul>
