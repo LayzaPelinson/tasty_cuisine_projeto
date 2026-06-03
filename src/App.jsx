@@ -6,6 +6,7 @@ import Recipes from './pages/Recipes'
 import Chefs from './pages/Chefs'
 import Profile from './pages/Profile'
 import RecipeDetails from './pages/RecipeDetails'
+import ChefDetails from './pages/ChefDetails'
 
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -32,10 +33,8 @@ function App() {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/chefs" element={<Chefs />} />
         <Route path="/profile" element={<Profile />} />
-        <Route
-          path="/recipe/:id"
-           element={<RecipeDetails />}
-        />
+        <Route path="/recipe/:id" element={<RecipeDetails />} />
+        <Route path="/chef/:id" element={<ChefDetails />} />
       </Routes>
       </main>
       <Footer />
