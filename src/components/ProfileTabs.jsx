@@ -1,47 +1,26 @@
+import { FiHeart, FiClock, FiSliders } from 'react-icons/fi'
 import '../styles/profileTabs.css'
 
-function ProfileTabs({
-  activeTab,
-  setActiveTab
-}) {
+function ProfileTabs({ activeTab, setActiveTab }) {
   return (
     <div className="profile-tabs">
-
       <button
-        className={
-          activeTab === 'favorites'
-            ? 'active'
-            : ''
-        }
-        onClick={() =>
-          setActiveTab('favorites')
-        }
+        className={activeTab === 'favorites' ? 'active' : ''}
+        onClick={() => setActiveTab('favorites')}
       >
-        💗 Favoritos
+        <FiHeart /> Favoritos
       </button>
       <button
-        className={
-          activeTab === 'history'
-            ? 'active'
-            : ''
-        }
-        onClick={() =>
-          setActiveTab('history')
-        }
+        className={activeTab === 'history' ? 'active' : ''}
+        onClick={() => setActiveTab('history')}
       >
-        🕘 Histórico
+        <FiClock /> Histórico
       </button>
       <button
-        className={
-          activeTab === 'preferences'
-            ? 'active'
-            : ''
-        }
-        onClick={() =>
-          setActiveTab('preferences')
-        }
+        className={activeTab === 'preferences' ? 'active' : ''}
+        onClick={() => setActiveTab('preferences')}
       >
-        ⚙️ Preferências
+        <FiSliders /> Preferências
       </button>
     </div>
   )

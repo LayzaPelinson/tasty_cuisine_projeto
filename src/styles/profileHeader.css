@@ -13,6 +13,35 @@
 .profile-avatar {
   font-size: 42px;
   color: #5d338c;
+  position: relative;
+  cursor: pointer;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ede6db;
+  border-radius: 50%;
+}
+.profile-avatar-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatar-edit-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #f58220;
+  border-radius: 50%;
+  font-size: 14px;
+  padding: 2px 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.profile-avatar:hover .avatar-edit-overlay {
+  opacity: 1;
 }
 .profile-user h1 {
   font-family: 'Cormorant Garamond', serif;
@@ -25,9 +54,15 @@
   color: #5f5f5f;
 }
 .edit-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border: none;
   background: #f58220;
   padding: 12px 20px;
   border-radius: 12px;
   cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
 }

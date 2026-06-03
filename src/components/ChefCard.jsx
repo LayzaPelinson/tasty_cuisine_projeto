@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { FiMapPin, FiBook } from 'react-icons/fi'
 
 function ChefCard({ chef }) {
   const navigate = useNavigate()
@@ -11,8 +12,8 @@ function ChefCard({ chef }) {
         <p>{chef.specialty}</p>
       </div>
       <div className="chef-footer">
-        <span>📍 {chef.location}</span>
-        <span>📖 {chef.recipes} receitas</span>
+        <span><FiMapPin /> {chef.location}</span>
+        <span><FiBook /> {chef.recipes} receitas</span>
       </div>
     </div>
   )

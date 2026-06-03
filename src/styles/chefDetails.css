@@ -51,6 +51,9 @@
   font-size: 18px;
   color: #555;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .chef-details-info p {

@@ -4,6 +4,9 @@
   margin:30px 0;
 }
 .profile-tabs button{
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   border:none;
   background: #f47b20;
   padding:12px 24px;

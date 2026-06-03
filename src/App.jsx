@@ -11,6 +11,7 @@ import ChefDetails from './pages/ChefDetails'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { FavoritesProvider } from './hooks/useFavorites.jsx'
+import { UserProvider } from './hooks/useUser.jsx'
 
 import './styles/app.css'
 
@@ -24,6 +25,7 @@ function App() {
   return (
     <BrowserRouter>
     <FavoritesProvider>
+    <UserProvider>
     <div className="app">
       <ScrollToTop />
       <Header />
@@ -39,6 +41,7 @@ function App() {
       </main>
       <Footer />
       </div>
+    </UserProvider>
     </FavoritesProvider>
     </BrowserRouter>
   )

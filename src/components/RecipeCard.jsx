@@ -1,6 +1,7 @@
 import '../styles/recipeCard.css'
 import { Link } from 'react-router-dom'
 import { useFavorites } from '../hooks/useFavorites.jsx'
+import { FiHeart, FiClock, FiUser } from 'react-icons/fi'
 
 function RecipeCard({ recipe }) {
   const { isFavorite, toggle } = useFavorites()
@@ -17,14 +18,14 @@ function RecipeCard({ recipe }) {
             onClick={(e) => { e.preventDefault(); toggle(recipe.id) }}
             title={favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
           >
-            ♥
+            <FiHeart />
           </button>
         </div>
         <div className="recipe-content">
           <h3>{recipe.title}</h3>
           <div className="recipe-info">
-            <span>⏱ {recipe.time}</span>
-            <span>👨‍🍳 {recipe.chef}</span>
+            <span><FiClock /> {recipe.time}</span>
+            <span><FiUser /> {recipe.chef}</span>
           </div>
           <span className={`difficulty difficulty--${recipe.difficulty.toLowerCase()}`}>{recipe.difficulty}</span>
         </div>

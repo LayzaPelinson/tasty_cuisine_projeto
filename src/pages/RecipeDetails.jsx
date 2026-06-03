@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useFavorites } from '../hooks/useFavorites.jsx'
 import recipes from '../data/recipes'
+import { FiArrowLeft, FiHeart, FiShare2, FiClock, FiUser, FiInfo } from 'react-icons/fi'
 import '../styles/recipeDetails.css'
 
 function RecipeDetails() {
@@ -13,52 +14,36 @@ function RecipeDetails() {
   useEffect(() => {
     if (recipe) addToHistory(recipe.id)
   }, [recipe?.id])
-  if (!recipe) {
-    return <h1>Receita não encontrada</h1>
-  }
+
+  if (!recipe) return <h1>Receita não encontrada</h1>
+
   return (
     <section className="recipe-details">
-      <button
-        className="back-btn"
-        onClick={() => navigate(-1)}
-      >
-        ← Voltar
+      <button className="back-btn" onClick={() => navigate(-1)}>
+        <FiArrowLeft /> Voltar
       </button>
       <div className="recipe-header">
-        <img
-          src={recipe.image}
-          alt={recipe.title}
-        />
+        <img src={recipe.image} alt={recipe.title} />
         <div className="recipe-details-info">
           <h1>{recipe.title}</h1>
           <div className="recipe-tags">
-            <span className="tag">
-              {recipe.category}
-            </span>
-            <span className="tag easy">
-              {recipe.difficulty}
-            </span>
+            <span className="tag">{recipe.category}</span>
+            <span className="tag easy">{recipe.difficulty}</span>
           </div>
           <div className="recipe-meta">
-            <span>
-              ⏱ {recipe.time}
-            </span>
-            <span>
-              👨‍🍳 {recipe.chef}
-            </span>
+            <span><FiClock /> {recipe.time}</span>
+            <span><FiUser /> {recipe.chef}</span>
           </div>
-          <p>
-            {recipe.description}
-          </p>
+          <p>{recipe.description}</p>
           <div className="recipe-actions">
             <button
               className={`save-btn${isFavorite(recipe.id) ? ' saved' : ''}`}
               onClick={() => toggle(recipe.id)}
             >
-              ♥ {isFavorite(recipe.id) ? 'Receita Salva' : 'Salvar Receita'}
+              <FiHeart /> {isFavorite(recipe.id) ? 'Receita Salva' : 'Salvar Receita'}
             </button>
             <button className="share-btn">
-              ↗ Compartilhar
+              <FiShare2 /> Compartilhar
             </button>
           </div>
         </div>
@@ -67,28 +52,20 @@ function RecipeDetails() {
         <div className="ingredients">
           <h2>Ingredientes</h2>
           <ul>
-            {recipe.ingredients.map(
-              (item, index) => (
-                <li key={index}>
-                  {item}
-                </li>
-              )
-            )}
+            {recipe.ingredients.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
           </ul>
         </div>
         <div className="instructions">
           <h2>Modo de Preparo</h2>
           <ol>
-            {recipe.instructions.map(
-              (step, index) => (
-                <li key={index}>
-                  {step}
-                </li>
-              )
-            )}
+            {recipe.instructions.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
           </ol>
           <div className="chef-tip">
-            <h3>💡 Dica do Chef</h3>
+            <h3><FiInfo /> Dica do Chef</h3>
             <p>{recipe.chefTip}</p>
           </div>
         </div>

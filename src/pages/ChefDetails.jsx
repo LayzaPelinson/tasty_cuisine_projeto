@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import chefs from '../data/chefs'
 import recipes from '../data/recipes'
 import RecipeCard from '../components/RecipeCard'
+import { FiArrowLeft, FiMapPin, FiBook, FiCoffee } from 'react-icons/fi'
 import '../styles/chefDetails.css'
 
 function ChefDetails() {
@@ -14,16 +15,18 @@ function ChefDetails() {
 
   return (
     <section className="chef-details">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Voltar</button>
+      <button className="back-btn" onClick={() => navigate(-1)}>
+        <FiArrowLeft /> Voltar
+      </button>
 
       <div className="chef-details-header">
         <img src={chef.image} alt={chef.name} className="chef-details-img" />
         <div className="chef-details-info">
           <h1>{chef.name}</h1>
           <div className="chef-details-meta">
-            <span>🍽 {chef.specialty}</span>
-            <span>📍 {chef.location}</span>
-            <span>📖 {chef.recipes} receitas</span>
+            <span><FiCoffee /> {chef.specialty}</span>
+            <span><FiMapPin /> {chef.location}</span>
+            <span><FiBook /> {chef.recipes} receitas</span>
           </div>
           <p>{chef.bio}</p>
         </div>
