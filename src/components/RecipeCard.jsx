@@ -26,7 +26,7 @@ function RecipeCard({ recipe }) {
             <span>⏱ {recipe.time}</span>
             <span>👨‍🍳 {recipe.chef}</span>
           </div>
-          <span className="difficulty">{recipe.difficulty}</span>
+          <span className={`difficulty difficulty--${recipe.difficulty.toLowerCase()}`}>{recipe.difficulty}</span>
         </div>
       </div>
     </Link>

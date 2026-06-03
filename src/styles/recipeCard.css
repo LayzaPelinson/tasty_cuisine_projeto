@@ -83,6 +83,16 @@
   border-radius: 14px;
   font-size: 13px;
   font-weight: 500;
+}
+.difficulty--fácil {
   background: #dcecdc;
   color: #1f6b34;
+}
+.difficulty--médio {
+  background: #fef3cd;
+  color: #856404;
+}
+.difficulty--difícil {
+  background: #fde0e0;
+  color: #a01010;
 }
