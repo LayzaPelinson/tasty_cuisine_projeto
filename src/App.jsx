@@ -7,6 +7,7 @@ import Chefs from './pages/Chefs'
 import Profile from './pages/Profile'
 import RecipeDetails from './pages/RecipeDetails'
 import ChefDetails from './pages/ChefDetails'
+import Login from './pages/Login'
 
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -37,6 +38,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/recipe/:id" element={<RecipeDetails />} />
         <Route path="/chef/:id" element={<ChefDetails />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
       </main>
       <Footer />
