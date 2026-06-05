@@ -1,21 +1,41 @@
 import '../styles/header.css'
-
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useUser } from '../hooks/useUser.jsx'
 
 function Header() {
-    return (
-        <header  className="header">
-            <div className="logo">
-                Tasty Cuisine
-            </div>
+    const { user, logout } = useUser()
+    const navigate = useNavigate()
 
+    function handleLogout() {
+        logout()
+        navigate('/')
+    }
+
+    return (
+        <header className="header">
+            <div className="logo">Tasty Cuisine</div>
             <nav className="nav">
-                <Link to="/">Home</Link>
-                <Link to="/recipes">Receitas</Link>
-                <Link to="/chefs">Chefes</Link>
-                <Link to="/profile">Perfil</Link>
+                {!user ? (
+                    <Link to="/login">Login</Link>
+                ) : (
+                    <>
+                        <Link to="/">Home</Link>
+                        <Link to="/recipes">Receitas</Link>
+                        <Link to="/chefs">Chefes</Link>
+                        {user.role === 'chef' ? (
+                            <>
+                                <Link to="/publish">Publicar Receita</Link>
+                                <Link to="/chef-profile">Perfil</Link>
+                            </>
+                        ) : (
+                            <Link to="/profile">Perfil</Link>
+                        )}
+
+                    </>
+                )}
             </nav>
-            </header>
+        </header>
     )
 }
+
 export default Header

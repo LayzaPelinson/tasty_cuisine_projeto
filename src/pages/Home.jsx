@@ -1,7 +1,9 @@
 import '../styles/home.css'
 import '../styles/global.css'
 
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useUser } from '../hooks/useUser.jsx'
 
 import Categories from '../components/Categories'
 import RecipesSection from '../components/RecipesSection'
@@ -10,59 +12,62 @@ import food1 from '../assets/img/food1.jpg'
 import food2 from '../assets/img/food2.jpg'
 import food3 from '../assets/img/food3.jpg'
 
+function GuestModal({ onClose }) {
+    return (
+        <div className="guest-overlay" onClick={onClose}>
+            <div className="guest-modal" onClick={e => e.stopPropagation()}>
+                <p>Faça login ou crie uma conta para ter acesso a tudo!</p>
+                <div className="guest-modal-actions">
+                    <Link to="/login"><button className="primary-btn">Entrar / Cadastrar</button></Link>
+                    <button className="secondary-btn" onClick={onClose}>Fechar</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 function Home() {
+    const { user } = useUser()
     const navigate = useNavigate()
+    const [showModal, setShowModal] = useState(false)
+
+    function handleGuest(e) {
+        if (!user) { e.preventDefault(); setShowModal(true) }
+    }
+
     return (
         <>
+            {showModal && <GuestModal onClose={() => setShowModal(false)} />}
             <section className="home">
                 <div className="home-text">
                     <span>Receitas Saudáveis</span>
-                    <h1>
-                        Bem-vindo à <br />
-                        Tasty Cuisine!
-                    </h1>
-                    <p>
-                        Descubra receitas saudáveis que elevam o simples ao especial.
-                    </p>
-                    <p>
-                        Feitas para tornar cada momento mais especial.
-                    </p>
-            <div className="home-buttons">
-                <Link to="/recipes">
-                    <button className="primary-btn">
-                        Explore Receitas
-                    </button>
-                    </Link>
-                <Link to="/chefs">
-                    <button className="secondary-btn">
-                        Conhecer Chefes
-                    </button>
-                </Link>
-            </div>
+                    <h1>Bem-vindo à <br />Tasty Cuisine!</h1>
+                    <p>Descubra receitas saudáveis que elevam o simples ao especial.</p>
+                    <p>Feitas para tornar cada momento mais especial.</p>
+                    <div className="home-buttons">
+                        <Link to="/recipes" onClick={handleGuest}>
+                            <button className="primary-btn">Explore Receitas</button>
+                        </Link>
+                        <Link to="/chefs" onClick={handleGuest}>
+                            <button className="secondary-btn">Conhecer Chefes</button>
+                        </Link>
+                    </div>
                 </div>
                 <div className="home-images">
-                    <img
-                        src={food1}
-                        alt="Deliciosa refeição"
-                        className="img-large"
-                        loading="eager"
-                    />
+                    <img src={food1} alt="Deliciosa refeição" className="img-large" loading="eager" />
                     <div className="image-column">
-                        <img
-                            src={food2}
-                            alt="Deliciosa refeição"
-                            loading="lazy"
-                        />
-                        <img
-                            src={food3}
-                            alt="Deliciosa refeição"
-                            loading="lazy"
-                        />
+                        <img src={food2} alt="Deliciosa refeição" loading="lazy" />
+                        <img src={food3} alt="Deliciosa refeição" loading="lazy" />
                     </div>
                 </div>
             </section>
-            <Categories onSelect={(cat) => navigate(`/recipes?categoria=${encodeURIComponent(cat)}`)} />
-            <RecipesSection limit={4} />
+            <Categories
+                onSelect={(cat) => {
+                    if (!user) { setShowModal(true); return }
+                    navigate(`/recipes?categoria=${encodeURIComponent(cat)}`)
+                }}
+            />
+            <RecipesSection limit={4} onGuestClick={() => setShowModal(true)} locked={!user} />
         </>
     )
 }

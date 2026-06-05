@@ -3,7 +3,7 @@ import recipes from '../data/recipes'
 import '../styles/recipesSection.css'
 import { useEffect, useRef } from 'react'
 
-function RecipesSection({ showHeader = true, category, limit, search }) {
+function RecipesSection({ showHeader = true, category, limit, search, locked = false, onGuestClick }) {
   const norm = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   const q = norm(search || '')
   const sectionRef = useRef(null)
@@ -39,7 +39,9 @@ function RecipesSection({ showHeader = true, category, limit, search }) {
       ) : (
         <div className="recipes-grid">
           {displayed.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
+            <div key={recipe.id} onClick={locked ? onGuestClick : undefined} style={locked ? { cursor: 'pointer' } : {}}>
+              <RecipeCard recipe={recipe} />
+            </div>
           ))}
         </div>
       )}

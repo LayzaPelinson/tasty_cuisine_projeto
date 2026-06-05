@@ -13,6 +13,7 @@
 .nav{
     display: flex;
     gap: 20px;
+    align-items: center;
 }
 .nav a{
     text-decoration: none;
@@ -21,4 +22,19 @@
 }
 .nav a:hover{
     color: #ddd;
+}
+.nav-logout {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+.nav-logout:hover {
+    background: #fff;
+    color: #F27A1A;
 }

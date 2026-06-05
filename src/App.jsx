@@ -11,10 +11,10 @@ import ChefDetails from './pages/ChefDetails'
 import Login from './pages/Login'
 import PublishRecipe from './pages/PublishRecipe'
 
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { FavoritesProvider } from './hooks/useFavorites.jsx'
-import { UserProvider } from './hooks/useUser.jsx'
+import { UserProvider, useUser } from './hooks/useUser.jsx'
 
 import './styles/app.css'
 
@@ -22,6 +22,29 @@ function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
   return null
+}
+
+function ProtectedRoute({ children, chefOnly = false }) {
+  const { user } = useUser()
+  if (!user) return <Navigate to="/login" replace />
+  if (chefOnly && user.role !== 'chef') return <Navigate to="/" replace />
+  return children
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
+      <Route path="/chefs" element={<ProtectedRoute><Chefs /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/chef-profile" element={<ProtectedRoute chefOnly><ChefProfile /></ProtectedRoute>} />
+      <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetails /></ProtectedRoute>} />
+      <Route path="/chef/:id" element={<ProtectedRoute><ChefDetails /></ProtectedRoute>} />
+      <Route path="/publish" element={<ProtectedRoute chefOnly><PublishRecipe /></ProtectedRoute>} />
+    </Routes>
+  )
 }
 
 function App() {
@@ -33,17 +56,7 @@ function App() {
       <ScrollToTop />
       <Header />
       <main className="content">
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/chefs" element={<Chefs />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/chef-profile" element={<ChefProfile />} />
-        <Route path="/recipe/:id" element={<RecipeDetails />} />
-        <Route path="/chef/:id" element={<ChefDetails />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/publish" element={<PublishRecipe />} />
-      </Routes>
+        <AppRoutes />
       </main>
       <Footer />
       </div>
