@@ -1,15 +1,13 @@
 import { useUser } from '../hooks/useUser'
-import { useFavorites } from '../hooks/useFavorites'
 import '../styles/chefStatsPanel.css'
 
 function ChefStatsPanel() {
-  const { user, chefRecipes } = useUser()
-  const { favorites, history } = useFavorites()
+  const { user, chefRecipes, recipeStats } = useUser()
 
   const myRecipes = chefRecipes.filter(r => r.chefId === user?.id)
   const published = myRecipes.length
-  const favorited = myRecipes.filter(r => favorites.includes(r.id)).length
-  const visited = myRecipes.filter(r => history.includes(r.id)).length
+  const favorited = myRecipes.reduce((sum, r) => sum + (recipeStats[r.id]?.favorites || 0), 0)
+  const visited = myRecipes.reduce((sum, r) => sum + (recipeStats[r.id]?.views || 0), 0)
 
   const stats = [
     { label: 'Receitas publicadas', sub: 'Total de receitas no ar', value: published },

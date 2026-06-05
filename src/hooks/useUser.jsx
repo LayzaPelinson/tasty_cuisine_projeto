@@ -8,6 +8,7 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null)
   const [accounts, setAccounts] = useState([])
   const [chefRecipes, setChefRecipes] = useState([])
+  const [recipeStats, setRecipeStats] = useState({}) // { recipeId: { favorites: 0, views: 0 } }
 
   function register(data) {
     const newAccount = { ...data, id: Date.now() }
@@ -43,8 +44,23 @@ export function UserProvider({ children }) {
     setChefRecipes(prev => prev.map(r => r.id === id ? { ...r, ...updated } : r))
   }
 
+  function trackFavorite(recipeId, added) {
+    setRecipeStats(prev => {
+      const cur = prev[recipeId] || { favorites: 0, views: 0 }
+      return { ...prev, [recipeId]: { ...cur, favorites: Math.max(0, cur.favorites + (added ? 1 : -1)) } }
+    })
+  }
+
+  function trackView(recipeId) {
+    setRecipeStats(prev => {
+      const cur = prev[recipeId] || { favorites: 0, views: 0 }
+      if (cur._tracked) return prev
+      return { ...prev, [recipeId]: { ...cur, views: cur.views + 1, _tracked: true } }
+    })
+  }
+
   return (
-    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, changePassword, chefRecipes, publishRecipe, deleteRecipe, editRecipe }}>
+    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, changePassword, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView }}>
       {children}
     </UserContext.Provider>
   )

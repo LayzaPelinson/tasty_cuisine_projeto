@@ -12,13 +12,24 @@ function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { isFavorite, toggle, addToHistory } = useFavorites()
-  const { chefRecipes } = useUser()
+  const { user, chefRecipes } = useUser()
   const allRecipes = [...recipes, ...(chefRecipes || [])]
   const recipe = allRecipes.find(item => item.id === Number(id))
+  const isChef = user?.role === 'chef'
 
   useEffect(() => {
     if (recipe) addToHistory(recipe.id)
   }, [recipe?.id])
+
+  async function handleShare() {
+    const data = { title: recipe.title, text: recipe.description, url: window.location.href }
+    if (navigator.share) {
+      await navigator.share(data)
+    } else {
+      await navigator.clipboard.writeText(window.location.href)
+      alert('Link copiado para a área de transferência!')
+    }
+  }
 
   if (!recipe) return <h1>Receita não encontrada</h1>
 
@@ -40,17 +51,19 @@ function RecipeDetails() {
             <span><FiUser /> {recipe.chef}</span>
           </div>
           <p>{recipe.description}</p>
-          <div className="recipe-actions">
-            <button
-              className={`save-btn${isFavorite(recipe.id) ? ' saved' : ''}`}
-              onClick={() => toggle(recipe.id)}
-            >
-              <FiHeart /> {isFavorite(recipe.id) ? 'Receita Salva' : 'Salvar Receita'}
-            </button>
-            <button className="share-btn">
-              <FiShare2 /> Compartilhar
-            </button>
-          </div>
+          {!isChef && (
+            <div className="recipe-actions">
+              <button
+                className={`save-btn${isFavorite(recipe.id) ? ' saved' : ''}`}
+                onClick={() => toggle(recipe.id)}
+              >
+                <FiHeart /> {isFavorite(recipe.id) ? 'Receita Salva' : 'Salvar Receita'}
+              </button>
+              <button className="share-btn" onClick={handleShare}>
+                <FiShare2 /> Compartilhar
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <div className="recipe-details-content">
@@ -69,10 +82,12 @@ function RecipeDetails() {
               <li key={index}>{step}</li>
             ))}
           </ol>
-          <div className="chef-tip">
-            <h3><FiInfo /> Dica do Chef</h3>
-            <p>{recipe.chefTip}</p>
-          </div>
+          {recipe.chefTip && (
+            <div className="chef-tip">
+              <h3><FiInfo /> Dica do Chef</h3>
+              <p>{recipe.chefTip}</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

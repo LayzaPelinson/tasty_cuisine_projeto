@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { useUser } from './useUser'
 
 const FavoritesContext = createContext()
 
@@ -13,11 +14,14 @@ function getStored(key) {
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState(() => getStored('favorites'))
   const [history, setHistory] = useState(() => getStored('history'))
+  const { trackFavorite, trackView } = useUser()
 
   function toggle(id) {
     setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+      const added = !prev.includes(id)
+      const next = added ? [...prev, id] : prev.filter((f) => f !== id)
       localStorage.setItem('favorites', JSON.stringify(next))
+      trackFavorite(id, added)
       return next
     })
   }
@@ -30,6 +34,7 @@ export function FavoritesProvider({ children }) {
     setHistory((prev) => {
       const next = [id, ...prev.filter((h) => h !== id)]
       localStorage.setItem('history', JSON.stringify(next))
+      trackView(id)
       return next
     })
   }

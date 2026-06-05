@@ -19,9 +19,9 @@ function Header() {
                     <Link to="/login">Login</Link>
                 ) : (
                     <>
-                        <Link to="/">Home</Link>
+                        {user.role !== 'chef' && <Link to="/">Home</Link>}
                         <Link to="/recipes">Receitas</Link>
-                        <Link to="/chefs">Chefes</Link>
+                        {user.role !== 'chef' && <Link to="/chefs">Chefes</Link>}
                         {user.role === 'chef' ? (
                             <>
                                 <Link to="/publish">Publicar Receita</Link>
@@ -30,7 +30,6 @@ function Header() {
                         ) : (
                             <Link to="/profile">Perfil</Link>
                         )}
-
                     </>
                 )}
             </nav>

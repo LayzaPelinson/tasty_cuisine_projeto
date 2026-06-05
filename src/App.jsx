@@ -24,20 +24,21 @@ function ScrollToTop() {
   return null
 }
 
-function ProtectedRoute({ children, chefOnly = false }) {
+function ProtectedRoute({ children, chefOnly = false, chefRedirect = false }) {
   const { user } = useUser()
   if (!user) return <Navigate to="/login" replace />
   if (chefOnly && user.role !== 'chef') return <Navigate to="/" replace />
+  if (chefRedirect && user.role === 'chef') return <Navigate to="/recipes" replace />
   return children
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<ProtectedRoute chefRedirect><Home /></ProtectedRoute>} />
       <Route path="/login" element={<Login />} />
       <Route path="/recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
-      <Route path="/chefs" element={<ProtectedRoute><Chefs /></ProtectedRoute>} />
+      <Route path="/chefs" element={<ProtectedRoute chefRedirect><Chefs /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/chef-profile" element={<ProtectedRoute chefOnly><ChefProfile /></ProtectedRoute>} />
       <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetails /></ProtectedRoute>} />
@@ -50,8 +51,8 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-    <FavoritesProvider>
     <UserProvider>
+    <FavoritesProvider>
     <div className="app">
       <ScrollToTop />
       <Header />
@@ -60,8 +61,8 @@ function App() {
       </main>
       <Footer />
       </div>
-    </UserProvider>
     </FavoritesProvider>
+    </UserProvider>
     </BrowserRouter>
   )
 }

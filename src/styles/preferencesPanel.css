@@ -27,19 +27,25 @@
   gap:14px;
   flex-wrap:wrap;
 }
-.diet-tags button{
-  border:1px solid #ddd;
-  background:#ffffff;
-  color:#000000;
-  padding:12px 20px;
-  border-radius:999px;
-  cursor:pointer;
-  font-size:15px;
+.diet-tags button,
+.diet-tags span {
+  border: 2px solid #ddd;
+  background: #ffffff;
+  color: #000000;
+  padding: 12px 20px;
+  border-radius: 999px;
+  cursor: default;
+  font-size: 15px;
 }
-.diet-tags button.active{
-  background:#1d6b38;
-  color:white;
-  border:none;
+.diet-tags button {
+  cursor: pointer;
+}
+.diet-tags button.active,
+.diet-tags span.active {
+  background: #ffffff;
+  color: #1d6b38;
+  border: 2px solid #1d6b38;
+  font-weight: 600;
 }
 .account-actions{
   display:flex;
