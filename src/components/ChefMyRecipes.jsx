@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useUser } from '../hooks/useUser'
+import RecipeCard from './RecipeCard'
 import '../styles/favoriteRecipes.css'
 import '../styles/publishRecipe.css'
+import '../styles/recipesSection.css'
 
 const CATEGORIES = ['Almoço', 'Jantar', 'Sobremesas', 'Carnes', 'Peixes', 'Massas', 'Sem glúten', 'Vegetariana', 'Outras']
 const DIFFICULTIES = ['Fácil', 'Médio', 'Difícil']
@@ -91,20 +93,16 @@ function ChefMyRecipes() {
       {myRecipes.length === 0 ? (
         <p className="no-favorites">Você ainda não publicou nenhuma receita.</p>
       ) : (
-        <div className="chef-recipes-grid">
+        <div className="recipes-grid">
           {myRecipes.map(recipe => (
-            <div key={recipe.id} className="chef-recipe-item">
-              {recipe.image && <img src={recipe.image} alt={recipe.title} className="chef-recipe-img" />}
-              <div className="chef-recipe-info">
-                <h3>{recipe.title}</h3>
-                <p>{recipe.category} · {recipe.difficulty} · {recipe.time}</p>
-                <p className="chef-recipe-desc">{recipe.description}</p>
-              </div>
-              <div className="chef-recipe-actions">
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              actions={<>
                 <button className="btn-edit" onClick={() => setEditing(recipe)}>Editar</button>
                 <button className="btn-delete" onClick={() => deleteRecipe(recipe.id)}>Excluir</button>
-              </div>
-            </div>
+              </>}
+            />
           ))}
         </div>
       )}

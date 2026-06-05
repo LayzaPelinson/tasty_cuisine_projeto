@@ -6,6 +6,8 @@ import recipes from '../data/recipes'
 import { FiArrowLeft, FiHeart, FiShare2, FiClock, FiUser, FiInfo } from 'react-icons/fi'
 import '../styles/recipeDetails.css'
 
+const PLACEHOLDER = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=75'
+
 function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -26,7 +28,7 @@ function RecipeDetails() {
         <FiArrowLeft /> Voltar
       </button>
       <div className="recipe-header">
-        <img src={recipe.image} alt={recipe.title} />
+        <img src={recipe.image || PLACEHOLDER} alt={recipe.title} />
         <div className="recipe-details-info">
           <h1>{recipe.title}</h1>
           <div className="recipe-tags">

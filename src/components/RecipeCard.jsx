@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { useFavorites } from '../hooks/useFavorites.jsx'
 import { FiHeart, FiClock, FiUser } from 'react-icons/fi'
 
-function RecipeCard({ recipe }) {
+const PLACEHOLDER = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=75'
+
+function RecipeCard({ recipe, actions }) {
   const { isFavorite, toggle } = useFavorites()
   const favorited = isFavorite(recipe.id)
 
@@ -11,7 +13,7 @@ function RecipeCard({ recipe }) {
     <Link to={`/recipe/${recipe.id}`} className="recipe-link">
       <div className="recipe-card">
         <div className="recipe-image">
-          <img src={recipe.image} alt={recipe.title} />
+          <img src={recipe.image || PLACEHOLDER} alt={recipe.title} />
           <span className="recipe-category">{recipe.category}</span>
           <button
             className={`favorite-btn${favorited ? ' favorited' : ''}`}
@@ -27,7 +29,8 @@ function RecipeCard({ recipe }) {
             <span><FiClock /> {recipe.time}</span>
             <span><FiUser /> {recipe.chef}</span>
           </div>
-          <span className={`difficulty difficulty--${recipe.difficulty.toLowerCase()}`}>{recipe.difficulty}</span>
+          <span className={`difficulty difficulty--${(recipe.difficulty || '').toLowerCase()}`}>{recipe.difficulty}</span>
+          {actions && <div className="recipe-card-actions" onClick={e => e.preventDefault()}>{actions}</div>}
         </div>
       </div>
     </Link>
