@@ -1,0 +1,110 @@
+.publish-page {
+  min-height: 100vh;
+  background: #f4efe6;
+  padding: 50px 20px;
+}
+.publish-page h1 {
+  text-align: center;
+  font-size: 64px;
+  color: #f47c20;
+  font-family: "Cormorant Garamond", serif;
+  margin-bottom: 16px;
+}
+.publish-subtitle {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 40px;
+}
+/* CARD */
+.recipe-form-card {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.recipe-form-card h2 {
+  text-align: center;
+  color: #f47c20;
+  font-size: 48px;
+  font-family: "Cormorant Garamond", serif;
+  margin-bottom: 10px;
+}
+.recipe-form-card > p {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 18px;
+}
+/* TÍTULOS */
+.recipe-form-card h3 {
+  color: #f47c20;
+  font-size: 24px;
+  margin-bottom: 18px;
+  margin-top: 30px;
+  font-family: "Cormorant Garamond", serif;
+}
+/* FORM */
+.recipe-form-card form {
+  display: flex;
+  flex-direction: column;
+}
+.recipe-form-card label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+.recipe-form-card input,
+.recipe-form-card textarea,
+.recipe-form-card select {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #d6d6d6;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.recipe-form-card input:focus,
+.recipe-form-card textarea:focus,
+.recipe-form-card select:focus {
+  border-color: #f47c20;
+}
+/* GRID-3 */
+.recipe-form-card .grid-3 {
+  margin-top: 20px;
+}
+.recipe-form-card textarea {
+  resize: vertical;
+}
+/* GRIDS */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+/* INPUT FILE */
+.file-input {
+  background: white;
+}
+/* BOTÃO */
+.recipe-form-card button {
+  margin-top: 30px;
+  height: 58px;
+  border: none;
+  border-radius: 6px;
+  background: #f47c20;
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .3s;
+}
+.recipe-form-card button:hover {
+  background: #dd6f16;
+}
