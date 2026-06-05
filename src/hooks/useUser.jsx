@@ -23,13 +23,20 @@ export function UserProvider({ children }) {
 
   function logout() { setUser(null) }
 
+  function changePassword(currentPassword, newPassword) {
+    if (user.password !== currentPassword) return false
+    setUser(u => ({ ...u, password: newPassword }))
+    setAccounts(prev => prev.map(a => a.id === user.id ? { ...a, password: newPassword } : a))
+    return true
+  }
+
   function publishRecipe(recipe) {
     const newRecipe = { ...recipe, id: Date.now(), chefId: user.id, chef: user.name }
     setChefRecipes(prev => [...prev, newRecipe])
   }
 
   return (
-    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, chefRecipes, publishRecipe }}>
+    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, changePassword, chefRecipes, publishRecipe }}>
       {children}
     </UserContext.Provider>
   )

@@ -58,6 +58,34 @@
   color:#ff4d4d;
   border:1px solid #ff4d4d;
 }
+.pwd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 360px;
+}
+.pwd-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+.pwd-form input {
+  padding: 9px 13px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+}
+.pwd-form input:focus {
+  border-color: #f58220;
+}
+.login-error {
+  color: #ff4d4d;
+  font-size: 13px;
+}
 .profile-form {
   display: flex;
   flex-direction: column;
