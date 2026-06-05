@@ -35,8 +35,16 @@ export function UserProvider({ children }) {
     setChefRecipes(prev => [...prev, newRecipe])
   }
 
+  function deleteRecipe(id) {
+    setChefRecipes(prev => prev.filter(r => r.id !== id))
+  }
+
+  function editRecipe(id, updated) {
+    setChefRecipes(prev => prev.map(r => r.id === id ? { ...r, ...updated } : r))
+  }
+
   return (
-    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, changePassword, chefRecipes, publishRecipe }}>
+    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, changePassword, chefRecipes, publishRecipe, deleteRecipe, editRecipe }}>
       {children}
     </UserContext.Provider>
   )

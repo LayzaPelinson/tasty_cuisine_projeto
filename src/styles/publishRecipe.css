@@ -93,7 +93,7 @@
   background: white;
 }
 /* BOTÃO */
-.recipe-form-card button {
+.recipe-form-card button[type="submit"] {
   margin-top: 30px;
   height: 58px;
   border: none;
@@ -105,6 +105,150 @@
   cursor: pointer;
   transition: .3s;
 }
-.recipe-form-card button:hover {
+.recipe-form-card button[type="submit"]:hover {
   background: #dd6f16;
 }
+
+/* GRID DE RECEITAS DO CHEF */
+.chef-recipes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.chef-recipe-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+}
+.chef-recipe-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.chef-recipe-info {
+  flex: 1;
+}
+.chef-recipe-info h3 {
+  font-size: 18px;
+  color: #2c1d18;
+  margin-bottom: 4px;
+}
+.chef-recipe-info p {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+.chef-recipe-desc {
+  margin-top: 6px !important;
+  color: #555 !important;
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.chef-recipe-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-edit {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #f47c20;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+.btn-edit:hover { background: #dd6f16; }
+.btn-delete {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+.btn-delete:hover { background: #c53030; }
+
+/* MODAL DE EDIÇÃO */
+.edit-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 32px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+.edit-modal h2 {
+  text-align: center;
+  color: #f47c20;
+  font-size: 32px;
+  font-family: "Cormorant Garamond", serif;
+  margin-bottom: 20px;
+}
+.edit-modal label {
+  display: block;
+  font-weight: 600;
+  margin: 14px 0 6px;
+}
+.edit-modal input,
+.edit-modal textarea,
+.edit-modal select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+}
+.edit-modal input:focus,
+.edit-modal textarea:focus,
+.edit-modal select:focus { border-color: #f47c20; }
+.edit-modal textarea { resize: vertical; }
+.edit-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+.btn-save {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 8px;
+  background: #f47c20;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+.btn-save:hover { background: #dd6f16; }
+.btn-cancel {
+  padding: 10px 28px;
+  border: 1px solid #d6d6d6;
+  border-radius: 8px;
+  background: #fff;
+  color: #555;
+  font-size: 16px;
+  cursor: pointer;
+  transition: .2s;
+}
+.btn-cancel:hover { background: #f5f5f5; }
