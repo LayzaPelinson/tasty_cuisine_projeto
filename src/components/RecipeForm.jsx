@@ -3,7 +3,7 @@ import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import '../styles/publishRecipe.css'
 
-const CATEGORIES = ['Almoço', 'Jantar', 'Sobremesas', 'Carnes', 'Peixes', 'Massas', 'Sem glúten', 'Vegetariana']
+const CATEGORIES = ['Almoço', 'Jantar', 'Sobremesas', 'Carnes', 'Peixes', 'Massas', 'Sem glúten', 'Vegetariana', 'Outras']
 const DIFFICULTIES = ['Fácil', 'Médio', 'Difícil']
 
 function RecipeForm() {
@@ -51,11 +51,15 @@ function RecipeForm() {
         </div>
 
         <h3>Detalhes da Receita</h3>
-        <label>Título da Receita</label>
-        <input name="title" value={form.title} onChange={handleChange} placeholder="Ex: Risotto ai Funghi Porcini" required />
+        <div>
+          <label>Título da Receita</label>
+          <input name="title" value={form.title} onChange={handleChange} placeholder="Ex: Risotto ai Funghi Porcini" required />
+        </div>
 
-        <label>Descrição</label>
-        <textarea name="description" rows="2" value={form.description} onChange={handleChange} placeholder="Breve descrição da receita" required />
+        <div>
+          <label>Descrição</label>
+          <textarea name="description" rows="2" value={form.description} onChange={handleChange} placeholder="Breve descrição da receita" required />
+        </div>
 
         <div className="grid-3">
           <div>
@@ -76,17 +80,25 @@ function RecipeForm() {
           </div>
         </div>
 
-        <label>Ingredientes</label>
-        <textarea name="ingredients" rows="5" value={form.ingredients} onChange={handleChange} placeholder={"Liste os ingredientes, um por linha.\nEx: 300g de arroz arbóreo"} required />
+        <div>
+          <label>Ingredientes</label>
+          <textarea name="ingredients" rows="5" value={form.ingredients} onChange={handleChange} placeholder={"Liste os ingredientes, um por linha.\nEx: 300g de arroz arbóreo"} required />
+        </div>
 
-        <label>Modo de Preparo</label>
-        <textarea name="instructions" rows="5" value={form.instructions} onChange={handleChange} placeholder={"Descreva o passo a passo, um por linha.\nEx: 1. Refogue a cebola na manteiga."} required />
+        <div>
+          <label>Modo de Preparo</label>
+          <textarea name="instructions" rows="5" value={form.instructions} onChange={handleChange} placeholder={"Descreva o passo a passo, um por linha.\nEx: 1. Refogue a cebola na manteiga."} required />
+        </div>
 
-        <label>Dica do Chefe</label>
-        <textarea name="chefTip" rows="4" value={form.chefTip} onChange={handleChange} placeholder="Compartilhe uma dica especial para essa receita..." />
+        <div>
+          <label>Dica do Chefe</label>
+          <textarea name="chefTip" rows="4" value={form.chefTip} onChange={handleChange} placeholder="Compartilhe uma dica especial para essa receita..." />
+        </div>
 
-        <label>Foto da Receita</label>
-        <input type="file" className="file-input" accept="image/*" onChange={handleImage} />
+        <div>
+          <label>Foto da Receita</label>
+          <input type="file" className="file-input" accept="image/*" onChange={handleImage} />
+        </div>
 
         <button type="submit">Publicar Receita</button>
       </form>

@@ -2,13 +2,16 @@ import RecipeCard from './RecipeCard'
 import recipes from '../data/recipes'
 import '../styles/recipesSection.css'
 import { useEffect, useRef } from 'react'
+import { useUser } from '../hooks/useUser'
 
 function RecipesSection({ showHeader = true, category, limit, search, locked = false, onGuestClick }) {
+  const { chefRecipes } = useUser()
+  const allRecipes = [...recipes, ...(chefRecipes || [])]
   const norm = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   const q = norm(search || '')
   const sectionRef = useRef(null)
 
-  const filtered = recipes
+  const filtered = allRecipes
     .filter((r) => !q && category ? r.category === category : true)
     .filter((r) =>
       !q ||

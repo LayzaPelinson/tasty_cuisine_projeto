@@ -4,9 +4,13 @@ import '../styles/publishRecipe.css'
 function PublishRecipe() {
   return (
     <div className="publish-page">
-      <h1>Publicar Receita</h1>
-      <p className="publish-subtitle">Compartilhe sua receita com a comunidade Confeitiço.</p>
-      <RecipeForm />
+      <div className="publish-page-header">
+        <h1>Publicar Receita</h1>
+        <p className="publish-subtitle">Compartilhe sua receita com a comunidade Confeitiço.</p>
+      </div>
+      <div className="publish-page-body">
+        <RecipeForm />
+      </div>
     </div>
   );
 }

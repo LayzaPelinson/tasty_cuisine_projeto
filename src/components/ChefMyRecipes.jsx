@@ -3,7 +3,7 @@ import { useUser } from '../hooks/useUser'
 import '../styles/favoriteRecipes.css'
 import '../styles/publishRecipe.css'
 
-const CATEGORIES = ['Almoço', 'Jantar', 'Sobremesas', 'Carnes', 'Peixes', 'Massas', 'Sem glúten', 'Vegetariana']
+const CATEGORIES = ['Almoço', 'Jantar', 'Sobremesas', 'Carnes', 'Peixes', 'Massas', 'Sem glúten', 'Vegetariana', 'Outras']
 const DIFFICULTIES = ['Fácil', 'Médio', 'Difícil']
 
 function EditModal({ recipe, onSave, onClose }) {

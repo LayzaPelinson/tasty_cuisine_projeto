@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useFavorites } from '../hooks/useFavorites.jsx'
+import { useUser } from '../hooks/useUser.jsx'
 import recipes from '../data/recipes'
 import { FiArrowLeft, FiHeart, FiShare2, FiClock, FiUser, FiInfo } from 'react-icons/fi'
 import '../styles/recipeDetails.css'
@@ -9,7 +10,9 @@ function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { isFavorite, toggle, addToHistory } = useFavorites()
-  const recipe = recipes.find(item => item.id === Number(id))
+  const { chefRecipes } = useUser()
+  const allRecipes = [...recipes, ...(chefRecipes || [])]
+  const recipe = allRecipes.find(item => item.id === Number(id))
 
   useEffect(() => {
     if (recipe) addToHistory(recipe.id)
