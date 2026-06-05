@@ -1,0 +1,78 @@
+.chef-stats-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chef-stats-overview,
+.chef-settings-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.05);
+}
+
+.chef-stats-overview h2,
+.chef-settings-card h2 {
+  color: #f47b20;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-family: "Cormorant Garamond", serif;
+}
+
+.chef-stats-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.chef-stat-card {
+  flex: 1;
+  min-width: 160px;
+  background: #fdf6ee;
+  border-radius: 16px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #f0e4d0;
+}
+
+.stat-value {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #f47b20;
+  font-family: "Cormorant Garamond", serif;
+}
+
+.stat-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.stat-sub {
+  font-size: 0.82rem;
+  color: #888;
+}
+
+.chef-settings-card .account-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.chef-settings-card .account-actions button {
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #000;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.chef-settings-card .account-actions .logout {
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+}

@@ -5,8 +5,8 @@ import '../styles/editProfilePanel.css'
 
 function EditProfilePanel({ editing, setEditing }) {
   const { user, setUser, DIET_OPTIONS } = useUser()
-  const [form, setForm] = useState({ name: user.name, email: user.email })
-  const [prefs, setPrefs] = useState(user.preferences)
+  const [form, setForm] = useState({ name: user?.name ?? '', email: user?.email ?? '' })
+  const [prefs, setPrefs] = useState(user?.preferences ?? [])
 
   useEffect(() => {
     if (editing) {

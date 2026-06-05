@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 
 import '../styles/global.css'
 import '../styles/profile.css'
@@ -9,13 +10,17 @@ import EditProfilePanel from '../components/EditProfilePanel'
 import FavoriteRecipes from '../components/FavoriteRecipes'
 import PreferencesPanel from '../components/PreferencesPanel'
 import HistoryPanel from '../components/HistoryPanel'
+import { useUser } from '../hooks/useUser'
 
 function Profile() {
+  const { user } = useUser()
   const [activeTab, setActiveTab] = useState('favorites')
   const [editing, setEditing] = useState(false)
 
+  if (!user) return <Navigate to="/login" replace />
+
   return (
-    <main className="profile-page">
+    <div className="profile-page">
       <ProfileHeader setActiveTab={() => setEditing(e => !e)} />
       <EditProfilePanel editing={editing} setEditing={setEditing} />
       <ProfileTabs
@@ -25,7 +30,7 @@ function Profile() {
       {activeTab === 'favorites' && <FavoriteRecipes />}
       {activeTab === 'history' && <HistoryPanel />}
       {activeTab === 'preferences' && <PreferencesPanel />}
-    </main>
+    </div>
   )
 }
 

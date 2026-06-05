@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Recipes from './pages/Recipes'
 import Chefs from './pages/Chefs'
 import Profile from './pages/Profile'
+import ChefProfile from './pages/ChefProfile'
 import RecipeDetails from './pages/RecipeDetails'
 import ChefDetails from './pages/ChefDetails'
 import Login from './pages/Login'
@@ -37,6 +38,7 @@ function App() {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/chefs" element={<Chefs />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/chef-profile" element={<ChefProfile />} />
         <Route path="/recipe/:id" element={<RecipeDetails />} />
         <Route path="/chef/:id" element={<ChefDetails />} />
         <Route path="/login" element={<Login />} />

@@ -7,6 +7,7 @@ const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Prote
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null)
   const [accounts, setAccounts] = useState([])
+  const [chefRecipes, setChefRecipes] = useState([])
 
   function register(data) {
     const newAccount = { ...data, id: Date.now() }
@@ -22,8 +23,13 @@ export function UserProvider({ children }) {
 
   function logout() { setUser(null) }
 
+  function publishRecipe(recipe) {
+    const newRecipe = { ...recipe, id: Date.now(), chefId: user.id, chef: user.name }
+    setChefRecipes(prev => [...prev, newRecipe])
+  }
+
   return (
-    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout }}>
+    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, chefRecipes, publishRecipe }}>
       {children}
     </UserContext.Provider>
   )

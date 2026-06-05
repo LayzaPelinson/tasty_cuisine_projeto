@@ -32,10 +32,10 @@ function Login() {
     setError('')
     if (mode === 'register') {
       register({ ...form, role: activeTab })
-      navigate('/')
+      navigate(activeTab === 'chef' ? '/chef-profile' : '/')
     } else {
       const ok = login(form.email, form.password, activeTab)
-      if (ok) navigate('/')
+      if (ok) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
       else setError('E-mail ou senha inválidos.')
     }
   }
