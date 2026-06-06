@@ -31,10 +31,6 @@ function Home() {
     const navigate = useNavigate()
     const [showModal, setShowModal] = useState(false)
 
-    function handleGuest(e) {
-        if (!user) { e.preventDefault(); setShowModal(true) }
-    }
-
     return (
         <>
             {showModal && <GuestModal onClose={() => setShowModal(false)} />}
@@ -45,12 +41,8 @@ function Home() {
                     <p>Descubra receitas saudáveis que elevam o simples ao especial.</p>
                     <p>Feitas para tornar cada momento mais especial.</p>
                     <div className="home-buttons">
-                        <Link to="/recipes" onClick={handleGuest}>
-                            <button className="primary-btn">Explore Receitas</button>
-                        </Link>
-                        <Link to="/chefs" onClick={handleGuest}>
-                            <button className="secondary-btn">Conhecer Chefes</button>
-                        </Link>
+                        <button className="primary-btn" onClick={user ? () => navigate('/recipes') : () => setShowModal(true)}>Explore Receitas</button>
+                        <button className="secondary-btn" onClick={user ? () => navigate('/chefs') : () => setShowModal(true)}>Conhecer Chefes</button>
                     </div>
                 </div>
                 <div className="home-images">

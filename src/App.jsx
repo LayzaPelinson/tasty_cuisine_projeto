@@ -35,7 +35,7 @@ function ProtectedRoute({ children, chefOnly = false, chefRedirect = false }) {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<ProtectedRoute chefRedirect><Home /></ProtectedRoute>} />
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
       <Route path="/chefs" element={<ProtectedRoute chefRedirect><Chefs /></ProtectedRoute>} />
