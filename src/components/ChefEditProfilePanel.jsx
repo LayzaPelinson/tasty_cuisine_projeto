@@ -4,27 +4,36 @@ import { FiSave } from 'react-icons/fi'
 import '../styles/editProfilePanel.css'
 
 function ChefEditProfilePanel({ editing, setEditing }) {
-  const { user, setUser } = useUser()
+  const { user, updateChefProfile } = useUser()
   const [form, setForm] = useState({
     name: user?.name ?? '',
     email: user?.email ?? '',
-    specialty: user?.specialty ?? '',
-    location: user?.location ?? '',
+    age: user?.age ?? '',
   })
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (editing) {
       setForm({
         name: user?.name ?? '',
         email: user?.email ?? '',
-        specialty: user?.specialty ?? '',
-        location: user?.location ?? '',
+        age: user?.age ?? '',
       })
+      setError('')
     }
-  }, [editing])
+  }, [editing, user])
 
-  function handleSave() {
-    setUser(u => ({ ...u, ...form }))
+  async function handleSave() {
+    setError('')
+    const result = await updateChefProfile({
+      name: form.name,
+      email: form.email,
+      age: form.age,
+    })
+    if (!result.ok) {
+      setError(result.error || 'Falha ao salvar perfil')
+      return
+    }
     setEditing(false)
   }
 
@@ -42,14 +51,11 @@ function ChefEditProfilePanel({ editing, setEditing }) {
           <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
         </label>
         <label>
-          Especialidade
-          <input value={form.specialty} onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))} />
-        </label>
-        <label>
-          Localização
-          <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
+          Idade
+          <input type="number" min="14" max="100" value={form.age} onChange={e => setForm(f => ({ ...f, age: e.target.value }))} />
         </label>
       </div>
+      {error && <p className="login-error">{error}</p>}
       <button className="edit-save-btn" onClick={handleSave}>
         <FiSave /> Salvar
       </button>

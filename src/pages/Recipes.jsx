@@ -5,7 +5,6 @@ import RecipesSection from '../components/RecipesSection'
 import Categories from '../components/Categories'
 import RecipeCard from '../components/RecipeCard'
 import { useUser } from '../hooks/useUser'
-import recipes from '../data/recipes'
 import '../styles/recipesSection.css'
 import '../styles/recipesHero.css'
 import { FiSearch } from 'react-icons/fi'
@@ -13,13 +12,13 @@ import { FiSearch } from 'react-icons/fi'
 const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 
 function ChefRecipesView() {
-  const { chefRecipes } = useUser()
+  const { user, recipes, recipesLoaded } = useUser()
   const [search, setSearch] = useState('')
-  const allRecipes = [...recipes, ...chefRecipes]
+  const allRecipes = recipes || []
   const q = norm(search)
 
   const filtered = q
-    ? allRecipes.filter(r =>
+    ? allRecipes.filter((r) =>
         norm(r.title).includes(q) ||
         norm(r.category).includes(q) ||
         norm(r.chef || '').includes(q) ||
@@ -34,6 +33,10 @@ function ChefRecipesView() {
     return acc
   }, {})
 
+  if (!recipesLoaded) {
+    return <p style={{ textAlign: 'center', color: '#888', fontSize: '18px' }}>Carregando receitas...</p>
+  }
+
   return (
     <div style={{ background: '#f4efe6', minHeight: '100vh', padding: '60px 8%' }}>
       <h1 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '56px', color: '#f47c20', textAlign: 'center', marginBottom: '32px' }}>
@@ -45,7 +48,7 @@ function ChefRecipesView() {
           type="text"
           placeholder="Buscar por nome, chef, categoria ou dificuldade..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
       {Object.keys(byChef).length === 0 ? (
@@ -57,7 +60,7 @@ function ChefRecipesView() {
               {chefName}
             </h2>
             <div className="recipes-grid">
-              {chefRecipesList.map(recipe => (
+              {chefRecipesList.map((recipe) => (
                 <RecipeCard key={recipe.id} recipe={recipe} />
               ))}
             </div>

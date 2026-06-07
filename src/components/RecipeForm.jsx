@@ -13,23 +13,32 @@ function RecipeForm() {
     title: '', description: '', category: 'Almoço', difficulty: 'Fácil',
     time: '', ingredients: '', instructions: '', chefTip: '', image: '',
   })
+  const [error, setError] = useState(null)
 
   function handleChange(e) {
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
   }
 
   function handleImage(e) {
     const file = e.target.files[0]
-    if (file) setForm(f => ({ ...f, image: URL.createObjectURL(file) }))
+    if (file) setForm((f) => ({ ...f, image: URL.createObjectURL(file) }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    publishRecipe({
+    setError(null)
+
+    const result = await publishRecipe({
       ...form,
-      ingredients: form.ingredients.split('\n').filter(Boolean),
-      instructions: form.instructions.split('\n').filter(Boolean),
+      ingredients: form.ingredients.split('\n').map((line) => line.trim()).filter(Boolean),
+      instructions: form.instructions.split('\n').map((line) => line.trim()).filter(Boolean),
     })
+
+    if (!result.ok) {
+      setError(result.error || 'Falha ao publicar a receita.')
+      return
+    }
+
     navigate('/chef-profile')
   }
 
@@ -45,8 +54,8 @@ function RecipeForm() {
             <input type="text" value={user?.name ?? ''} readOnly />
           </div>
           <div>
-            <label>Especialidade do Chefe:</label>
-            <input type="text" value={user?.specialty ?? ''} readOnly />
+            <label>Nome do Chefe:</label>
+            <input type="text" value={user?.name ?? ''} readOnly />
           </div>
         </div>
 
@@ -65,13 +74,13 @@ function RecipeForm() {
           <div>
             <label>Categoria</label>
             <select name="category" value={form.category} onChange={handleChange}>
-              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div>
             <label>Dificuldade</label>
             <select name="difficulty" value={form.difficulty} onChange={handleChange}>
-              {DIFFICULTIES.map(d => <option key={d}>{d}</option>)}
+              {DIFFICULTIES.map((d) => <option key={d}>{d}</option>)}
             </select>
           </div>
           <div>
@@ -100,6 +109,7 @@ function RecipeForm() {
           <input type="file" className="file-input" accept="image/*" onChange={handleImage} />
         </div>
 
+        {error && <p className="error-text">{error}</p>}
         <button type="submit">Publicar Receita</button>
       </form>
     </section>

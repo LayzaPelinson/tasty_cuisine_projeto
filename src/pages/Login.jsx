@@ -9,7 +9,7 @@ const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Prote
 function Login() {
   const [activeTab, setActiveTab] = useState('usuario')
   const [mode, setMode] = useState('login') // 'login' | 'register'
-  const [form, setForm] = useState({ name: '', email: '', password: '', specialty: '', location: '', preferences: [] })
+  const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
   const { login, register } = useUser()
   const navigate = useNavigate()
@@ -31,12 +31,15 @@ function Login() {
     e.preventDefault()
     setError('')
     if (mode === 'register') {
-      register({ ...form, role: activeTab })
-      navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+      register({ ...form, role: activeTab }).then(res => {
+        if (res && res.ok) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+        else setError(res.error || 'Falha no cadastro')
+      })
     } else {
-      const ok = login(form.email, form.password, activeTab)
-      if (ok) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
-      else setError('E-mail ou senha inválidos.')
+      login(form.email, form.password, activeTab).then(ok => {
+        if (ok) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+        else setError('E-mail ou senha inválidos.')
+      })
     }
   }
 
@@ -67,17 +70,16 @@ function Login() {
             <label>E-mail</label>
             <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="seu@email.com" required />
 
+            {mode === 'register' && (
+              <>
+                <label>Idade</label>
+                <input name="age" type="number" min="14" max="100" value={form.age} onChange={handleChange} placeholder="Sua idade" required />
+              </>
+            )}
+
             <label>Senha</label>
             <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" required />
 
-            {mode === 'register' && isChef && (
-              <>
-                <label>Especialidade</label>
-                <input name="specialty" value={form.specialty} onChange={handleChange} placeholder="ex: Culinária Italiana" required />
-                <label>Localização</label>
-                <input name="location" value={form.location} onChange={handleChange} placeholder="ex: São Paulo, Brasil" required />
-              </>
-            )}
 
 
             <button type="submit" className="login-btn">

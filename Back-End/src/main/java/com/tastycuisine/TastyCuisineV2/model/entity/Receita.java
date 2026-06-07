@@ -26,9 +26,24 @@ public class Receita {
     @NotBlank
     private String descricao;
 
-    @Column(name = "Manual2", nullable = false, columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "Modo_preparo", nullable = false, columnDefinition = "NVARCHAR(MAX)")
     @NotBlank
-    private String manual2;
+    private String modoPreparo;
+
+    @Column(name = "Ingredientes", columnDefinition = "NVARCHAR(MAX)")
+    private String ingredientes;
+
+    @Column(name = "Categoria", length = 100)
+    private String categoria;
+
+    @Column(name = "Dificuldade", length = 50)
+    private String dificuldade;
+
+    @Column(name = "Tempo", length = 50)
+    private String tempo;
+
+    @Column(name = "Dica", columnDefinition = "NVARCHAR(MAX)")
+    private String dica;
 
     @ManyToOne
     @JoinColumn(name = "Cod_chefe", nullable = false)

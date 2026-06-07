@@ -4,6 +4,7 @@ import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
 import com.tastycuisine.TastyCuisineV2.model.repository.ReceitaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class ReceitaService {
     @Autowired
     private ReceitaRepository receitaRepository;
 
+    @Transactional(readOnly = true)
     public List<Receita> findAll() { return receitaRepository.findAll(); }
 
     public Receita save(Receita receita) { return receitaRepository.save(receita); }
@@ -26,7 +28,12 @@ public class ReceitaService {
         Receita existente = findById(codReceitas);
         existente.setNomeReceita(receita.getNomeReceita());
         existente.setDescricao(receita.getDescricao());
-        existente.setManual2(receita.getManual2());
+        existente.setModoPreparo(receita.getModoPreparo());
+        existente.setIngredientes(receita.getIngredientes());
+        existente.setCategoria(receita.getCategoria());
+        existente.setDificuldade(receita.getDificuldade());
+        existente.setTempo(receita.getTempo());
+        existente.setDica(receita.getDica());
         existente.setChefe(receita.getChefe());
         existente.setFotoReceita(receita.getFotoReceita());
         return receitaRepository.save(existente);

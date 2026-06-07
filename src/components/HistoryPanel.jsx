@@ -1,11 +1,12 @@
 import RecipeCard from './RecipeCard'
-import recipes from '../data/recipes'
 import { useFavorites } from '../hooks/useFavorites.jsx'
+import { useUser } from '../hooks/useUser'
 import '../styles/favoriteRecipes.css'
 
 function HistoryPanel() {
   const { history } = useFavorites()
-  const visited = history.map((id) => recipes.find((r) => r.id === id)).filter(Boolean)
+  const { recipes } = useUser()
+  const visited = history.map((id) => (recipes || []).find((r) => r.id === id)).filter(Boolean)
 
   return (
     <div className="favorite-recipes">

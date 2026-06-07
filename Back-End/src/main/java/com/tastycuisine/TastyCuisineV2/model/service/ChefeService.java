@@ -24,12 +24,12 @@ public class ChefeService {
 
     public Chefe update(long codChefe, Chefe chefe) {
         Chefe existente = findById(codChefe);
-        existente.setNomeUsuario(chefe.getNomeUsuario());
-        existente.setNomeCompleto(chefe.getNomeCompleto());
-        existente.setIdade(chefe.getIdade());
-        existente.setSenha(chefe.getSenha());
-        existente.setGmail(chefe.getGmail());
-        existente.setFotoPerfil(chefe.getFotoPerfil());
+        if (chefe.getNomeUsuario() != null) existente.setNomeUsuario(chefe.getNomeUsuario());
+        if (chefe.getNomeCompleto() != null) existente.setNomeCompleto(chefe.getNomeCompleto());
+        if (chefe.getIdade() != 0) existente.setIdade(chefe.getIdade());
+        if (chefe.getSenha() != null) existente.setSenha(chefe.getSenha());
+        if (chefe.getGmail() != null) existente.setGmail(chefe.getGmail());
+        if (chefe.getFotoPerfil() != null) existente.setFotoPerfil(chefe.getFotoPerfil());
         return chefeRepository.save(existente);
     }
 

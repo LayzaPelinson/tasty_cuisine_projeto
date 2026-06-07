@@ -40,6 +40,10 @@ CREATE TABLE Receitas (
     Descricao NVARCHAR(250) NOT NULL,
     Modo_preparo NVARCHAR(MAX) NOT NULL,
     Ingredientes NVARCHAR(MAX),
+    Categoria NVARCHAR(100),
+    Dificuldade NVARCHAR(50),
+    Tempo NVARCHAR(50),
+    Dica NVARCHAR(MAX),
     Cod_chefe INT NOT NULL,
     Foto_receita VARBINARY(MAX),
     FOREIGN KEY (Cod_chefe) REFERENCES Chefe(Cod_chefe),
@@ -365,3 +369,5 @@ FROM vw_UsuariosInativos
 ORDER BY Dias_Desde_Ultimo_Acesso DESC;
  
 SELECT * FROM Usuario
+SELECT * FROM Chefe
+Select * from Receitas

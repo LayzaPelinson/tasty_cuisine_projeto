@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useFavorites } from '../hooks/useFavorites.jsx'
 import { useUser } from '../hooks/useUser.jsx'
-import recipes from '../data/recipes'
 import { FiArrowLeft, FiHeart, FiShare2, FiClock, FiUser, FiInfo } from 'react-icons/fi'
 import '../styles/recipeDetails.css'
 
@@ -12,17 +11,16 @@ function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { isFavorite, toggle, addToHistory } = useFavorites()
-  const { user, chefRecipes } = useUser()
-  const allRecipes = [...recipes, ...(chefRecipes || [])]
-  const recipe = allRecipes.find(item => item.id === Number(id))
+  const { user, recipes, recipesLoaded } = useUser()
+  const recipe = recipes.find((item) => item.id === Number(id))
   const isChef = user?.role === 'chef'
 
   useEffect(() => {
     if (recipe) addToHistory(recipe.id)
   }, [recipe?.id])
 
-  async function handleShare() {
-    const data = { title: recipe.title, text: recipe.description, url: window.location.href }
+  async function handleShare(recipeToShare) {
+    const data = { title: recipeToShare.title, text: recipeToShare.description, url: window.location.href }
     if (navigator.share) {
       await navigator.share(data)
     } else {
@@ -31,6 +29,7 @@ function RecipeDetails() {
     }
   }
 
+  if (!recipesLoaded) return <h1>Carregando receita...</h1>
   if (!recipe) return <h1>Receita não encontrada</h1>
 
   return (
@@ -43,11 +42,11 @@ function RecipeDetails() {
         <div className="recipe-details-info">
           <h1>{recipe.title}</h1>
           <div className="recipe-tags">
-            <span className="tag">{recipe.category}</span>
-            <span className="tag easy">{recipe.difficulty}</span>
+            <span className="tag">{recipe.category || 'Geral'}</span>
+            <span className="tag easy">{recipe.difficulty || 'Médio'}</span>
           </div>
           <div className="recipe-meta">
-            <span><FiClock /> {recipe.time}</span>
+            <span><FiClock /> {recipe.time || '—'}</span>
             <span><FiUser /> {recipe.chef}</span>
           </div>
           <p>{recipe.description}</p>
@@ -59,7 +58,7 @@ function RecipeDetails() {
               >
                 <FiHeart /> {isFavorite(recipe.id) ? 'Receita Salva' : 'Salvar Receita'}
               </button>
-              <button className="share-btn" onClick={handleShare}>
+              <button className="share-btn" onClick={() => handleShare(recipe)}>
                 <FiShare2 /> Compartilhar
               </button>
             </div>
@@ -70,7 +69,7 @@ function RecipeDetails() {
         <div className="ingredients">
           <h2>Ingredientes</h2>
           <ul>
-            {recipe.ingredients.map((item, index) => (
+            {(recipe.ingredients || []).map((item, index) => (
               <li key={index}>{item}</li>
             ))}
           </ul>
@@ -78,7 +77,7 @@ function RecipeDetails() {
         <div className="instructions">
           <h2>Modo de Preparo</h2>
           <ol>
-            {recipe.instructions.map((step, index) => (
+            {(recipe.instructions || []).map((step, index) => (
               <li key={index}>{step}</li>
             ))}
           </ol>

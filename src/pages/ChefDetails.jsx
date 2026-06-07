@@ -24,8 +24,6 @@ function ChefDetails() {
         <div className="chef-details-info">
           <h1>{chef.name}</h1>
           <div className="chef-details-meta">
-            <span><FiCoffee /> {chef.specialty}</span>
-            <span><FiMapPin /> {chef.location}</span>
             <span><FiBook /> {chef.recipes} receitas</span>
           </div>
           <p>{chef.bio}</p>

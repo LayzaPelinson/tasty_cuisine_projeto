@@ -9,10 +9,8 @@ function ChefCard({ chef }) {
       <img src={chef.image} alt={chef.name} />
       <div className="chef-overlay">
         <h3>{chef.name}</h3>
-        <p>{chef.specialty}</p>
       </div>
       <div className="chef-footer">
-        <span><FiMapPin /> {chef.location}</span>
         <span><FiBook /> {chef.recipes} receitas</span>
       </div>
     </div>

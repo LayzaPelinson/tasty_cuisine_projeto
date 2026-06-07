@@ -25,8 +25,8 @@ function ProfileHeader({ setActiveTab }) {
           <input ref={inputRef} type="file" accept="image/*" hidden onChange={handlePhotoChange} />
         </div>
         <div>
-          <h1>{user.name}</h1>
-          <p>{user.email}</p>
+          <h1>{user.name ?? user.fullName ?? user.nomeCompleto ?? user.nomeUsuario}</h1>
+          <p>{user.email ?? user.gmail}</p>
         </div>
       </div>
       <button className="edit-profile-btn" onClick={() => setActiveTab()}>

@@ -1,11 +1,12 @@
 import RecipeCard from './RecipeCard'
-import recipes from '../data/recipes'
 import { useFavorites } from '../hooks/useFavorites.jsx'
+import { useUser } from '../hooks/useUser'
 import '../styles/favoriteRecipes.css'
 
 function FavoriteRecipes() {
   const { favorites } = useFavorites()
-  const favorited = recipes.filter((r) => favorites.includes(r.id))
+  const { recipes } = useUser()
+  const favorited = (recipes || []).filter((r) => favorites.includes(r.id))
 
   return (
     <section className="favorite-recipes">
