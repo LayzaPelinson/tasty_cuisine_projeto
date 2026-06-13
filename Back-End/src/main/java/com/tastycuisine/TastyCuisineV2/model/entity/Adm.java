@@ -26,7 +26,7 @@ public class Adm {
     @NotBlank
     private String gmail;
 
-    @Column(name = "Senha", length = 50, nullable = false)
+    @Column(name = "Senha", length = 250, nullable = false)
     @NotBlank
     private String senha;
 

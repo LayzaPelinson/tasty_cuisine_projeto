@@ -34,9 +34,6 @@ public class Avaliacao {
     @Max(value = 5, message = "Nota máxima é 5")
     private int nota;
 
-    @Column(name = "Comentario", length = 500)
-    private String comentario;
-
     @CreationTimestamp
     @Column(name = "Data_Avaliacao", updatable = false)
     private LocalDateTime dataAvaliacao;

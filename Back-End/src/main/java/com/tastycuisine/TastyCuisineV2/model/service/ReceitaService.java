@@ -4,7 +4,6 @@ import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
 import com.tastycuisine.TastyCuisineV2.model.repository.ReceitaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,7 +13,6 @@ public class ReceitaService {
     @Autowired
     private ReceitaRepository receitaRepository;
 
-    @Transactional(readOnly = true)
     public List<Receita> findAll() { return receitaRepository.findAll(); }
 
     public Receita save(Receita receita) { return receitaRepository.save(receita); }
@@ -30,13 +28,30 @@ public class ReceitaService {
         existente.setDescricao(receita.getDescricao());
         existente.setModoPreparo(receita.getModoPreparo());
         existente.setIngredientes(receita.getIngredientes());
-        existente.setCategoria(receita.getCategoria());
-        existente.setDificuldade(receita.getDificuldade());
-        existente.setTempo(receita.getTempo());
-        existente.setDica(receita.getDica());
         existente.setChefe(receita.getChefe());
         existente.setFotoReceita(receita.getFotoReceita());
         return receitaRepository.save(existente);
+    }
+
+    public List<Receita> findByChefe(long codChefe) {
+        return receitaRepository.findByChefeCodChefe(codChefe);
+    }
+
+    public List<Receita> buscar(String termo) {
+        return receitaRepository.findByNomeReceitaContainingIgnoreCase(termo);
+    }
+
+    public List<Receita> populares() {
+        return receitaRepository.findAll().stream()
+                .limit(10)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<Receita> findByCategoria(long codCategoria) {
+        return receitaRepository.findAll().stream()
+                .filter(r -> r.getCategorias().stream()
+                        .anyMatch(c -> c.getCodCategoria() == codCategoria))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     public void delete(long codReceitas) {

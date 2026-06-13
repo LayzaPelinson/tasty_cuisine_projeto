@@ -39,17 +39,6 @@ public class AcessoController {
         }
     }
 
-    @PutMapping("/{idAcesso}")
-    public ResponseEntity<Object> update(@Valid @RequestBody Acesso acesso, @PathVariable String idAcesso) {
-        try {
-            return ResponseEntity.ok(acessoService.update(Long.parseLong(idAcesso), acesso));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + idAcesso));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "acesso não encontrado com o id: " + idAcesso));
-        }
-    }
-
     @DeleteMapping("/{idAcesso}")
     public ResponseEntity<Object> delete(@PathVariable String idAcesso) {
         try {

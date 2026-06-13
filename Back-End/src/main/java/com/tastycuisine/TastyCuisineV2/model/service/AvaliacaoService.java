@@ -27,7 +27,6 @@ public class AvaliacaoService {
         existente.setUsuario(avaliacao.getUsuario());
         existente.setReceita(avaliacao.getReceita());
         existente.setNota(avaliacao.getNota());
-        existente.setComentario(avaliacao.getComentario());
         return avaliacaoRepository.save(existente);
     }
 

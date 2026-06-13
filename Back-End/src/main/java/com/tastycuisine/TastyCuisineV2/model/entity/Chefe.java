@@ -1,9 +1,10 @@
 package com.tastycuisine.TastyCuisineV2.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,7 +13,6 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "Chefe")
-@JsonIgnoreProperties({"senha"})
 public class Chefe {
 
     @Id
@@ -33,7 +33,7 @@ public class Chefe {
     @Max(value = 100, message = "A idade máxima permitida é 100 anos")
     private int idade;
 
-    @Column(name = "Senha", length = 70, nullable = false)
+    @Column(name = "Senha", length = 250, nullable = false)
     @NotBlank
     private String senha;
 
@@ -41,6 +41,14 @@ public class Chefe {
     @NotBlank
     private String gmail;
 
-    @Column(name = "foto_perfil")
-    private byte[] fotoPerfil;
+    @Column(name = "foto_perfil", columnDefinition = "NVARCHAR(MAX)")
+    private String fotoPerfil;
+
+    @ManyToMany
+    @JoinTable(
+        name = "Chefe_Categorias",
+        joinColumns = @JoinColumn(name = "Cod_chefe"),
+        inverseJoinColumns = @JoinColumn(name = "Cod_Categoria")
+    )
+    private List<Categoria> categorias;
 }

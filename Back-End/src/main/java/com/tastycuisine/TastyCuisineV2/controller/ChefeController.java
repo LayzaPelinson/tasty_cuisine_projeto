@@ -1,7 +1,5 @@
 package com.tastycuisine.TastyCuisineV2.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tastycuisine.TastyCuisineV2.model.entity.Chefe;
 import com.tastycuisine.TastyCuisineV2.model.service.ChefeService;
 import jakarta.validation.Valid;
@@ -20,77 +18,66 @@ public class ChefeController {
     @Autowired
     private ChefeService chefeService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @GetMapping("/findAll")
     public ResponseEntity<List<Chefe>> findAll() {
         return ResponseEntity.ok(chefeService.findAll());
     }
 
     @PostMapping
-    public ResponseEntity<Chefe> save(@RequestBody String rawBody) {
-        Chefe chefe = parseChefe(rawBody);
+    public ResponseEntity<Chefe> save(@Valid @RequestBody Chefe chefe) {
         return ResponseEntity.status(HttpStatus.CREATED).body(chefeService.save(chefe));
     }
 
     @GetMapping("/{codChefe}")
-    public ResponseEntity<Object> findById(@PathVariable String codChefe) {
+    public ResponseEntity<Object> findById(@PathVariable Long codChefe) {
         try {
-            return ResponseEntity.ok(chefeService.findById(Long.parseLong(codChefe)));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codChefe));
+            return ResponseEntity.ok(chefeService.findById(codChefe));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "chefe não encontrado com o id: " + codChefe));
         }
     }
 
     @PutMapping("/{codChefe}")
-    public ResponseEntity<Object> update(@RequestBody String rawBody, @PathVariable String codChefe) {
+    public ResponseEntity<Object> update(@RequestBody Chefe chefe, @PathVariable Long codChefe) {
         try {
-            Chefe chefe = parseChefe(rawBody);
-            return ResponseEntity.ok(chefeService.update(Long.parseLong(codChefe), chefe));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codChefe));
+            return ResponseEntity.ok(chefeService.update(codChefe, chefe));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "chefe não encontrado com o id: " + codChefe));
-        }
-    }
-
-    private Chefe parseChefe(String rawBody) {
-        String payload = rawBody == null ? "" : rawBody.trim();
-        try {
-            return objectMapper.readValue(payload, Chefe.class);
-        } catch (JsonProcessingException firstException) {
-            if (payload.startsWith("\"{") && payload.endsWith("}\"")) {
-                try {
-                    String unquoted = objectMapper.readValue(payload, String.class);
-                    return objectMapper.readValue(unquoted, Chefe.class);
-                } catch (JsonProcessingException ignored) {
-                    // fall through to fallback parsing
-                }
-            }
-            if (payload.contains("\\\"") || payload.contains("\\\\")) {
-                String cleaned = payload.replace("\\\"", "\"").replace("\\\\", "\\");
-                try {
-                    return objectMapper.readValue(cleaned, Chefe.class);
-                } catch (JsonProcessingException ignored) {
-                    // fall through to final failure
-                }
-            }
-            throw new IllegalArgumentException("Corpo JSON inválido para Chefe: " + firstException.getOriginalMessage(), firstException);
         }
     }
 
     @DeleteMapping("/{codChefe}")
-    public ResponseEntity<Object> delete(@PathVariable String codChefe) {
+    public ResponseEntity<Object> delete(@PathVariable Long codChefe) {
         try {
-            chefeService.delete(Long.parseLong(codChefe));
+            chefeService.delete(codChefe);
             return ResponseEntity.ok().body("Chefe com o id " + codChefe + " foi removido com sucesso");
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codChefe));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "chefe não encontrado com o id: " + codChefe));
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody Map<String, String> body) {
+        try {
+            String gmail = body.get("email");
+            String senha = body.get("senha");
+            return ResponseEntity.ok(chefeService.login(gmail, senha));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "error", "unauthorized",
+                    "message", "Email ou senha incorretos"
+            ));
+        }
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Chefe>> buscar(@RequestParam String termo) {
+        return ResponseEntity.ok(chefeService.buscar(termo));
+    }
+
+    @GetMapping("/populares")
+    public ResponseEntity<List<Chefe>> populares() {
+        return ResponseEntity.ok(chefeService.populares());
     }
 }
