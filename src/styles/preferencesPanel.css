@@ -64,6 +64,15 @@
   color:#ff4d4d;
   border:1px solid #ff4d4d;
 }
+.deactivate {
+  color: #b45309;
+  border: 1px solid #b45309;
+}
+.deactivate-confirm p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
 .pwd-form {
   display: flex;
   flex-direction: column;

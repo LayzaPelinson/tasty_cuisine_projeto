@@ -61,4 +61,13 @@ public class ComentarioController {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "comentário não encontrado com o id: " + codComentarios));
         }
     }
+
+    @GetMapping("/receita/{codReceita}")
+    public ResponseEntity<Object> findByReceita(@PathVariable String codReceita) {
+        try {
+            return ResponseEntity.ok(comentarioService.findByReceita(Long.parseLong(codReceita)));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codReceita));
+        }
+    }
 }

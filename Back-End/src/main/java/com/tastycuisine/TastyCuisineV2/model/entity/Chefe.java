@@ -19,6 +19,10 @@ public class Chefe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Cod_chefe")
     private long codChefe;
+    
+    @Builder.Default()
+    @Column(name = "Status_Chefe", length =  20, nullable =  false)
+    private String Status_Chefe = "ATIVO";
 
     @Column(name = "Nome_usuario", length = 60, nullable = false)
     @NotBlank

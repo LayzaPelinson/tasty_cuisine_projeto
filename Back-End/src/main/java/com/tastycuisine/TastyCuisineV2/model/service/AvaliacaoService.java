@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AvaliacaoService {
@@ -15,7 +16,12 @@ public class AvaliacaoService {
 
     public List<Avaliacao> findAll() { return avaliacaoRepository.findAll(); }
 
-    public Avaliacao save(Avaliacao avaliacao) { return avaliacaoRepository.save(avaliacao); }
+    public Avaliacao save(Avaliacao avaliacao) { 
+        if(avaliacaoRepository.findByReceitaCodReceitasAndUsuarioCodUser(avaliacao.getReceita().getCodReceitas(),avaliacao.getUsuario().getCodUser()).isPresent()){
+            return avaliacaoRepository.save(avaliacao); 
+        }
+        else return null;
+    }
 
     public Avaliacao findById(long codAvaliacao) {
         return avaliacaoRepository.findById(codAvaliacao)
@@ -32,5 +38,9 @@ public class AvaliacaoService {
 
     public void delete(long codAvaliacao) {
         avaliacaoRepository.delete(findById(codAvaliacao));
+    }
+
+    public Optional<Avaliacao> findByReceita(long codReceitas) {
+        return avaliacaoRepository.findByReceitaCodReceitas(codReceitas);
     }
 }

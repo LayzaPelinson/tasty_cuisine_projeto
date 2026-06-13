@@ -104,6 +104,70 @@
 .file-input {
   background: white;
 }
+/* INGREDIENTES / PASSOS */
+.ingredient-inputs {
+  display: grid;
+  grid-template-columns: 120px 140px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+.step-inputs {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+.step-inputs textarea {
+  flex: 1;
+}
+.add-btn {
+  white-space: nowrap;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #1f6b34;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+.add-btn:hover { background: #18552a; }
+.items-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.items-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9f5ef;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+.items-list li button {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+  line-height: 1;
+}
+ol.items-list { list-style: none; counter-reset: step-counter; }
+ol.items-list li::before {
+  counter-increment: step-counter;
+  content: counter(step-counter) ". ";
+  font-weight: 600;
+  color: #f47c20;
+  margin-right: 6px;
+}
 /* BOTÃO */
 .recipe-form-card button[type="submit"] {
   margin-top: 30px;
@@ -119,6 +183,17 @@
 }
 .recipe-form-card button[type="submit"]:hover {
   background: #dd6f16;
+}
+.publish-success {
+  background: #eaf7ee;
+  color: #1f6b34;
+  border: 1px solid #a8d5b5;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
 }
 
 .chef-recipe-wrapper {

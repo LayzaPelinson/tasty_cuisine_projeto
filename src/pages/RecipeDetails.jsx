@@ -1,23 +1,28 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
 import { useFavorites } from '../hooks/useFavorites.jsx'
 import { useUser } from '../hooks/useUser.jsx'
-import { FiArrowLeft, FiHeart, FiShare2, FiClock, FiUser, FiInfo } from 'react-icons/fi'
+import { FiArrowLeft, FiHeart, FiShare2, FiUser } from 'react-icons/fi'
+import RecipeComments from '../components/RecipeComments'
 import '../styles/recipeDetails.css'
 
 const PLACEHOLDER = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=75'
 
+function parseList(value) {
+  if (!value) return []
+  if (Array.isArray(value)) return value
+  try { return JSON.parse(value) } catch { return [] }
+}
+
 function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { isFavorite, toggle, addToHistory } = useFavorites()
+  const { isFavorite, toggle } = useFavorites()
   const { user, recipes, recipesLoaded } = useUser()
   const recipe = recipes.find((item) => item.id === Number(id))
   const isChef = user?.role === 'chef'
 
-  useEffect(() => {
-    if (recipe) addToHistory(recipe.id)
-  }, [recipe?.id])
+  const ingredients = parseList(recipe?.ingredients)
+  const instructions = parseList(recipe?.instructions)
 
   async function handleShare(recipeToShare) {
     const data = { title: recipeToShare.title, text: recipeToShare.description, url: window.location.href }
@@ -46,7 +51,6 @@ function RecipeDetails() {
             <span className="tag easy">{recipe.difficulty || 'Médio'}</span>
           </div>
           <div className="recipe-meta">
-            <span><FiClock /> {recipe.time || '—'}</span>
             <span><FiUser /> {recipe.chef}</span>
           </div>
           <p>{recipe.description}</p>
@@ -69,26 +73,25 @@ function RecipeDetails() {
         <div className="ingredients">
           <h2>Ingredientes</h2>
           <ul>
-            {(recipe.ingredients || []).map((item, index) => (
-              <li key={index}>{item}</li>
+            {ingredients.map((item, index) => (
+              <li key={index}>
+                {typeof item === 'object'
+                  ? `${item.quantidade} ${item.unidade} — ${item.nome}`
+                  : item}
+              </li>
             ))}
           </ul>
         </div>
         <div className="instructions">
           <h2>Modo de Preparo</h2>
           <ol>
-            {(recipe.instructions || []).map((step, index) => (
+            {instructions.map((step, index) => (
               <li key={index}>{step}</li>
             ))}
           </ol>
-          {recipe.chefTip && (
-            <div className="chef-tip">
-              <h3><FiInfo /> Dica do Chef</h3>
-              <p>{recipe.chefTip}</p>
-            </div>
-          )}
         </div>
       </div>
+      <RecipeComments recipeId={recipe.id} isUsuario={!isChef && !!user} />
     </section>
   )
 }

@@ -14,9 +14,9 @@ function normalizeUser(entity, role) {
     role,
     username: entity.username ?? entity.nomeUsuario ?? entity.nomeDeUsuario,
     photo: entity.photo ?? entity.fotoPerfil,
-    preferences: entity.preferences ?? entity.restricoesAlimentares
+    preferences: entity.restricoesAlimentares
       ? entity.restricoesAlimentares.split(',').map(pref => pref.trim()).filter(Boolean)
-      : [],
+      : (entity.preferences ?? []),
   }
 }
 
@@ -122,16 +122,66 @@ export function UserProvider({ children }) {
 
   async function login(email, password, role) {
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, role })
+      const endpoint = role === 'chef' ? `${API_BASE}/chefe/login` : `${API_BASE}/usuario/login`
+      const res = await fetch(endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
       })
+      if (res.status === 403) return 'inactive'
       if (!res.ok) return false
       const body = await res.json()
-      setToken(body.token)
-      setUser(normalizeUser(body.user, role))
+      setUser(normalizeUser(body, role))
       return true
     } catch (err) {
       return false
+    }
+  }
+
+  async function reactivateAccount(email, password, role) {
+    try {
+      const endpoint = role === 'chef' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
+      const res = await fetch(endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
+      })
+      if (!res.ok) return { ok: false }
+      const body = await res.json()
+      setUser(normalizeUser(body, role))
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
+  }
+
+  async function deactivateAccount() {
+    if (!user) return { ok: false }
+    try {
+      const endpoint = user.role === 'chef'
+        ? `${API_BASE}/chefe/inativar/${user.id}`
+        : `${API_BASE}/usuario/delete/${user.id}`
+      const res = await fetch(endpoint, { method: 'PUT' })
+      if (!res.ok) return { ok: false }
+      setUser(null)
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
+  }
+
+  async function changePassword(currentPassword, newPassword) {
+    if (!user) return { ok: false }
+    try {
+      const endpoint = user.role === 'chef' ? `${API_BASE}/chefe/${user.id}` : `${API_BASE}/usuario/${user.id}`
+      const payload = user.role === 'chef'
+        ? { nomeUsuario: user.username, nomeCompleto: user.name, idade: user.age, gmail: user.email, senha: newPassword }
+        : { nomeCompleto: user.name, nomeDeUsuario: user.username, idade: user.age, gmail: user.email, senha: newPassword, restricoesAlimentares: user.preferences?.join(',') ?? null }
+      const res = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) return { ok: false }
+      return { ok: true }
+    } catch {
+      return { ok: false }
     }
   }
 
@@ -195,18 +245,14 @@ export function UserProvider({ children }) {
     if (!user || user.role !== 'chef') {
       return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
     }
-
     try {
       const payload = {
-        title: recipe.title,
-        description: recipe.description,
-        category: recipe.category,
-        difficulty: recipe.difficulty,
-        time: recipe.time,
-        chefTip: recipe.chefTip,
-        chefId: user.id,
-        ingredients: recipe.ingredients || [],
-        instructions: recipe.instructions || [],
+        nomeReceita: recipe.title,
+        descricao: recipe.description,
+        modoPreparo: JSON.stringify(recipe.instructions),
+        ingredientes: JSON.stringify(recipe.ingredients),
+        fotoReceita: recipe.image || null,
+        chefe: { codChefe: user.id },
       }
       const res = await fetch(`${API_BASE}/receita`, {
         method: 'POST',
@@ -229,8 +275,16 @@ export function UserProvider({ children }) {
 
   function logout() { setUser(null); setToken(null) }
 
-  function deleteRecipe(id) {
-    setChefRecipes(prev => prev.filter(r => r.id !== id))
+  async function deleteRecipe(id) {
+    try {
+      const res = await fetch(`${API_BASE}/receita/${id}`, { method: 'DELETE' })
+      if (!res.ok) return { ok: false }
+      setChefRecipes(prev => prev.filter(r => r.id !== id))
+      setRecipes(prev => prev.filter(r => r.id !== id))
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
   }
 
   function editRecipe(id, updated) {
@@ -253,7 +307,7 @@ export function UserProvider({ children }) {
   }
 
   return (
-    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView }}>
+    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, reactivateAccount, deactivateAccount, changePassword, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView }}>
       {children}
     </UserContext.Provider>
   )

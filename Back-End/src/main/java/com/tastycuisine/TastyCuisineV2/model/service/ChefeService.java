@@ -45,13 +45,32 @@ public class ChefeService {
         return chefeRepository.save(existente);
     }
 
-    public void delete(long codChefe) {
-        chefeRepository.delete(findById(codChefe));
+    public void inativar(long codChefe) {
+        Chefe chefe = findById(codChefe);
+        chefe.setStatus_Chefe("INATIVO");
+        chefeRepository.save(chefe);
+    }
+
+    public void ativar(long codChefe) {
+        Chefe chefe = findById(codChefe);
+        chefe.setStatus_Chefe("ATIVO");
+        chefeRepository.save(chefe);
+    }
+
+    public Chefe reativar(String gmail, String senha) {
+        Chefe chefe = chefeRepository.findByGmailAndSenha(gmail, senha)
+                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+        chefe.setStatus_Chefe("ATIVO");
+        return chefeRepository.save(chefe);
     }
 
     public Chefe login(String gmail, String senha) {
-        return chefeRepository.findByGmailAndSenha(gmail, senha)
-                .orElseThrow(() -> new RuntimeException("Email ou senha incorretos"));
+        Chefe chefe = chefeRepository.findByGmailAndSenha(gmail, senha)
+                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+        if ("INATIVO".equals(chefe.getStatus_Chefe())) {
+            throw new RuntimeException("CONTA_INATIVA");
+        }
+        return chefe;
     }
 
     public List<Chefe> buscar(String termo) {

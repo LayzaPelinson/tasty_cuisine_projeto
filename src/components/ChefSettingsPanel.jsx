@@ -3,27 +3,37 @@ import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import '../styles/chefStatsPanel.css'
 import '../styles/preferencesPanel.css'
+import '../styles/login.css'
 
 function ChefSettingsPanel() {
-  const { logout, changePassword } = useUser()
+  const { user, logout, changePassword, deactivateAccount } = useUser()
   const navigate = useNavigate()
   const [changingPwd, setChangingPwd] = useState(false)
   const [pwdForm, setPwdForm] = useState({ current: '', next: '', confirm: '' })
   const [pwdError, setPwdError] = useState('')
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false)
+  const [deactivateError, setDeactivateError] = useState('')
 
   function handleLogout() {
     logout()
     navigate('/login')
   }
 
-  function handleChangePassword(e) {
+  async function handleChangePassword(e) {
     e.preventDefault()
     setPwdError('')
     if (pwdForm.next !== pwdForm.confirm) return setPwdError('As senhas não coincidem.')
-    const ok = changePassword(pwdForm.current, pwdForm.next)
-    if (!ok) return setPwdError('Senha atual incorreta.')
+    const res = await changePassword(pwdForm.current, pwdForm.next)
+    if (!res.ok) return setPwdError('Falha ao alterar senha. Tente novamente.')
     setChangingPwd(false)
     setPwdForm({ current: '', next: '', confirm: '' })
+  }
+
+  async function handleDeactivate() {
+    setDeactivateError('')
+    const res = await deactivateAccount()
+    if (res.ok) { logout(); navigate('/login') }
+    else setDeactivateError('Falha ao inativar conta. Tente novamente.')
   }
 
   return (
@@ -40,9 +50,19 @@ function ChefSettingsPanel() {
             <button type="button" onClick={() => { setChangingPwd(false); setPwdError('') }}>Cancelar</button>
           </div>
         </form>
+      ) : confirmDeactivate ? (
+        <div className="deactivate-confirm">
+          <p>Tem certeza que deseja inativar sua conta? Você poderá reativá-la no login.</p>
+          {deactivateError && <p className="login-error">{deactivateError}</p>}
+          <div className="account-actions">
+            <button className="deactivate" onClick={handleDeactivate}>Confirmar Inativação</button>
+            <button onClick={() => { setConfirmDeactivate(false); setDeactivateError('') }}>Cancelar</button>
+          </div>
+        </div>
       ) : (
         <div className="account-actions">
           <button onClick={() => setChangingPwd(true)}>Alterar Senha</button>
+          <button className="deactivate" onClick={() => setConfirmDeactivate(true)}>Inativar Conta</button>
           <button className="logout" onClick={handleLogout}>Sair da Conta</button>
         </div>
       )}
