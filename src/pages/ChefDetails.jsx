@@ -32,7 +32,7 @@ function ChefDetails() {
       </button>
 
       <div className="chef-details-header">
-        <img src={chef.fotoPerfil ?? imagemPadrao} alt={chefe.nomeCompleto} className="chef-details-img" />
+        <img src={chefe.fotoPerfil ?? imagemPadrao} alt={chefe.nomeCompleto} className="chef-details-img" />
         <div className="chef-details-info">
           <h1>{chefe.nomeCompleto}</h1>
           <div className="chef-details-meta">
