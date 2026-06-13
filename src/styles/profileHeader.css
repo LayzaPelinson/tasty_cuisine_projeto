@@ -66,3 +66,70 @@
   font-weight: 500;
   color: white;
 }
+
+.edit-profile-photo{
+  margin-top: 15px;
+}
+
+.edit-profile-input{
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  border: none;
+  padding: 6px 10px;
+  padding-right: 80px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(0, 0, 0);
+  margin-top: 5px;
+}
+
+.edit-profile-cancel{
+  display: inline-flex;
+  align-items: center;
+  background: #f52020;
+  padding: 8px 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  margin-left: 5px;
+  border: none;
+}
+
+.edit-profile-confirm{
+  display: inline-flex;
+  align-items: center;
+  background: #f58220;
+  padding: 8px 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  border: none;
+}
+
+.edit-profile-cancel:hover{
+  background: #a71717;
+  padding: 10px 17px;
+}
+
+.edit-profile-confirm:hover{
+  background: #9e5413;
+  padding: 10px 17px;
+}
+
+.button{
+  margin-top: 15px;
+}
+
+.edit-profile-h3{
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  color: #f58220;
+  margin-bottom: 5px;
+}

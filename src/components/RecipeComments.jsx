@@ -53,7 +53,7 @@ function RecipeComments({ recipeId, isUsuario }) {
       .then(data => setComments(Array.isArray(data) ? data : []))
       .catch(() => setComments([]))
   }, [recipeId])
-  5
+  
 
   async function handleSubmit(e) {
     e.preventDefault()

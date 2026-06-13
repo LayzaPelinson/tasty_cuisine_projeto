@@ -11,7 +11,7 @@ function RecipeCard({ recipe, actions }) {
   const { user } = useUser()
   const favorited = isFavorite(recipe.id)
   const isChef = user?.role === 'chef'
-
+  console.log(recipe)
   return (
     <Link to={`/recipe/${recipe.id}`} className="recipe-link">
       <div className="recipe-card">

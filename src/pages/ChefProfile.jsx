@@ -21,7 +21,7 @@ function ChefProfile() {
 
   return (
     <div className="profile-page">
-      <ProfileHeader setActiveTab={() => setEditing(e => !e)} />
+      <ProfileHeader setActiveTab={() => setEditing(e => !e)} isChefe={true} />
       <ChefEditProfilePanel editing={editing} setEditing={setEditing} />
       <ChefProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === 'recipes' && <ChefMyRecipes />}
