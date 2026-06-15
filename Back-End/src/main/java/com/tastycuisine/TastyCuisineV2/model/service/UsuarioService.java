@@ -28,6 +28,12 @@ public class UsuarioService {
         return usuarioRepository.findById(codUser)
                 .orElseThrow(()-> new RuntimeException("Usuario não encontrado com o código " + codUser));
     }
+    public Usuario atualizarFoto(Long codUser, String base64) {
+    Usuario usuario = usuarioRepository.findById(codUser)
+        .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + codUser));
+    usuario.setFotoPerfil(base64);
+    return usuarioRepository.save(usuario);
+}
 
     //atualizar usuario
     public Usuario update(long codUser, Usuario usuario) {

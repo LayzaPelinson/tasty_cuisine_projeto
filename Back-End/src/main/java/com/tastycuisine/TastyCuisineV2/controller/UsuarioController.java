@@ -44,9 +44,9 @@ public class UsuarioController {
             return ResponseEntity.ok(usuarioService.findById(codUser));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(
-                    Map.of("status", 404,
-                            "error", "not found",
-                            "message", "usuario não encontrado com o id: " + codUser)
+                Map.of("status", 404,
+                       "error", "not found",
+                       "message", "usuario não encontrado com o id: " + codUser)
             );
         }
     }
@@ -57,13 +57,12 @@ public class UsuarioController {
             return ResponseEntity.ok(usuarioService.update(codUser, usuario));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(
-                    Map.of("status", 404,
-                            "error", "not found",
-                            "message", "usuario não encontrado com o id: " + codUser)
+                Map.of("status", 404,
+                       "error", "not found",
+                       "message", "usuario não encontrado com o id: " + codUser)
             );
         }
     }
-    
 
     @PutMapping("/delete/{codUser}")
     public ResponseEntity<Object> deleteUsuario(@PathVariable Long codUser) {
@@ -72,9 +71,9 @@ public class UsuarioController {
             return ResponseEntity.ok().body("Usuario com o id " + codUser + " foi desativado com sucesso");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(
-                    Map.of("status", 404,
-                            "error", "not found",
-                            "message", "usuario não encontrado com o id: " + codUser)
+                Map.of("status", 404,
+                       "error", "not found",
+                       "message", "usuario não encontrado com o id: " + codUser)
             );
         }
     }
@@ -85,12 +84,40 @@ public class UsuarioController {
             return ResponseEntity.ok(usuarioService.ativate(codUser));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(
-                    Map.of("status", 404,
-                            "error", "not found",
-                            "message", "usuario não encontrado com o id: " + codUser)
+                Map.of("status", 404,
+                       "error", "not found",
+                       "message", "usuario não encontrado com o id: " + codUser)
             );
         }
     }
+
+    // ── NOVO: atualiza somente a foto de perfil ─────────────────────────────
+    // PATCH /usuario/:id/foto
+    // Body: { "fotoPerfil": "data:image/jpeg;base64,/9j/4AAQ..." }
+    @PatchMapping("/{codUser}/foto")
+    public ResponseEntity<Object> atualizarFoto(
+            @PathVariable Long codUser,
+            @RequestBody Map<String, String> body) {
+        try {
+            String base64 = body.get("fotoPerfil");
+            if (base64 == null || base64.isBlank()) {
+                return ResponseEntity.badRequest().body(
+                    Map.of("status", 400,
+                           "error", "bad_request",
+                           "message", "Campo fotoPerfil é obrigatório")
+                );
+            }
+            Usuario atualizado = usuarioService.atualizarFoto(codUser, base64);
+            return ResponseEntity.ok(atualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(
+                Map.of("status", 404,
+                       "error", "not found",
+                       "message", "usuario não encontrado com o id: " + codUser)
+            );
+        }
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> body) {
@@ -107,9 +134,9 @@ public class UsuarioController {
                 ));
             }
             return ResponseEntity.status(401).body(Map.of(
-                    "status", 401,
-                    "error", "unauthorized",
-                    "message", "Email ou senha incorretos"
+                "status", 401,
+                "error", "unauthorized",
+                "message", "Email ou senha incorretos"
             ));
         }
     }
@@ -122,9 +149,9 @@ public class UsuarioController {
             return ResponseEntity.ok(usuarioService.reativar(gmail, senha));
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).body(Map.of(
-                    "status", 401,
-                    "error", "unauthorized",
-                    "message", "Email ou senha incorretos"
+                "status", 401,
+                "error", "unauthorized",
+                "message", "Email ou senha incorretos"
             ));
         }
     }

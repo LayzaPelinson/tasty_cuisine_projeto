@@ -20,18 +20,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table (name = "Usuario")
+@Table(name = "Usuario")
 @Entity
 public class Usuario {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Cod_user")
     private long codUser;
 
-
-    @Builder.Default()
-    @Column(name = "Status_Usuario", length =  20, nullable =  false)
+    @Builder.Default
+    @Column(name = "Status_Usuario", length = 20, nullable = false)
     private String Status_Usuario = "ATIVO";
 
     @Column(name = "nome_completo", length = 300, nullable = false)
@@ -55,8 +54,11 @@ public class Usuario {
     @NotBlank
     private String senha;
 
-
     @Column(name = "Restricoes_alimentares", nullable = true, columnDefinition = "NVARCHAR(MAX)")
     private String restricoesAlimentares;
 
+    // ── NOVO: foto de perfil salva como base64 ──────────────────────────────
+    // Mesmo padrão do campo foto_perfil da entidade Chefe
+    @Column(name = "foto_perfil", nullable = true, columnDefinition = "NVARCHAR(MAX)")
+    private String fotoPerfil;
 }
