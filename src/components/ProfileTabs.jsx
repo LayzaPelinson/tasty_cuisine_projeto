@@ -1,4 +1,4 @@
-import { FiHeart, FiSliders } from 'react-icons/fi'
+import { FiHeart, FiSliders, FiClock } from 'react-icons/fi'
 import '../styles/profileTabs.css'
 
 function ProfileTabs({ activeTab, setActiveTab }) {
@@ -9,6 +9,12 @@ function ProfileTabs({ activeTab, setActiveTab }) {
         onClick={() => setActiveTab('favorites')}
       >
         <FiHeart /> Favoritos
+      </button>
+      <button
+        className={activeTab === 'history' ? 'active' : ''}
+        onClick={() => setActiveTab('history')}
+      >
+        <FiClock /> Histórico
       </button>
       <button
         className={activeTab === 'preferences' ? 'active' : ''}

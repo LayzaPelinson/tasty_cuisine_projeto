@@ -1,5 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useUser } from '../hooks/useUser.jsx'
+import { useFavorites } from '../hooks/useFavorites.jsx'
 import { FiArrowLeft, FiHeart, FiShare2, FiUser } from 'react-icons/fi'
 import RecipeComments from '../components/RecipeComments'
 import '../styles/recipeDetails.css'
@@ -19,9 +21,14 @@ function RecipeDetails() {
   const recipe = recipes.find((item) => item.id === Number(id))
   const isChef = user?.role === 'chef'
 
+  const { addToHistory } = useFavorites()
   const ingredients = parseList(recipe?.ingredients)
   const instructions = parseList(recipe?.instructions)
   const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
+
+  useEffect(() => {
+    if (recipe) addToHistory(recipe.id)
+  }, [recipe?.id])
 
 
   async function handleShare(recipeToShare) {

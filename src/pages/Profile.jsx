@@ -8,6 +8,7 @@ import ProfileHeader from '../components/ProfileHeader'
 import ProfileTabs from '../components/ProfileTabs'
 import EditProfilePanel from '../components/EditProfilePanel'
 import FavoriteRecipes from '../components/FavoriteRecipes'
+import HistoryPanel from '../components/HistoryPanel'
 import PreferencesPanel from '../components/PreferencesPanel'
 import { useUser } from '../hooks/useUser'
 
@@ -24,6 +25,7 @@ function Profile() {
       <EditProfilePanel editing={editing} setEditing={setEditing} />
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === 'favorites' && <FavoriteRecipes />}
+      {activeTab === 'history' && <HistoryPanel />}
       {activeTab === 'preferences' && <PreferencesPanel />}
     </div>
   )
