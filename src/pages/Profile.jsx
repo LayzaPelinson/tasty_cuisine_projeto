@@ -9,26 +9,21 @@ import ProfileTabs from '../components/ProfileTabs'
 import EditProfilePanel from '../components/EditProfilePanel'
 import FavoriteRecipes from '../components/FavoriteRecipes'
 import PreferencesPanel from '../components/PreferencesPanel'
-import HistoryPanel from '../components/HistoryPanel'
 import { useUser } from '../hooks/useUser'
 
 function Profile() {
-  const { user } = useUser()
+  const { user, loading } = useUser()
   const [activeTab, setActiveTab] = useState('favorites')
   const [editing, setEditing] = useState(false)
 
-  if (!user) return <Navigate to="/login" replace />
+  if (!user && !loading) return <Navigate to="/login" replace />
 
   return (
     <div className="profile-page">
       <ProfileHeader setActiveTab={() => setEditing(e => !e)} />
       <EditProfilePanel editing={editing} setEditing={setEditing} />
-      <ProfileTabs
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === 'favorites' && <FavoriteRecipes />}
-      {activeTab === 'history' && <HistoryPanel />}
       {activeTab === 'preferences' && <PreferencesPanel />}
     </div>
   )

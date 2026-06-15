@@ -39,14 +39,22 @@ public class FavoritoController {
         }
     }
 
-    @PutMapping("/{codFavoritos}")
-    public ResponseEntity<Object> update(@Valid @RequestBody Favorito favorito, @PathVariable String codFavoritos) {
+    @GetMapping("/usuario/{codUser}")
+    public ResponseEntity<Object> findByUsuario(@PathVariable String codUser) {
         try {
-            return ResponseEntity.ok(favoritoService.update(Long.parseLong(codFavoritos), favorito));
+            return ResponseEntity.ok(favoritoService.findByUsuario(Long.parseLong(codUser)));
         } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codFavoritos));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "favorito não encontrado com o id: " + codFavoritos));
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codUser));
+        }
+    }
+
+    @GetMapping("/verificar/{codUser}/{codReceitas}")
+    public ResponseEntity<Object> verificar(@PathVariable String codUser, @PathVariable String codReceitas) {
+        try {
+            boolean isFavorito = favoritoService.verificar(Long.parseLong(codUser), Long.parseLong(codReceitas));
+            return ResponseEntity.ok(Map.of("isFavorito", isFavorito));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "id informado não é válido"));
         }
     }
 

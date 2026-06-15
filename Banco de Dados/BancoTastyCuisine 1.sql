@@ -1,10 +1,13 @@
+IF EXISTS(select * from sys.databases where name = 'TASTYCUISINE')
+    DROP DATABASE TASTYCUISINE
+GO
 CREATE DATABASE TASTYCUISINE
 GO
- 
+USE MASTER
+GO
 USE TASTYCUISINE
 GO
- 
- 
+
 CREATE TABLE Usuario (
     Cod_user INT IDENTITY(1,1) PRIMARY KEY,
     Status_User BIT,
@@ -13,17 +16,19 @@ CREATE TABLE Usuario (
     Idade INT NOT NULL,
     Gmail NVARCHAR(255) NOT NULL UNIQUE,
     Senha NVARCHAR(250) NOT NULL,
-    Restricoes_alimentares NVARCHAR(MAX),
+    Status_Usuario NVARCHAR(20) NOT NULL DEfault 'ATIVO',
+    Restricoes_alimentares NVARCHAR(MAX) default 'lactose',
 );
 -- 3. Tabela de Chefe
 CREATE TABLE Chefe (
     Cod_chefe INT IDENTITY(1,1) PRIMARY KEY,
+    Status_Chefe NVARCHAR(20) NOT NULL DEfault 'ATIVO',
     Nome_usuario NVARCHAR(60) NOT NULL,
     Nome_completo NVARCHAR(300) NOT NULL,
     Idade INT NOT NULL,
     Senha NVARCHAR(250) NOT NULL,
     Gmail NVARCHAR(255) NOT NULL UNIQUE,
-    foto_perfil VARBINARY(MAX)
+    foto_perfil NVARCHAR(MAX) NULL
 );
  
 -- 4. Tabela de Categorias
@@ -40,12 +45,8 @@ CREATE TABLE Receitas (
     Descricao NVARCHAR(250) NOT NULL,
     Modo_preparo NVARCHAR(MAX) NOT NULL,
     Ingredientes NVARCHAR(MAX),
-    Categoria NVARCHAR(100),
-    Dificuldade NVARCHAR(50),
-    Tempo NVARCHAR(50),
-    Dica NVARCHAR(MAX),
     Cod_chefe INT NOT NULL,
-    Foto_receita VARBINARY(MAX),
+    Foto_receita NVARCHAR(MAX),
     FOREIGN KEY (Cod_chefe) REFERENCES Chefe(Cod_chefe),
     CONSTRAINT chk_ingredientes CHECK (Ingredientes IS NULL OR ISJSON(Ingredientes) = 1),
     CONSTRAINT chk_modo_preparo CHECK (ISJSON(Modo_preparo) = 1)
@@ -368,6 +369,9 @@ SELECT *
 FROM vw_UsuariosInativos
 ORDER BY Dias_Desde_Ultimo_Acesso DESC;
  
+ go
+ alter table usuario add foto_perfil NVARCHAR(MAX) NULL;
 SELECT * FROM Usuario
-SELECT * FROM Chefe
-Select * from Receitas
+Select * From Chefe
+select * from Receitas
+select * from Favoritos

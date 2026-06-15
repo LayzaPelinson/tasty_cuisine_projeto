@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,19 +20,25 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table (name = "Usuario")
+@Table(name = "Usuario")
 @Entity
 public class Usuario {
-    
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Cod_user")
     private long codUser;
 
+    @Builder.Default
+    @Column(name = "Status_Usuario", length = 20, nullable = false)
+    private String Status_Usuario = "ATIVO";
+
     @Column(name = "nome_completo", length = 300, nullable = false)
-    private String nomeCompleto; 
+    @NotBlank
+    private String nomeCompleto;
 
     @Column(name = "nome_de_usuario", length = 60, nullable = false)
+    @NotBlank
     private String nomeDeUsuario;
 
     @Column(nullable = false)
@@ -40,11 +47,18 @@ public class Usuario {
     private int idade;
 
     @Column(length = 255, nullable = false, unique = true)
+    @NotBlank
     private String gmail;
 
     @Column(length = 250, nullable = false)
+    @NotBlank
     private String senha;
 
-    @Column(name = "Restricoes_alimentares", length = 100, nullable = true)
+    @Column(name = "Restricoes_alimentares", nullable = true, columnDefinition = "NVARCHAR(MAX)")
     private String restricoesAlimentares;
+
+    // ── NOVO: foto de perfil salva como base64 ──────────────────────────────
+    // Mesmo padrão do campo foto_perfil da entidade Chefe
+    @Column(name = "foto_perfil", nullable = true, columnDefinition = "NVARCHAR(MAX)")
+    private String fotoPerfil;
 }

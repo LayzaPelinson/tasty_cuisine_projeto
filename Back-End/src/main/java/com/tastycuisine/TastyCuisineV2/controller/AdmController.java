@@ -70,4 +70,20 @@ public class AdmController {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "administrador não encontrado com o id: " + codModerador));
         }
     }
+
+    //login de administrador
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody Map<String, String> body) {
+        try {
+            String gmail = body.get("email");
+            String senha = body.get("senha");
+            return ResponseEntity.ok(admService.login(gmail, senha));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "error", "unauthorized",
+                    "message", "Email ou senha incorretos"
+            ));
+        }
+    }
 }

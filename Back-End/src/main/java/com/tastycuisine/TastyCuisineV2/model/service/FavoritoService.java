@@ -22,11 +22,12 @@ public class FavoritoService {
                 .orElseThrow(() -> new RuntimeException("Favorito não encontrado com o código " + codFavoritos));
     }
 
-    public Favorito update(long codFavoritos, Favorito favorito) {
-        Favorito existente = findById(codFavoritos);
-        existente.setUsuario(favorito.getUsuario());
-        existente.setReceita(favorito.getReceita());
-        return favoritoRepository.save(existente);
+    public List<Favorito> findByUsuario(long codUser) {
+        return favoritoRepository.findByUsuarioCodUser(codUser);
+    }
+
+    public boolean verificar(long codUser, long codReceitas) {
+        return favoritoRepository.findByUsuarioCodUserAndReceitaCodReceitas(codUser, codReceitas).isPresent();
     }
 
     public void delete(long codFavoritos) {

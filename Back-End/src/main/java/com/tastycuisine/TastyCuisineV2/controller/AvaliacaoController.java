@@ -61,4 +61,13 @@ public class AvaliacaoController {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "avaliação não encontrada com o id: " + codAvaliacao));
         }
     }
+
+    @GetMapping("/receita/{codReceita}")
+    public ResponseEntity<Object> findByReceita(@PathVariable String codReceita) {
+        try {
+            return ResponseEntity.ok(avaliacaoService.findByReceita(Long.parseLong(codReceita)));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codReceita));
+        }
+    }
 }

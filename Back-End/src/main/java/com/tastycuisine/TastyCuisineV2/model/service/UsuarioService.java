@@ -19,6 +19,7 @@ public class UsuarioService {
 
     // Salvar usuario
     public Usuario save(Usuario usuario) {
+        usuario.setStatus_Usuario("ATIVO");
         return usuarioRepository.save(usuario);
     }
 
@@ -27,25 +28,68 @@ public class UsuarioService {
         return usuarioRepository.findById(codUser)
                 .orElseThrow(()-> new RuntimeException("Usuario não encontrado com o código " + codUser));
     }
+    public Usuario atualizarFoto(Long codUser, String base64) {
+    Usuario usuario = usuarioRepository.findById(codUser)
+        .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + codUser));
+    usuario.setFotoPerfil(base64);
+    return usuarioRepository.save(usuario);
+}
 
     //atualizar usuario
     public Usuario update(long codUser, Usuario usuario) {
         Usuario usuarioExistente = findById(codUser);
-        usuarioExistente.setNomeCompleto(usuario.getNomeCompleto());
-        usuarioExistente.setNomeDeUsuario(usuario.getNomeDeUsuario());
-        usuarioExistente.setGmail(usuario.getGmail());
-        usuarioExistente.setIdade(usuario.getIdade());
-        usuarioExistente.setSenha(usuario.getSenha());
-        usuarioExistente.setRestricoesAlimentares(usuario.getRestricoesAlimentares());
+        if (usuario.getNomeCompleto() != null && !usuario.getNomeCompleto().isBlank()) {
+            usuarioExistente.setNomeCompleto(usuario.getNomeCompleto());
+        }
+        if (usuario.getNomeDeUsuario() != null && !usuario.getNomeDeUsuario().isBlank()) {
+            usuarioExistente.setNomeDeUsuario(usuario.getNomeDeUsuario());
+        }
+        if (usuario.getGmail() != null && !usuario.getGmail().isBlank()) {
+            usuarioExistente.setGmail(usuario.getGmail());
+        }
+        if (usuario.getIdade() > 0) {
+            usuarioExistente.setIdade(usuario.getIdade());
+        }
+        if (usuario.getSenha() != null && !usuario.getSenha().isBlank()) {
+            usuarioExistente.setSenha(usuario.getSenha());
+        }
+        if (usuario.getRestricoesAlimentares() != null) {
+            usuarioExistente.setRestricoesAlimentares(usuario.getRestricoesAlimentares());
+        }
         return usuarioRepository.save(usuarioExistente);
     }
     
 
-    //excluir usuario
-    public void delete (Long codUser){
+    //desativar usuario (delete lógico)
+    public void delete(Long codUser) {
         Usuario usuarioExistente = findById(codUser);
-        usuarioRepository.delete(usuarioExistente);
+        usuarioExistente.setStatus_Usuario("INATIVO");
+        usuarioRepository.save(usuarioExistente);
+    }
 
+    //alterar status do usuario (banir/reativar)
+    public Usuario ativate(Long codUser) {
+        Usuario usuarioExistente = findById(codUser);
+        usuarioExistente.setStatus_Usuario("ATIVO");
+        return usuarioRepository.save(usuarioExistente);
+    }
+
+    //login de usuario
+    public Usuario login(String gmail, String senha) {
+        Usuario usuario = usuarioRepository.findByGmailAndSenha(gmail, senha)
+                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+        if ("INATIVO".equals(usuario.getStatus_Usuario())) {
+            throw new RuntimeException("CONTA_INATIVA");
+        }
+        return usuario;
+    }
+
+    // reativar conta com senha
+    public Usuario reativar(String gmail, String senha) {
+        Usuario usuario = usuarioRepository.findByGmailAndSenha(gmail, senha)
+                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+        usuario.setStatus_Usuario("ATIVO");
+        return usuarioRepository.save(usuario);
     }
 
 

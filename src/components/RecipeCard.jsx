@@ -1,15 +1,14 @@
 import '../styles/recipeCard.css'
 import { Link } from 'react-router-dom'
-import { useFavorites } from '../hooks/useFavorites.jsx'
 import { useUser } from '../hooks/useUser.jsx'
 import { FiHeart, FiClock, FiUser } from 'react-icons/fi'
 
 const PLACEHOLDER = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=75'
 
 function RecipeCard({ recipe, actions }) {
-  const { isFavorite, toggle } = useFavorites()
-  const { user } = useUser()
-  const favorited = isFavorite(recipe.id)
+  const { user, favoritos, toggleFavorito } = useUser()
+  
+  const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
   const isChef = user?.role === 'chef'
 
   return (
@@ -20,9 +19,9 @@ function RecipeCard({ recipe, actions }) {
           <span className="recipe-category">{recipe.category}</span>
           {!isChef && (
             <button
-              className={`favorite-btn${favorited ? ' favorited' : ''}`}
-              onClick={(e) => { e.preventDefault(); toggle(recipe.id) }}
-              title={favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+              className={`favorite-btn${isFavorited ? ' favorited' : ''}`}
+              onClick={(e) => { e.preventDefault(); toggleFavorito(recipe.id) }}
+              title={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
             >
               <FiHeart />
             </button>

@@ -1,18 +1,17 @@
 import RecipeCard from './RecipeCard'
-import recipes from '../data/recipes'
 import '../styles/recipesSection.css'
 import { useEffect, useRef } from 'react'
 import { useUser } from '../hooks/useUser'
 
 function RecipesSection({ showHeader = true, category, limit, search, locked = false, onGuestClick }) {
-  const { chefRecipes } = useUser()
-  const allRecipes = [...recipes, ...(chefRecipes || [])]
-  const norm = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  const q = norm(search || '')
+  const { recipes, recipesLoaded } = useUser()
+  const allRecipes = recipes || []
+  const norm = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const q = String(search || '').toLowerCase()
   const sectionRef = useRef(null)
 
   const filtered = allRecipes
-    .filter((r) => !q && category ? r.category === category : true)
+    .filter((r) => (!q && category ? String(r.category || '').toLowerCase() === String(category).toLowerCase() : true))
     .filter((r) =>
       !q ||
       norm(r.title).includes(q) ||
@@ -29,8 +28,22 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
     return () => clearTimeout(timer)
   }, [q])
 
+  if (!recipesLoaded) {
+    return (
+      <section className="recipes-section" ref={sectionRef}>
+        {showHeader && (
+          <>
+            <span className="recipes-subtitle">Receitas em Destaque</span>
+            <h2>As mais populares da nossa comunidade.</h2>
+          </>
+        )}
+        <p className="no-results">Carregando receitas...</p>
+      </section>
+    )
+  }
+
   return (
-    <section className="recipes-section" ref={sectionRef}>
+      <section className="recipes-section" ref={sectionRef}>
       {showHeader && (
         <>
           <span className="recipes-subtitle">Receitas em Destaque</span>

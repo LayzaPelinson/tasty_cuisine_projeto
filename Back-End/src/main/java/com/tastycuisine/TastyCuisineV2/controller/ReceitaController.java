@@ -50,6 +50,34 @@ public class ReceitaController {
         }
     }
 
+    @GetMapping("/chefe/{codChefe}")
+    public ResponseEntity<Object> findByChefe(@PathVariable String codChefe) {
+        try {
+            return ResponseEntity.ok(receitaService.findByChefe(Long.parseLong(codChefe)));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codChefe));
+        }
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Receita>> buscar(@RequestParam String termo) {
+        return ResponseEntity.ok(receitaService.buscar(termo));
+    }
+
+    @GetMapping("/populares")
+    public ResponseEntity<List<Receita>> populares() {
+        return ResponseEntity.ok(receitaService.populares());
+    }
+
+    @GetMapping("/categoria/{codCategoria}")
+    public ResponseEntity<Object> findByCategoria(@PathVariable String codCategoria) {
+        try {
+            return ResponseEntity.ok(receitaService.findByCategoria(Long.parseLong(codCategoria)));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codCategoria));
+        }
+    }
+
     @DeleteMapping("/{codReceita}")
     public ResponseEntity<Object> delete(@PathVariable String codReceita) {
         try {

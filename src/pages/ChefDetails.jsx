@@ -1,17 +1,29 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import chefs from '../data/chefs'
+import { useState, useEffect } from 'react'
 import recipes from '../data/recipes'
 import RecipeCard from '../components/RecipeCard'
+import { useUser } from '../hooks/useUser.jsx'
 import { FiArrowLeft, FiMapPin, FiBook, FiCoffee } from 'react-icons/fi'
 import '../styles/chefDetails.css'
+import imagemPadrao from "../assets/img/chef.png"
+
+const API_BASE = 'http://localhost:8080'
 
 function ChefDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const chef = chefs.find(c => c.id === Number(id))
-  const chefRecipes = recipes.filter(r => r.chefId === Number(id))
+  const [chefe, setChefe] = useState(null)
+  const { recipes } = useUser()
 
-  if (!chef) return <h1>Chef não encontrado</h1>
+  useEffect(() => {
+    fetch(`${API_BASE}/chefe/${id}`)
+      .then(r => r.json())
+      .then(data => setChefe(data))
+  }, [id])
+
+  const chefRecipes = recipes.filter(r => r.chefId === Number(id))
+  console.log(chefe);
+  if (!chefe) return <h1>Chef não encontrado</h1>
 
   return (
     <section className="chef-details">
@@ -20,20 +32,18 @@ function ChefDetails() {
       </button>
 
       <div className="chef-details-header">
-        <img src={chef.image} alt={chef.name} className="chef-details-img" />
+        <img src={chefe.fotoPerfil ?? imagemPadrao} alt={chefe.nomeCompleto} className="chef-details-img" />
         <div className="chef-details-info">
-          <h1>{chef.name}</h1>
+          <h1>{chefe.nomeCompleto}</h1>
           <div className="chef-details-meta">
-            <span><FiCoffee /> {chef.specialty}</span>
-            <span><FiMapPin /> {chef.location}</span>
-            <span><FiBook /> {chef.recipes} receitas</span>
+            <span><FiBook /> {chefe.recipes} receitas</span>
           </div>
-          <p>{chef.bio}</p>
+          <p>{chefe.bio}</p>
         </div>
       </div>
 
       <div className="chef-details-recipes">
-        <h2>Receitas de {chef.name}</h2>
+        <h2>Receitas de {chefe.nomeCompleto}</h2>
         {chefRecipes.length === 0 ? (
           <p className="no-recipes">Nenhuma receita publicada ainda.</p>
         ) : (

@@ -22,14 +22,6 @@ public class AcessoService {
                 .orElseThrow(() -> new RuntimeException("Acesso não encontrado com o código " + idAcesso));
     }
 
-    public Acesso update(long idAcesso, Acesso acesso) {
-        Acesso existente = findById(idAcesso);
-        existente.setUsuario(acesso.getUsuario());
-        existente.setReceita(acesso.getReceita());
-        existente.setChefe(acesso.getChefe());
-        return acessoRepository.save(existente);
-    }
-
     public void delete(long idAcesso) {
         acessoRepository.delete(findById(idAcesso));
     }

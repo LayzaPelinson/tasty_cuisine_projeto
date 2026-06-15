@@ -1,19 +1,19 @@
 import { useNavigate } from 'react-router-dom'
 import { FiMapPin, FiBook } from 'react-icons/fi'
+import { use, useState } from 'react'
+import imagemPadrao from "../assets/img/chef.png"
 
 function ChefCard({ chef }) {
   const navigate = useNavigate()
 
   return (
-    <div className="chef-card" onClick={() => navigate(`/chef/${chef.id}`)} style={{ cursor: 'pointer' }}>
-      <img src={chef.image} alt={chef.name} />
+    <div className="chef-card" onClick={() => navigate(`/chef/${chef.codChefe}`)} style={{ cursor: 'pointer' }}>
+      <img src={chef.fotoPerfil ?? imagemPadrao} alt={chef.nomeCompleto} />
       <div className="chef-overlay">
-        <h3>{chef.name}</h3>
-        <p>{chef.specialty}</p>
+        <h3>{chef.nomeCompleto}</h3>
       </div>
       <div className="chef-footer">
-        <span><FiMapPin /> {chef.location}</span>
-        <span><FiBook /> {chef.recipes} receitas</span>
+        {chef.recipes > 0 ? <span><FiBook /> {chef.recipes} receitas</span> : <span>Sem receitas publicadas</span>}
       </div>
     </div>
   )

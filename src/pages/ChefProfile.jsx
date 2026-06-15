@@ -13,15 +13,15 @@ import ChefStatsPanel from '../components/ChefStatsPanel'
 import ChefSettingsPanel from '../components/ChefSettingsPanel'
 
 function ChefProfile() {
-  const { user } = useUser()
+  const { user,loading } = useUser()
   const [activeTab, setActiveTab] = useState('recipes')
   const [editing, setEditing] = useState(false)
 
-  if (!user) return <Navigate to="/login" replace />
+  if (!user && !loading) return <Navigate to="/login" replace />
 
   return (
     <div className="profile-page">
-      <ProfileHeader setActiveTab={() => setEditing(e => !e)} />
+      <ProfileHeader setActiveTab={() => setEditing(e => !e)} isChefe={true} />
       <ChefEditProfilePanel editing={editing} setEditing={setEditing} />
       <ChefProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === 'recipes' && <ChefMyRecipes />}

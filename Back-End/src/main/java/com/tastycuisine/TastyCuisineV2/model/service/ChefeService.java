@@ -24,16 +24,62 @@ public class ChefeService {
 
     public Chefe update(long codChefe, Chefe chefe) {
         Chefe existente = findById(codChefe);
-        existente.setNomeUsuario(chefe.getNomeUsuario());
-        existente.setNomeCompleto(chefe.getNomeCompleto());
-        existente.setIdade(chefe.getIdade());
-        existente.setSenha(chefe.getSenha());
-        existente.setGmail(chefe.getGmail());
-        existente.setFotoPerfil(chefe.getFotoPerfil());
+        if (chefe.getNomeUsuario() != null && !chefe.getNomeUsuario().isBlank()) {
+            existente.setNomeUsuario(chefe.getNomeUsuario());
+        }
+        if (chefe.getNomeCompleto() != null && !chefe.getNomeCompleto().isBlank()) {
+            existente.setNomeCompleto(chefe.getNomeCompleto());
+        }
+        if (chefe.getIdade() > 0) {
+            existente.setIdade(chefe.getIdade());
+        }
+        if (chefe.getSenha() != null && !chefe.getSenha().isBlank()) {
+            existente.setSenha(chefe.getSenha());
+        }
+        if (chefe.getGmail() != null && !chefe.getGmail().isBlank()) {
+            existente.setGmail(chefe.getGmail());
+        }
+        if (chefe.getFotoPerfil() != null) {
+            existente.setFotoPerfil(chefe.getFotoPerfil());
+        }
         return chefeRepository.save(existente);
     }
 
-    public void delete(long codChefe) {
-        chefeRepository.delete(findById(codChefe));
+    public void inativar(long codChefe) {
+        Chefe chefe = findById(codChefe);
+        chefe.setStatus_Chefe("INATIVO");
+        chefeRepository.save(chefe);
+    }
+
+    public void ativar(long codChefe) {
+        Chefe chefe = findById(codChefe);
+        chefe.setStatus_Chefe("ATIVO");
+        chefeRepository.save(chefe);
+    }
+
+    public Chefe reativar(String gmail, String senha) {
+        Chefe chefe = chefeRepository.findByGmailAndSenha(gmail, senha)
+                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+        chefe.setStatus_Chefe("ATIVO");
+        return chefeRepository.save(chefe);
+    }
+
+    public Chefe login(String gmail, String senha) {
+        Chefe chefe = chefeRepository.findByGmailAndSenha(gmail, senha)
+                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+        if ("INATIVO".equals(chefe.getStatus_Chefe())) {
+            throw new RuntimeException("CONTA_INATIVA");
+        }
+        return chefe;
+    }
+
+    public List<Chefe> buscar(String termo) {
+        return chefeRepository.findByNomeUsuarioContainingIgnoreCase(termo);
+    }
+
+    public List<Chefe> populares() {
+        return chefeRepository.findAll().stream()
+                .limit(10)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

@@ -1,43 +1,345 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 const UserContext = createContext()
 
 const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Proteína Alta']
+const API_BASE = 'http://localhost:8080'
+
+
+function normalizeUser(entity, role) {
+  return {
+    id: entity.id ?? entity.codChefe ?? entity.codUser,
+    name: entity.name ?? entity.nomeCompleto ?? entity.nomeUsuario ?? entity.fullName,
+    email: entity.email ?? entity.gmail,
+    age: entity.age ?? entity.idade,
+    role,
+    username: entity.username ?? entity.nomeUsuario ?? entity.nomeDeUsuario,
+    photo: entity.photo ?? entity.fotoPerfil,
+    preferences: entity.restricoesAlimentares
+      ? entity.restricoesAlimentares.split(',').map(pref => pref.trim()).filter(Boolean)
+      : (entity.preferences ?? []),
+  }
+}
+
+function parseJsonOrLines(value) {
+  if (!value) return []
+  if (Array.isArray(value)) return value
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : [parsed]
+  } catch {
+    return value
+      .split('\n')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
+}
+
+function normalizeApiRecipe(recipe) {
+  return {
+    id: recipe.id ?? recipe.codReceitas,
+    title: recipe.title ?? recipe.nomeReceita,
+    description: recipe.description ?? recipe.descricao,
+    category: recipe.category ?? recipe.categoria ?? 'Geral',
+    difficulty: recipe.difficulty ?? recipe.dificuldade ?? 'Médio',
+    time: recipe.time ?? recipe.tempo ?? '',
+    chef: recipe.chef ?? recipe.chefName ?? recipe.chefe?.nomeUsuario ?? recipe.chefe?.nomeCompleto ?? 'Chef',
+    chefId: recipe.chefId ?? recipe.chefe?.codChefe,
+    ingredients: parseJsonOrLines(recipe.ingredients ?? recipe.ingredientes),
+    instructions: parseJsonOrLines(recipe.instructions ?? recipe.modoPreparo ?? recipe.manual2),
+    chefTip: recipe.chefTip ?? recipe.dica ?? '',
+    image: recipe.image ?? null,
+  }
+}
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [accounts, setAccounts] = useState([])
+  const [token, setToken] = useState(null)
+  const [recipes, setRecipes] = useState([])
+  const [recipesLoaded, setRecipesLoaded] = useState(false)
   const [chefRecipes, setChefRecipes] = useState([])
-  const [recipeStats, setRecipeStats] = useState({}) // { recipeId: { favorites: 0, views: 0 } }
+  const [recipeStats, setRecipeStats] = useState({}) 
+  const [favoritos, setFavoritos] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  function register(data) {
-    const newAccount = { ...data, id: Date.now() }
-    setAccounts(prev => [...prev, newAccount])
-    setUser(newAccount)
+  useEffect(() => {
+    loadRecipes()
+  }, [])
+  
+useEffect(() => {
+  async function carregarUsuario() {
+    const id = localStorage.getItem('userId')
+    const role = localStorage.getItem('userRole')
+    if (id && role) {
+      const endpoint = role === 'chef' ? `${API_BASE}/chefe/${id}` : `${API_BASE}/usuario/${id}`
+      const res = await fetch(endpoint)
+      if (res.ok) {
+        const body = await res.json()
+        const normalized = normalizeUser(body, role)
+        setUser(normalized)
+        if (role === 'usuario') await loadFavoritos(normalized.id)
+      }
+    }
+    setLoading(false) // só aqui!
+  }
+  loadRecipes()
+  carregarUsuario()
+}, [])
+
+  async function loadFavoritos(userId) {
+  const res = await fetch(`${API_BASE}/favorito/findAll`)
+  const data = await res.json()
+  if (Array.isArray(data)) {
+    setFavoritos(data.filter(f => String(f.usuario?.codUser) === String(userId)))
+  }
+}
+async function toggleFavorito(receitaId) {
+  if (!user) return
+  const jaExiste = favoritos.find(f => String(f.receita?.codReceitas) === String(receitaId))
+  if (jaExiste) {
+    await fetch(`${API_BASE}/favorito/${jaExiste.codFavoritos}`, { method: 'DELETE' })
+    setFavoritos(prev => prev.filter(f => f.codFavoritos !== jaExiste.codFavoritos))
+  } else {
+    const res = await fetch(`${API_BASE}/favorito`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: { codUser: user.id }, receita: { codReceitas: receitaId } })
+    })
+    const saved = await res.json()
+    await loadFavoritos(String(user.id))
+  }
+}
+
+  async function loadRecipes() {
+    try {
+      const res = await fetch(`${API_BASE}/receita/findAll`)
+      if (!res.ok) throw new Error('Falha ao carregar receitas')
+      const data = await res.json()
+      const normalized = Array.isArray(data) ? data.map(normalizeApiRecipe) : []
+      setRecipes(normalized)
+      setRecipesLoaded(true)
+      return normalized
+    } catch (err) {
+      console.error('Erro ao carregar receitas:', err)
+      setRecipesLoaded(true)
+      return []
+    }
   }
 
-  function login(email, password, role) {
-    const found = accounts.find(a => a.email === email && a.password === password && a.role === role)
-    if (found) { setUser(found); return true }
+  async function register(data) {
+    try {
+      if (data.role === 'chef') {
+        const payload = {
+          nomeUsuario: data.email ? data.email.split('@')[0] : 'chef' + Date.now(),
+          nomeCompleto: data.name || data.email,
+          idade: Number(data.age) || 18,
+          senha: data.password,
+          gmail: data.email,
+        }
+        const res = await fetch(`${API_BASE}/chefe`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        })
+        if (!res.ok) throw new Error('Falha ao cadastrar chefe')
+        const created = await res.json()
+        const normalized = normalizeUser(created, 'chef')
+        setUser(normalized)
+        return { ok: true, user: normalized }
+      } else {
+        const payload = {
+          nomeCompleto: data.name || data.email,
+          nomeDeUsuario: data.email ? data.email.split('@')[0] : 'user' + Date.now(),
+          idade: Number(data.age) || 18,
+          gmail: data.email,
+          senha: data.password,
+          restricoesAlimentares: data.preferences ? data.preferences.join(',') : null
+        }
+        const res = await fetch(`${API_BASE}/usuario`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        })
+        if (!res.ok) throw new Error('Falha ao cadastrar usuário')
+        const created = await res.json()
+        const normalized = normalizeUser(created, 'usuario')
+        setUser(normalized)
+        return { ok: true, user: normalized }
+      }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
+  }
+
+  async function login(email, password, role) {
+  try {
+    const endpoint = role === 'chef' ? `${API_BASE}/chefe/login` : `${API_BASE}/usuario/login`
+    const res = await fetch(endpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
+    })
+    if (res.status === 403) return 'inactive'
+    if (!res.ok) return false
+    const body = await res.json()
+    const normalized = normalizeUser(body, role)
+    setUser(normalized)
+    localStorage.setItem('userId', String(normalized.id))
+    localStorage.setItem('userRole', role)
+    if (role === 'usuario') await loadFavoritos(normalized.id)
+    return true
+  } catch (err) {
     return false
   }
+}
 
-  function logout() { setUser(null) }
-
-  function changePassword(currentPassword, newPassword) {
-    if (user.password !== currentPassword) return false
-    setUser(u => ({ ...u, password: newPassword }))
-    setAccounts(prev => prev.map(a => a.id === user.id ? { ...a, password: newPassword } : a))
-    return true
+  async function reactivateAccount(email, password, role) {
+    try {
+      const endpoint = role === 'chef' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
+      const res = await fetch(endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
+      })
+      if (!res.ok) return { ok: false }
+      const body = await res.json()
+      setUser(normalizeUser(body, role))
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
   }
 
-  function publishRecipe(recipe) {
-    const newRecipe = { ...recipe, id: Date.now(), chefId: user.id, chef: user.name }
-    setChefRecipes(prev => [...prev, newRecipe])
+  async function deactivateAccount() {
+    if (!user) return { ok: false }
+    try {
+      const endpoint = user.role === 'chef'
+        ? `${API_BASE}/chefe/inativar/${user.id}`
+        : `${API_BASE}/usuario/delete/${user.id}`
+      const res = await fetch(endpoint, { method: 'PUT' })
+      if (!res.ok) return { ok: false }
+      setUser(null)
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
   }
 
-  function deleteRecipe(id) {
-    setChefRecipes(prev => prev.filter(r => r.id !== id))
+  async function changePassword(currentPassword, newPassword) {
+    if (!user) return { ok: false }
+    try {
+      const endpoint = user.role === 'chef' ? `${API_BASE}/chefe/${user.id}` : `${API_BASE}/usuario/${user.id}`
+      const payload = user.role === 'chef'
+        ? { nomeUsuario: user.username, nomeCompleto: user.name, idade: user.age, gmail: user.email, senha: newPassword }
+        : { nomeCompleto: user.name, nomeDeUsuario: user.username, idade: user.age, gmail: user.email, senha: newPassword, restricoesAlimentares: user.preferences?.join(',') ?? null }
+      const res = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) return { ok: false }
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
+  }
+
+  async function updateChefProfile(updated) {
+    if (!user || user.role !== 'chef') return { ok: false, error: 'Usuário inválido' }
+    try {
+      const payload = {
+        nomeUsuario: updated.username || user.username || (updated.name ? updated.name.split(' ')[0] : undefined),
+        nomeCompleto: updated.name,
+        idade: Number(updated.age) || user.age,
+        gmail: updated.email,
+      }
+      const res = await fetch(`${API_BASE}/chefe/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        return { ok: false, error: errorText || 'Falha ao atualizar perfil' }
+      }
+      const updatedChef = await res.json()
+      const normalized = normalizeUser(updatedChef, 'chef')
+      setUser(prev => ({ ...prev, ...normalized }))
+      return { ok: true, user: normalized }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
+  }
+
+  async function updateUserProfile(updated) {
+    if (!user || user.role !== 'usuario') return { ok: false, error: 'Usuário inválido' }
+    try {
+      const payload = {
+        nomeCompleto: updated.name || user.name,
+        nomeDeUsuario: user.username,
+        idade: Number(updated.age ?? user.age) || user.age,
+        gmail: updated.email || user.email,
+        senha: updated.password ?? null,
+        restricoesAlimentares: updated.preferences ? updated.preferences.join(',') : user.preferences?.join(',') ?? null,
+      }
+      const res = await fetch(`${API_BASE}/usuario/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        return { ok: false, error: errorText || 'Falha ao atualizar perfil' }
+      }
+      const updatedUser = await res.json()
+      const normalized = normalizeUser(updatedUser, 'usuario')
+      setUser(prev => ({ ...prev, ...normalized }))
+      return { ok: true, user: normalized }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
+  }
+
+  async function publishRecipe(recipe) {
+    if (!user || user.role !== 'chef') {
+      return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
+    }
+    try {
+      const payload = {
+        nomeReceita: recipe.title,
+        descricao: recipe.description,
+        modoPreparo: JSON.stringify(recipe.instructions),
+        ingredientes: JSON.stringify(recipe.ingredients),
+        fotoReceita: recipe.image || null,
+        chefe: { codChefe: user.id },
+      }
+      const res = await fetch(`${API_BASE}/receita`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(errorText || 'Falha ao publicar receita')
+      }
+      const saved = await res.json()
+      const normalized = normalizeApiRecipe(saved)
+      setRecipes(prev => [normalized, ...prev])
+      setChefRecipes(prev => [normalized, ...prev])
+      return { ok: true, recipe: normalized }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
+  }
+
+  function logout() { 
+    setUser(null); 
+    setToken(null)
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userRole') }
+
+  async function deleteRecipe(id) {
+    try {
+      const res = await fetch(`${API_BASE}/receita/${id}`, { method: 'DELETE' })
+      if (!res.ok) return { ok: false }
+      setChefRecipes(prev => prev.filter(r => r.id !== id))
+      setRecipes(prev => prev.filter(r => r.id !== id))
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
   }
 
   function editRecipe(id, updated) {
@@ -60,7 +362,7 @@ export function UserProvider({ children }) {
   }
 
   return (
-    <UserContext.Provider value={{ user, setUser, DIET_OPTIONS, register, login, logout, changePassword, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView }}>
+    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, reactivateAccount, deactivateAccount, changePassword, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView, favoritos, toggleFavorito,loading  }}>
       {children}
     </UserContext.Provider>
   )

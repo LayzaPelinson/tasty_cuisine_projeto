@@ -36,4 +36,9 @@ public class AdmService {
     public void delete(long codModerador) {
         admRepository.delete(findById(codModerador));
     }
+
+    public Adm login(String gmail, String senha) {
+        return admRepository.findByGmailAndSenha(gmail, senha)
+                .orElseThrow(() -> new RuntimeException("Email ou senha incorretos"));
+    }
 }

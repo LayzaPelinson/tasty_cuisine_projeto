@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,14 +28,25 @@ public class Receita {
     @NotBlank
     private String descricao;
 
-    @Column(name = "Manual2", nullable = false, columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "Modo_preparo", nullable = false, columnDefinition = "NVARCHAR(MAX)")
     @NotBlank
-    private String manual2;
+    private String modoPreparo;
+
+    @Column(name = "Ingredientes", columnDefinition = "NVARCHAR(MAX)")
+    private String ingredientes;
 
     @ManyToOne
     @JoinColumn(name = "Cod_chefe", nullable = false)
     private Chefe chefe;
 
     @Column(name = "Foto_receita")
-    private byte[] fotoReceita;
+    private String fotoReceita;
+
+    @ManyToMany
+    @JoinTable(
+        name = "Receitas_Categorias",
+        joinColumns = @JoinColumn(name = "Cod_receitas"),
+        inverseJoinColumns = @JoinColumn(name = "Cod_Categoria")
+    )
+    private List<Categoria> categorias;
 }

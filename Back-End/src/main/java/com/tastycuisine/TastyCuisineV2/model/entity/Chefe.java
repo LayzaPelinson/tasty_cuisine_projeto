@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,6 +19,10 @@ public class Chefe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Cod_chefe")
     private long codChefe;
+    
+    @Builder.Default()
+    @Column(name = "Status_Chefe", length =  20, nullable =  false)
+    private String Status_Chefe = "ATIVO";
 
     @Column(name = "Nome_usuario", length = 60, nullable = false)
     @NotBlank
@@ -31,7 +37,7 @@ public class Chefe {
     @Max(value = 100, message = "A idade máxima permitida é 100 anos")
     private int idade;
 
-    @Column(name = "Senha", length = 70, nullable = false)
+    @Column(name = "Senha", length = 250, nullable = false)
     @NotBlank
     private String senha;
 
@@ -39,6 +45,14 @@ public class Chefe {
     @NotBlank
     private String gmail;
 
-    @Column(name = "foto_perfil")
-    private byte[] fotoPerfil;
+    @Column(name = "foto_perfil", columnDefinition = "NVARCHAR(MAX)")
+    private String fotoPerfil;
+
+    @ManyToMany
+    @JoinTable(
+        name = "Chefe_Categorias",
+        joinColumns = @JoinColumn(name = "Cod_chefe"),
+        inverseJoinColumns = @JoinColumn(name = "Cod_Categoria")
+    )
+    private List<Categoria> categorias;
 }

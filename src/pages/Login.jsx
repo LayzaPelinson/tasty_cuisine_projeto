@@ -4,40 +4,43 @@ import AuthTabs from '../components/AuthTabs'
 import { useUser } from '../hooks/useUser.jsx'
 import '../styles/login.css'
 
-const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Proteína Alta']
-
 function Login() {
   const [activeTab, setActiveTab] = useState('usuario')
-  const [mode, setMode] = useState('login') // 'login' | 'register'
-  const [form, setForm] = useState({ name: '', email: '', password: '', specialty: '', location: '', preferences: [] })
+  const [mode, setMode] = useState('login')
+  const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
-  const { login, register } = useUser()
+  const [inactiveEmail, setInactiveEmail] = useState(null)
+  const [reactivatePwd, setReactivatePwd] = useState('')
+  const [reactivateError, setReactivateError] = useState('')
+  const { login, register, reactivateAccount } = useUser()
   const navigate = useNavigate()
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
-
-  function togglePreference(pref) {
-    setForm(prev => ({
-      ...prev,
-      preferences: prev.preferences.includes(pref)
-        ? prev.preferences.filter(p => p !== pref)
-        : [...prev.preferences, pref]
-    }))
-  }
-
   function handleSubmit(e) {
     e.preventDefault()
     setError('')
     if (mode === 'register') {
-      register({ ...form, role: activeTab })
-      navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+      register({ ...form, role: activeTab }).then(res => {
+        if (res && res.ok) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+        else setError(res.error || 'Falha no cadastro')
+      })
     } else {
-      const ok = login(form.email, form.password, activeTab)
-      if (ok) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
-      else setError('E-mail ou senha inválidos.')
+      login(form.email, form.password, activeTab).then(result => {
+        if (result === true) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+        else if (result === 'inactive') { setInactiveEmail(form.email); setReactivatePwd(''); setReactivateError('') }
+        else setError('E-mail ou senha inválidos.')
+      })
     }
+  }
+
+  async function handleReactivate(e) {
+    e.preventDefault()
+    setReactivateError('')
+    const res = await reactivateAccount(inactiveEmail, reactivatePwd, activeTab)
+    if (res.ok) { setInactiveEmail(null); navigate(activeTab === 'chef' ? '/chef-profile' : '/') }
+    else setReactivateError('Senha incorreta. Tente novamente.')
   }
 
   const isChef = activeTab === 'chef'
@@ -47,7 +50,7 @@ function Login() {
       <div className="login-container">
         <AuthTabs activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setError('') }} />
         <div className="login-card">
-          <div className="login-icon">{isChef ? '👨‍🍳' : '👤'}</div>
+          <div className="login-icon">{isChef ? '👨🍳' : '👤'}</div>
           <h1>{mode === 'login' ? 'Bem-vindo de volta' : isChef ? 'Seja um Chefe' : 'Criar Conta'}</h1>
           <p>{mode === 'login'
             ? `Acesse sua conta de ${isChef ? 'chefe' : 'usuário'}`
@@ -63,23 +66,16 @@ function Login() {
                 <input name="name" value={form.name} onChange={handleChange} placeholder="Seu nome completo" required />
               </>
             )}
-
             <label>E-mail</label>
             <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="seu@email.com" required />
-
-            <label>Senha</label>
-            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" required />
-
-            {mode === 'register' && isChef && (
+            {mode === 'register' && (
               <>
-                <label>Especialidade</label>
-                <input name="specialty" value={form.specialty} onChange={handleChange} placeholder="ex: Culinária Italiana" required />
-                <label>Localização</label>
-                <input name="location" value={form.location} onChange={handleChange} placeholder="ex: São Paulo, Brasil" required />
+                <label>Idade</label>
+                <input name="age" type="number" min="14" max="100" value={form.age} onChange={handleChange} placeholder="Sua idade" required />
               </>
             )}
-
-
+            <label>Senha</label>
+            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" required />
             <button type="submit" className="login-btn">
               {mode === 'login' ? 'Entrar' : 'Cadastrar'}
             </button>
@@ -93,6 +89,30 @@ function Login() {
           </div>
         </div>
       </div>
+
+      {inactiveEmail && (
+        <div className="reactivate-overlay">
+          <div className="reactivate-modal">
+            <h3>Conta Inativa</h3>
+            <p>Sua conta está desativada. Confirme sua senha para reativá-la.</p>
+            {reactivateError && <p className="login-error">{reactivateError}</p>}
+            <form onSubmit={handleReactivate}>
+              <input
+                type="password"
+                placeholder="Sua senha"
+                value={reactivatePwd}
+                onChange={e => setReactivatePwd(e.target.value)}
+                required
+                autoFocus
+              />
+              <div className="reactivate-actions">
+                <button type="submit" className="login-btn">Reativar Conta</button>
+                <button type="button" onClick={() => setInactiveEmail(null)}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
