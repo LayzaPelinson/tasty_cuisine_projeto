@@ -5,6 +5,7 @@ const UserContext = createContext()
 const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Proteína Alta']
 const API_BASE = 'http://localhost:8080'
 
+
 function normalizeUser(entity, role) {
   return {
     id: entity.id ?? entity.codChefe ?? entity.codUser,
@@ -57,11 +58,57 @@ export function UserProvider({ children }) {
   const [recipes, setRecipes] = useState([])
   const [recipesLoaded, setRecipesLoaded] = useState(false)
   const [chefRecipes, setChefRecipes] = useState([])
-  const [recipeStats, setRecipeStats] = useState({}) // { recipeId: { favorites: 0, views: 0 } }
+  const [recipeStats, setRecipeStats] = useState({}) 
+  const [favoritos, setFavoritos] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadRecipes()
   }, [])
+  
+useEffect(() => {
+  async function carregarUsuario() {
+    const id = localStorage.getItem('userId')
+    const role = localStorage.getItem('userRole')
+    if (id && role) {
+      const endpoint = role === 'chef' ? `${API_BASE}/chefe/${id}` : `${API_BASE}/usuario/${id}`
+      const res = await fetch(endpoint)
+      if (res.ok) {
+        const body = await res.json()
+        const normalized = normalizeUser(body, role)
+        setUser(normalized)
+        if (role === 'usuario') await loadFavoritos(normalized.id)
+      }
+    }
+    setLoading(false) // só aqui!
+  }
+  loadRecipes()
+  carregarUsuario()
+}, [])
+
+  async function loadFavoritos(userId) {
+  const res = await fetch(`${API_BASE}/favorito/findAll`)
+  const data = await res.json()
+  if (Array.isArray(data)) {
+    setFavoritos(data.filter(f => String(f.usuario?.codUser) === String(userId)))
+  }
+}
+async function toggleFavorito(receitaId) {
+  if (!user) return
+  const jaExiste = favoritos.find(f => String(f.receita?.codReceitas) === String(receitaId))
+  if (jaExiste) {
+    await fetch(`${API_BASE}/favorito/${jaExiste.codFavoritos}`, { method: 'DELETE' })
+    setFavoritos(prev => prev.filter(f => f.codFavoritos !== jaExiste.codFavoritos))
+  } else {
+    const res = await fetch(`${API_BASE}/favorito`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: { codUser: user.id }, receita: { codReceitas: receitaId } })
+    })
+    const saved = await res.json()
+    await loadFavoritos(String(user.id))
+  }
+}
 
   async function loadRecipes() {
     try {
@@ -121,20 +168,24 @@ export function UserProvider({ children }) {
   }
 
   async function login(email, password, role) {
-    try {
-      const endpoint = role === 'chef' ? `${API_BASE}/chefe/login` : `${API_BASE}/usuario/login`
-      const res = await fetch(endpoint, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
-      })
-      if (res.status === 403) return 'inactive'
-      if (!res.ok) return false
-      const body = await res.json()
-      setUser(normalizeUser(body, role))
-      return true
-    } catch (err) {
-      return false
-    }
+  try {
+    const endpoint = role === 'chef' ? `${API_BASE}/chefe/login` : `${API_BASE}/usuario/login`
+    const res = await fetch(endpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
+    })
+    if (res.status === 403) return 'inactive'
+    if (!res.ok) return false
+    const body = await res.json()
+    const normalized = normalizeUser(body, role)
+    setUser(normalized)
+    localStorage.setItem('userId', String(normalized.id))
+    localStorage.setItem('userRole', role)
+    if (role === 'usuario') await loadFavoritos(normalized.id)
+    return true
+  } catch (err) {
+    return false
   }
+}
 
   async function reactivateAccount(email, password, role) {
     try {
@@ -273,7 +324,11 @@ export function UserProvider({ children }) {
     }
   }
 
-  function logout() { setUser(null); setToken(null) }
+  function logout() { 
+    setUser(null); 
+    setToken(null)
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userRole') }
 
   async function deleteRecipe(id) {
     try {
@@ -307,7 +362,7 @@ export function UserProvider({ children }) {
   }
 
   return (
-    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, reactivateAccount, deactivateAccount, changePassword, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView }}>
+    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, reactivateAccount, deactivateAccount, changePassword, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView, favoritos, toggleFavorito,loading  }}>
       {children}
     </UserContext.Provider>
   )

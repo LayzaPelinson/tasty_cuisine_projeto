@@ -12,11 +12,11 @@ import PreferencesPanel from '../components/PreferencesPanel'
 import { useUser } from '../hooks/useUser'
 
 function Profile() {
-  const { user } = useUser()
+  const { user, loading } = useUser()
   const [activeTab, setActiveTab] = useState('favorites')
   const [editing, setEditing] = useState(false)
 
-  if (!user) return <Navigate to="/login" replace />
+  if (!user && !loading) return <Navigate to="/login" replace />
 
   return (
     <div className="profile-page">

@@ -25,9 +25,10 @@ function ScrollToTop() {
 }
 
 function ProtectedRoute({ children, chefOnly = false, chefRedirect = false }) {
-  const { user } = useUser()
-  if (!user) return <Navigate to="/login" replace />
+  const { user, loading } = useUser()
+  if (!user && !loading) return <Navigate to="/login" replace />
   if (chefOnly && user.role !== 'chef') return <Navigate to="/" replace />
+  if (!user) return null
   if (chefRedirect && user.role === 'chef') return <Navigate to="/recipes" replace />
   return children
 }

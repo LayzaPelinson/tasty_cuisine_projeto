@@ -7,6 +7,7 @@ function ProfileHeader({ setActiveTab, isChefe }) {
   const { user, setUser } = useUser()
   const [aberto, setAberto] = useState(false)
   const [linkFoto, setLinkFoto] = useState('')
+  if (!user) return null
   const endpoint = isChefe ? `/chefe/${user.id}` : `/usuario/${user.id}`
 
 async function handleConfirmarFoto() {

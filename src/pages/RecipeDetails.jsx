@@ -1,5 +1,4 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useFavorites } from '../hooks/useFavorites.jsx'
 import { useUser } from '../hooks/useUser.jsx'
 import { FiArrowLeft, FiHeart, FiShare2, FiUser } from 'react-icons/fi'
 import RecipeComments from '../components/RecipeComments'
@@ -16,13 +15,14 @@ function parseList(value) {
 function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { isFavorite, toggle } = useFavorites()
-  const { user, recipes, recipesLoaded } = useUser()
+  const { user, recipes, recipesLoaded, favoritos, toggleFavorito  } = useUser()
   const recipe = recipes.find((item) => item.id === Number(id))
   const isChef = user?.role === 'chef'
 
   const ingredients = parseList(recipe?.ingredients)
   const instructions = parseList(recipe?.instructions)
+  const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
+
 
   async function handleShare(recipeToShare) {
     const data = { title: recipeToShare.title, text: recipeToShare.description, url: window.location.href }
@@ -57,10 +57,10 @@ function RecipeDetails() {
           {!isChef && (
             <div className="recipe-actions">
               <button
-                className={`save-btn${isFavorite(recipe.id) ? ' saved' : ''}`}
-                onClick={() => toggle(recipe.id)}
+                className={`save-btn${isFavorited ? ' saved' : ''}`}
+                onClick={() => toggleFavorito(recipe.id)}
               >
-                <FiHeart /> {isFavorite(recipe.id) ? 'Receita Salva' : 'Salvar Receita'}
+                <FiHeart /> {isFavorited ? 'Receita Salva' : 'Salvar Receita'}
               </button>
               <button className="share-btn" onClick={() => handleShare(recipe)}>
                 <FiShare2 /> Compartilhar
