@@ -6,6 +6,7 @@
   justify-content: center;
   align-items: center;
   padding: 40px;
+  position: relative;
 }
 /* CARD EXTERNO */
 .login-container {
@@ -193,8 +194,38 @@
   cursor: pointer;
   font-size: 15px;
 }
-/* PREFERÊNCIAS */
-.preferences-grid {
+/* BOTÃO ADMIN */
+.admin-access-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #1a1a2e;
+  color: #f47c20;
+  border: 1.5px solid rgba(244,124,32,0.3);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .25s;
+  letter-spacing: 0.3px;
+  z-index: 10;
+}
+.admin-access-btn i {
+  font-size: 16px;
+}
+.admin-access-btn:hover {
+  background: #f47c20;
+  color: white;
+  border-color: #f47c20;
+  box-shadow: 0 4px 16px rgba(244,124,32,0.35);
+  transform: translateY(-1px);
+}
+
+/* PREFERÊNCIAS */.preferences-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

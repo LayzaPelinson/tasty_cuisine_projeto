@@ -10,6 +10,7 @@ import RecipeDetails from './pages/RecipeDetails'
 import ChefDetails from './pages/ChefDetails'
 import Login from './pages/Login'
 import PublishRecipe from './pages/PublishRecipe'
+import AdminDashboard from './pages/AdminDashboard'
 
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -45,6 +46,7 @@ function AppRoutes() {
       <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetails /></ProtectedRoute>} />
       <Route path="/chef/:id" element={<ProtectedRoute><ChefDetails /></ProtectedRoute>} />
       <Route path="/publish" element={<ProtectedRoute chefOnly><PublishRecipe /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminDashboard />} />
     </Routes>
   )
 }

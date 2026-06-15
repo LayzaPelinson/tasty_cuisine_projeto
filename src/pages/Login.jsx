@@ -47,6 +47,12 @@ function Login() {
 
   return (
     <main className="login-page">
+      <button
+        className="admin-access-btn"
+        onClick={() => navigate('/admin')}
+      >
+        <i className="bi bi-shield-lock-fill"></i> Painel Admin
+      </button>
       <div className="login-container">
         <AuthTabs activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setError('') }} />
         <div className="login-card">
