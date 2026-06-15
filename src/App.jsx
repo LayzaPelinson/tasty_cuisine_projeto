@@ -51,19 +51,27 @@ function AppRoutes() {
   )
 }
 
+function AppShell() {
+  const { pathname } = useLocation()
+  const isAdmin = pathname === '/admin'
+  return (
+    <div className="app">
+      <ScrollToTop />
+      {!isAdmin && <Header />}
+      <main className="content">
+        <AppRoutes />
+      </main>
+      {!isAdmin && <Footer />}
+    </div>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
     <UserProvider>
     <FavoritesProvider>
-    <div className="app">
-      <ScrollToTop />
-      <Header />
-      <main className="content">
-        <AppRoutes />
-      </main>
-      <Footer />
-      </div>
+      <AppShell />
     </FavoritesProvider>
     </UserProvider>
     </BrowserRouter>

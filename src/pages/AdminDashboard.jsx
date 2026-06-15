@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/admin.css'
-
-const API_BASE = 'http://localhost:8080'
 
 const MOCK_USERS = [
   { id: 1, name: 'Ana Clara', email: 'ana@email.com', age: 25, active: true },
@@ -29,10 +27,10 @@ const MOCK_COMMENTS = [
 ]
 
 const TABS = [
-  { key: 'users', label: 'Usuários', icon: 'bi-people-fill' },
-  { key: 'chefs', label: 'Chefes', icon: 'bi-person-badge-fill' },
-  { key: 'recipes', label: 'Receitas', icon: 'bi-journal-richtext' },
-  { key: 'comments', label: 'Comentários', icon: 'bi-chat-dots-fill' },
+  { key: 'users',    label: 'Usuários',     icon: 'bi-people-fill' },
+  { key: 'chefs',    label: 'Chefes',       icon: 'bi-person-badge-fill' },
+  { key: 'recipes',  label: 'Receitas',     icon: 'bi-journal-richtext' },
+  { key: 'comments', label: 'Comentários',  icon: 'bi-chat-dots-fill' },
 ]
 
 function StatusBadge({ active }) {
@@ -49,7 +47,6 @@ function ToggleBtn({ active, onToggle }) {
     <button
       className={`admin-toggle-btn ${active ? 'admin-toggle-deactivate' : 'admin-toggle-activate'}`}
       onClick={onToggle}
-      title={active ? 'Desativar' : 'Reativar'}
     >
       <i className={`bi ${active ? 'bi-slash-circle' : 'bi-arrow-counterclockwise'}`}></i>
       {active ? 'Desativar' : 'Reativar'}
@@ -57,42 +54,41 @@ function ToggleBtn({ active, onToggle }) {
   )
 }
 
-function AdminUsers({ data, setData, onViewProfile }) {
+function SearchBar({ placeholder, value, onChange }) {
+  return (
+    <div className="admin-search">
+      <i className="bi bi-search"></i>
+      <input placeholder={placeholder} value={value} onChange={e => onChange(e.target.value)} />
+    </div>
+  )
+}
+
+function AdminUsers({ data, setData, onView }) {
   const [search, setSearch] = useState('')
   const filtered = data.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   )
   return (
-    <div className="admin-section">
+    <div>
       <div className="admin-section-header">
         <h2><i className="bi bi-people-fill"></i> Usuários Gerais</h2>
-        <div className="admin-search">
-          <i className="bi bi-search"></i>
-          <input placeholder="Buscar usuário..." value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
+        <SearchBar placeholder="Buscar usuário..." value={search} onChange={setSearch} />
       </div>
       <div className="admin-table-wrapper">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Nome</th>
-              <th>E-mail</th>
-              <th>Idade</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th>#</th><th>Nome</th><th>E-mail</th><th>Idade</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
-              <tr><td colSpan={6} className="admin-empty">Nenhum usuário encontrado.</td></tr>
-            )}
+            {filtered.length === 0 && <tr><td colSpan={6} className="admin-empty">Nenhum usuário encontrado.</td></tr>}
             {filtered.map(u => (
               <tr key={u.id}>
                 <td className="admin-id">{u.id}</td>
                 <td>
-                  <button className="admin-link-btn" onClick={() => onViewProfile(u)}>
+                  <button className="admin-link-btn" onClick={() => onView(u)}>
                     <i className="bi bi-person-circle"></i> {u.name}
                   </button>
                 </td>
@@ -113,42 +109,32 @@ function AdminUsers({ data, setData, onViewProfile }) {
   )
 }
 
-function AdminChefs({ data, setData, onViewChef }) {
+function AdminChefs({ data, setData, onView }) {
   const [search, setSearch] = useState('')
   const filtered = data.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.email.toLowerCase().includes(search.toLowerCase())
   )
   return (
-    <div className="admin-section">
+    <div>
       <div className="admin-section-header">
         <h2><i className="bi bi-person-badge-fill"></i> Chefes</h2>
-        <div className="admin-search">
-          <i className="bi bi-search"></i>
-          <input placeholder="Buscar chefe..." value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
+        <SearchBar placeholder="Buscar chefe..." value={search} onChange={setSearch} />
       </div>
       <div className="admin-table-wrapper">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Nome</th>
-              <th>E-mail</th>
-              <th>Receitas</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th>#</th><th>Nome</th><th>E-mail</th><th>Receitas</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
-              <tr><td colSpan={6} className="admin-empty">Nenhum chefe encontrado.</td></tr>
-            )}
+            {filtered.length === 0 && <tr><td colSpan={6} className="admin-empty">Nenhum chefe encontrado.</td></tr>}
             {filtered.map(c => (
               <tr key={c.id}>
                 <td className="admin-id">{c.id}</td>
                 <td>
-                  <button className="admin-link-btn" onClick={() => onViewChef(c)}>
+                  <button className="admin-link-btn" onClick={() => onView(c)}>
                     <i className="bi bi-person-badge"></i> {c.name}
                   </button>
                 </td>
@@ -169,42 +155,32 @@ function AdminChefs({ data, setData, onViewChef }) {
   )
 }
 
-function AdminRecipes({ data, setData, onViewRecipe }) {
+function AdminRecipes({ data, setData, onView }) {
   const [search, setSearch] = useState('')
   const filtered = data.filter(r =>
     r.title.toLowerCase().includes(search.toLowerCase()) ||
     r.chef.toLowerCase().includes(search.toLowerCase())
   )
   return (
-    <div className="admin-section">
+    <div>
       <div className="admin-section-header">
         <h2><i className="bi bi-journal-richtext"></i> Receitas</h2>
-        <div className="admin-search">
-          <i className="bi bi-search"></i>
-          <input placeholder="Buscar receita ou chefe..." value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
+        <SearchBar placeholder="Buscar receita ou chefe..." value={search} onChange={setSearch} />
       </div>
       <div className="admin-table-wrapper">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Título</th>
-              <th>Chefe</th>
-              <th>Categoria</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th>#</th><th>Título</th><th>Chefe</th><th>Categoria</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
-              <tr><td colSpan={6} className="admin-empty">Nenhuma receita encontrada.</td></tr>
-            )}
+            {filtered.length === 0 && <tr><td colSpan={6} className="admin-empty">Nenhuma receita encontrada.</td></tr>}
             {filtered.map(r => (
               <tr key={r.id}>
                 <td className="admin-id">{r.id}</td>
                 <td>
-                  <button className="admin-link-btn" onClick={() => onViewRecipe(r)}>
+                  <button className="admin-link-btn" onClick={() => onView(r)}>
                     <i className="bi bi-book"></i> {r.title}
                   </button>
                 </td>
@@ -225,7 +201,7 @@ function AdminRecipes({ data, setData, onViewRecipe }) {
   )
 }
 
-function AdminComments({ data, setData, onViewComment }) {
+function AdminComments({ data, setData, onView }) {
   const [search, setSearch] = useState('')
   const filtered = data.filter(c =>
     c.text.toLowerCase().includes(search.toLowerCase()) ||
@@ -233,36 +209,25 @@ function AdminComments({ data, setData, onViewComment }) {
     c.recipe.toLowerCase().includes(search.toLowerCase())
   )
   return (
-    <div className="admin-section">
+    <div>
       <div className="admin-section-header">
         <h2><i className="bi bi-chat-dots-fill"></i> Comentários</h2>
-        <div className="admin-search">
-          <i className="bi bi-search"></i>
-          <input placeholder="Buscar comentário, usuário ou receita..." value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
+        <SearchBar placeholder="Buscar por usuário, receita ou texto..." value={search} onChange={setSearch} />
       </div>
       <div className="admin-table-wrapper">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Comentário</th>
-              <th>Usuário</th>
-              <th>Receita</th>
-              <th>Nota</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th>#</th><th>Comentário</th><th>Usuário</th><th>Receita</th><th>Nota</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && (
-              <tr><td colSpan={7} className="admin-empty">Nenhum comentário encontrado.</td></tr>
-            )}
+            {filtered.length === 0 && <tr><td colSpan={7} className="admin-empty">Nenhum comentário encontrado.</td></tr>}
             {filtered.map(c => (
               <tr key={c.id}>
                 <td className="admin-id">{c.id}</td>
                 <td>
-                  <button className="admin-link-btn comment-text-btn" onClick={() => onViewComment(c)}>
+                  <button className="admin-link-btn comment-text-btn" onClick={() => onView(c)}>
                     <i className="bi bi-chat-quote"></i>
                     <span className="admin-comment-preview">{c.text}</span>
                   </button>
@@ -298,12 +263,12 @@ function DetailModal({ item, type, onClose, navigate }) {
     if (type === 'recipe') navigate(`/recipe/${item.id}`)
     else if (type === 'chef') navigate(`/chef/${item.id}`)
     else if (type === 'comment') navigate(`/recipe/${item.recipeId}`)
-    else if (type === 'user') navigate(`/profile`)
+    else if (type === 'user') navigate('/profile')
     onClose()
   }
 
   const titles = { recipe: 'Receita', chef: 'Chefe', comment: 'Comentário', user: 'Usuário' }
-  const icons = { recipe: 'bi-book', chef: 'bi-person-badge-fill', comment: 'bi-chat-quote-fill', user: 'bi-person-circle' }
+  const icons  = { recipe: 'bi-book', chef: 'bi-person-badge-fill', comment: 'bi-chat-quote-fill', user: 'bi-person-circle' }
 
   return (
     <div className="admin-modal-overlay" onClick={onClose}>
@@ -336,7 +301,7 @@ function DetailModal({ item, type, onClose, navigate }) {
                 ))}
               </span>
             </div>
-            <div className="admin-detail-row comment-full"><span>Comentário</span><p>{item.text}</p></div>
+            <div className="admin-detail-row comment-full"><span>Texto</span><p>{item.text}</p></div>
             <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
           </>}
           {type === 'user' && <>
@@ -347,10 +312,10 @@ function DetailModal({ item, type, onClose, navigate }) {
           </>}
         </div>
         <div className="admin-modal-footer">
+          <button className="admin-cancel-btn" onClick={onClose}>Fechar</button>
           <button className="admin-view-btn" onClick={goTo}>
             <i className="bi bi-box-arrow-up-right"></i> Ver no site
           </button>
-          <button className="admin-cancel-btn" onClick={onClose}>Fechar</button>
         </div>
       </div>
     </div>
@@ -360,82 +325,70 @@ function DetailModal({ item, type, onClose, navigate }) {
 function AdminDashboard() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('users')
-  const [users, setUsers] = useState(MOCK_USERS)
-  const [chefs, setChefs] = useState(MOCK_CHEFS)
-  const [recipes, setRecipes] = useState(MOCK_RECIPES)
+  const [users,    setUsers]    = useState(MOCK_USERS)
+  const [chefs,    setChefs]    = useState(MOCK_CHEFS)
+  const [recipes,  setRecipes]  = useState(MOCK_RECIPES)
   const [comments, setComments] = useState(MOCK_COMMENTS)
   const [modal, setModal] = useState(null)
 
   const stats = [
-    { label: 'Usuários', value: users.length, active: users.filter(u => u.active).length, icon: 'bi-people-fill', tab: 'users' },
-    { label: 'Chefes', value: chefs.length, active: chefs.filter(c => c.active).length, icon: 'bi-person-badge-fill', tab: 'chefs' },
-    { label: 'Receitas', value: recipes.length, active: recipes.filter(r => r.active).length, icon: 'bi-journal-richtext', tab: 'recipes' },
-    { label: 'Comentários', value: comments.length, active: comments.filter(c => c.active).length, icon: 'bi-chat-dots-fill', tab: 'comments' },
+    { label: 'Usuários',    value: users.length,    active: users.filter(u => u.active).length,    icon: 'bi-people-fill',       tab: 'users' },
+    { label: 'Chefes',      value: chefs.length,    active: chefs.filter(c => c.active).length,    icon: 'bi-person-badge-fill', tab: 'chefs' },
+    { label: 'Receitas',    value: recipes.length,  active: recipes.filter(r => r.active).length,  icon: 'bi-journal-richtext',  tab: 'recipes' },
+    { label: 'Comentários', value: comments.length, active: comments.filter(c => c.active).length, icon: 'bi-chat-dots-fill',    tab: 'comments' },
   ]
 
   return (
     <div className="admin-page">
-      <aside className="admin-sidebar">
-        <div className="admin-sidebar-brand">
-          <i className="bi bi-shield-lock-fill"></i>
-          <span>Painel Admin</span>
+      <header className="admin-header">
+        <div className="admin-header-left">
+          <h1>Painel Administrativo</h1>
+          <p>Gerencie usuários, chefes, receitas e comentários</p>
         </div>
-        <nav className="admin-nav">
-          {TABS.map(tab => (
-            <button
-              key={tab.key}
-              className={`admin-nav-item ${activeTab === tab.key ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              <i className={`bi ${tab.icon}`}></i>
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-        <button className="admin-exit-btn" onClick={() => navigate('/login')}>
-          <i className="bi bi-box-arrow-left"></i> Sair
-        </button>
-      </aside>
-
-      <div className="admin-main">
-        <header className="admin-header">
-          <div>
-            <h1>Painel Administrativo</h1>
-            <p>Gerencie usuários, chefes, receitas e comentários</p>
-          </div>
+        <div className="admin-header-right">
           <div className="admin-header-badge">
             <i className="bi bi-shield-fill-check"></i> Administrador
           </div>
-        </header>
-
-        <div className="admin-stats">
-          {stats.map(s => (
-            <button key={s.tab} className={`admin-stat-card ${activeTab === s.tab ? 'selected' : ''}`} onClick={() => setActiveTab(s.tab)}>
-              <div className="admin-stat-icon"><i className={`bi ${s.icon}`}></i></div>
-              <div className="admin-stat-info">
-                <span className="admin-stat-label">{s.label}</span>
-                <span className="admin-stat-value">{s.value}</span>
-                <span className="admin-stat-sub">{s.active} ativos</span>
-              </div>
-            </button>
-          ))}
+          <button className="admin-exit-btn" onClick={() => navigate('/login')}>
+            <i className="bi bi-box-arrow-left"></i> Sair
+          </button>
         </div>
+      </header>
 
-        <div className="admin-content">
-          {activeTab === 'users' && <AdminUsers data={users} setData={setUsers} onViewProfile={u => setModal({ item: u, type: 'user' })} />}
-          {activeTab === 'chefs' && <AdminChefs data={chefs} setData={setChefs} onViewChef={c => setModal({ item: c, type: 'chef' })} />}
-          {activeTab === 'recipes' && <AdminRecipes data={recipes} setData={setRecipes} onViewRecipe={r => setModal({ item: r, type: 'recipe' })} />}
-          {activeTab === 'comments' && <AdminComments data={comments} setData={setComments} onViewComment={c => setModal({ item: c, type: 'comment' })} />}
-        </div>
+      <div className="admin-stats">
+        {stats.map(s => (
+          <button key={s.tab} className={`admin-stat-card ${activeTab === s.tab ? 'selected' : ''}`} onClick={() => setActiveTab(s.tab)}>
+            <div className="admin-stat-icon"><i className={`bi ${s.icon}`}></i></div>
+            <div className="admin-stat-info">
+              <span className="admin-stat-label">{s.label}</span>
+              <span className="admin-stat-value">{s.value}</span>
+              <span className="admin-stat-sub">{s.active} ativos</span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="admin-tabs">
+        {TABS.map(tab => (
+          <button
+            key={tab.key}
+            className={`admin-tab-btn ${activeTab === tab.key ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            <i className={`bi ${tab.icon}`}></i> {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="admin-content">
+        {activeTab === 'users'    && <AdminUsers    data={users}    setData={setUsers}    onView={u => setModal({ item: u, type: 'user' })} />}
+        {activeTab === 'chefs'    && <AdminChefs    data={chefs}    setData={setChefs}    onView={c => setModal({ item: c, type: 'chef' })} />}
+        {activeTab === 'recipes'  && <AdminRecipes  data={recipes}  setData={setRecipes}  onView={r => setModal({ item: r, type: 'recipe' })} />}
+        {activeTab === 'comments' && <AdminComments data={comments} setData={setComments} onView={c => setModal({ item: c, type: 'comment' })} />}
       </div>
 
       {modal && (
-        <DetailModal
-          item={modal.item}
-          type={modal.type}
-          onClose={() => setModal(null)}
-          navigate={navigate}
-        />
+        <DetailModal item={modal.item} type={modal.type} onClose={() => setModal(null)} navigate={navigate} />
       )}
     </div>
   )
