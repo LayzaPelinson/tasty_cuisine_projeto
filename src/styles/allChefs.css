@@ -1,0 +1,95 @@
+.all-chefs-page {
+  width: 100%;
+  background: #f4efe6;
+  min-height: 100vh;
+}
+
+/* HERO — sem banner, centralizado */
+.all-chefs-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 60px 8% 48px;
+}
+
+.all-chefs-hero-content h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 72px;
+  line-height: 1.05;
+  color: #2c1d18;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.all-chefs-hero-content p {
+  font-size: 20px;
+  color: #6b6b6b;
+  line-height: 1.8;
+  margin-bottom: 36px;
+  max-width: 560px;
+}
+
+/* SEARCH */
+.all-chefs-search {
+  width: 100%;
+  max-width: 600px;
+  height: 68px;
+  background: white;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.all-chefs-search .search-icon {
+  font-size: 24px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.all-chefs-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 17px;
+  color: #333;
+}
+
+.all-chefs-search input::placeholder {
+  color: #aaa;
+}
+
+/* CONTENT */
+.all-chefs-content {
+  padding: 0 2% 100px;
+}
+
+.back-to-chefs-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: #f2f2f2;
+  border: none;
+  border-radius: 14px;
+  color: #555;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 32px;
+  transition: background 0.2s;
+}
+
+.back-to-chefs-btn:hover {
+  background: #e0d8ce;
+}
+
+.no-chefs-msg {
+  text-align: center;
+  color: #888;
+  font-size: 18px;
+  margin-top: 60px;
+}

@@ -8,7 +8,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 22px;
-  margin-bottom: 120px;
+  margin-bottom: 80px;
 }
 /* CARD */
 .chef-card {
@@ -93,4 +93,36 @@
   height: 520px;
   object-fit: cover;
   border-radius: 24px;
+}
+
+/* BOTÃO VER MAIS */
+.chefs-section-header {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 24px;
+}
+
+.chefs-ver-mais-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 80px;
+}
+
+.chefs-ver-mais-btn {
+  padding: 12px 28px;
+  background: #f47c20;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 0.3px;
+}
+
+.chefs-ver-mais-btn:hover {
+  background: #c96010;
+  transform: translateY(-2px);
 }
