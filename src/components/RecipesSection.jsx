@@ -6,18 +6,53 @@ import { useUser } from '../hooks/useUser'
 function RecipesSection({ showHeader = true, category, limit, search, locked = false, onGuestClick }) {
   const { recipes, recipesLoaded } = useUser()
   const allRecipes = recipes || []
+  
   const norm = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   const q = String(search || '').toLowerCase()
   const sectionRef = useRef(null)
 
-  const filtered = allRecipes
-    .filter((r) => (!q && category ? String(r.category || '').toLowerCase() === String(category).toLowerCase() : true))
-    .filter((r) =>
-      !q ||
-      norm(r.title).includes(q) ||
-      norm(r.category).includes(q) ||
-      norm(r.difficulty).includes(q)
-    )
+  // 1. LIMPEZA DOS DADOS BRUTOS (Evita que objetos brutos cheguem ao Filter ou Map)
+  const sanitizedRecipes = allRecipes.map(r => {
+    // Se a categoria vier como Array do Spring Boot, pegamos o primeiro item.
+    // Se vier como objeto puro, pegamos a propriedade. Se for String, usa ela mesma.
+    let catText = ''
+    if (Array.isArray(r.categoria)) {
+      catText = r.categoria[0]?.nomeCategoria || ''
+    } else if (r.categoria && typeof r.categoria === 'object') {
+      catText = r.categoria.nomeCategoria || ''
+    } else {
+      catText = r.category || ''
+    }
+
+    return {
+      ...r,
+      id_seguro: r.codReceitas || r.id || Math.random(),
+      titulo_seguro: r.nomeReceita || r.title || 'Receita sem título',
+      categoria_segura: String(catText), // Força virar String pura
+      chef_seguro: r.usuario?.nome_completo || r.usuario?.nome_de_usuario || r.chef || 'Anônimo',
+      dificuldade_segura: r.difficulty || ''
+    }
+  })
+
+  // 2. FILTRAGEM (Usando apenas as propriedades tratadas e seguras)
+  const filtered = sanitizedRecipes
+    .filter((r) => {
+      if (!q && category) {
+        return norm(r.categoria_segura) === norm(category)
+      }
+      return true
+    })
+    .filter((r) => {
+      if (!q) return true
+      return (
+        norm(r.titulo_seguro).includes(q) ||
+        norm(r.categoria_segura).includes(q) ||
+        norm(r.chef_seguro).includes(q) ||
+        norm(r.dificuldade_segura).includes(q)
+      )
+    })
+
+  // 3. EXIBIÇÃO (Garante o fatiamento correto da lista)
   const displayed = limit ? filtered.slice(0, limit) : filtered
 
   useEffect(() => {
@@ -43,7 +78,7 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
   }
 
   return (
-      <section className="recipes-section" ref={sectionRef}>
+    <section className="recipes-section" ref={sectionRef}>
       {showHeader && (
         <>
           <span className="recipes-subtitle">Receitas em Destaque</span>
@@ -55,8 +90,20 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
       ) : (
         <div className="recipes-grid">
           {displayed.map((recipe) => (
-            <div key={recipe.id} onClick={locked ? onGuestClick : undefined} style={locked ? { cursor: 'pointer' } : {}}>
-              <RecipeCard recipe={recipe} />
+            <div 
+              key={recipe.id_seguro} 
+              onClick={locked ? onGuestClick : undefined} 
+              style={locked ? { cursor: 'pointer' } : {}}
+            >
+              {/* Passamos o objeto tratado para o Card não quebrar internamente */}
+              <RecipeCard recipe={{
+                ...recipe,
+                id: recipe.id_seguro,
+                title: recipe.titulo_seguro,
+                category: recipe.categoria_segura,
+                chef: recipe.chef_seguro,
+                difficulty: recipe.dificuldade_segura
+              }} />
             </div>
           ))}
         </div>

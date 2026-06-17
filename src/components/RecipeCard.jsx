@@ -9,7 +9,7 @@ function RecipeCard({ recipe, actions }) {
   const { user, favoritos, toggleFavorito } = useUser()
   
   const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
-  const isChef = user?.role === 'chef'
+  const isChef = user?.role === 'Chefe'
 
   return (
     <Link to={`/recipe/${recipe.id}`} className="recipe-link">

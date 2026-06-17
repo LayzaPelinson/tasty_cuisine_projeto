@@ -36,7 +36,7 @@ function ChefDetails() {
         <div className="chef-details-info">
           <h1>{chefe.nomeCompleto}</h1>
           <div className="chef-details-meta">
-            <span><FiBook /> {chefe.recipes} receitas</span>
+            {<span><FiBook /> {chefe.recipes} receitas</span>}
           </div>
           <p>{chefe.bio}</p>
         </div>

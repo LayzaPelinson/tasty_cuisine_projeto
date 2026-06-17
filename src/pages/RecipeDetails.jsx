@@ -19,7 +19,7 @@ function RecipeDetails() {
   const navigate = useNavigate()
   const { user, recipes, recipesLoaded, favoritos, toggleFavorito  } = useUser()
   const recipe = recipes.find((item) => item.id === Number(id))
-  const isChef = user?.role === 'chef'
+  const isChef = user?.role === 'Chefe'
 
   const { addToHistory } = useFavorites()
   const ingredients = parseList(recipe?.ingredients)

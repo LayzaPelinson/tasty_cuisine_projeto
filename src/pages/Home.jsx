@@ -1,7 +1,7 @@
 import '../styles/home.css'
 import '../styles/global.css'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '../hooks/useUser.jsx'
 
@@ -26,11 +26,12 @@ function GuestModal({ onClose }) {
     )
 }
 
+
+
 function Home() {
     const { user } = useUser()
     const navigate = useNavigate()
     const [showModal, setShowModal] = useState(false)
-
     return (
         <>
             {showModal && <GuestModal onClose={() => setShowModal(false)} />}

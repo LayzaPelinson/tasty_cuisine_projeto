@@ -77,7 +77,7 @@ function Recipes() {
   const active = searchParams.get('categoria') || ''
   const search = searchParams.get('busca') || ''
 
-  if (user?.role === 'chef') return <ChefRecipesView />
+  if (user?.role === 'Chefe') return <ChefRecipesView />
 
   function handleSelect(cat) {
     const params = {}

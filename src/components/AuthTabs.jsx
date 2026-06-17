@@ -9,8 +9,8 @@ function AuthTabs({ activeTab, setActiveTab }) {
       </button>
 
       <button
-        className={activeTab === 'chef' ? 'active' : ''}
-        onClick={() => setActiveTab('chef')}
+        className={activeTab === 'Chefe' ? 'active' : ''}
+        onClick={() => setActiveTab('Chefe')}
       >
         Chefe
       </button>

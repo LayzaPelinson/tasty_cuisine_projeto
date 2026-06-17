@@ -6,18 +6,18 @@ const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Prote
 const API_BASE = 'http://localhost:8080'
 
 
-function normalizeUser(entity, role) {
+function normalizeUser(entity) {
   return {
-    id: entity.id ?? entity.codChefe ?? entity.codUser,
-    name: entity.name ?? entity.nomeCompleto ?? entity.nomeUsuario ?? entity.fullName,
-    email: entity.email ?? entity.gmail,
-    age: entity.age ?? entity.idade,
-    role,
-    username: entity.username ?? entity.nomeUsuario ?? entity.nomeDeUsuario,
-    photo: entity.photo ?? entity.fotoPerfil,
+    id: entity.codUser,
+    name: entity.nome_completo,
+    email: entity.gmail,
+    age: entity.idade,
+    funcao: entity.funcao,
+    username: entity.nome_de_usuario,
+    photo: entity.foto_perfil,
     preferences: entity.restricoesAlimentares
       ? entity.restricoesAlimentares.split(',').map(pref => pref.trim()).filter(Boolean)
-      : (entity.preferences ?? []),
+      : [],
   }
 }
 
@@ -43,7 +43,7 @@ function normalizeApiRecipe(recipe) {
     category: recipe.category ?? recipe.categoria ?? 'Geral',
     difficulty: recipe.difficulty ?? recipe.dificuldade ?? 'Médio',
     time: recipe.time ?? recipe.tempo ?? '',
-    chef: recipe.chef ?? recipe.chefName ?? recipe.chefe?.nomeUsuario ?? recipe.chefe?.nomeCompleto ?? 'Chef',
+    chef: recipe.chef ?? recipe.chefName ?? recipe.chefe?.nomeUsuario ?? recipe.chefe?.nomeCompleto ?? 'Chefe',
     chefId: recipe.chefId ?? recipe.chefe?.codChefe,
     ingredients: parseJsonOrLines(recipe.ingredients ?? recipe.ingredientes),
     instructions: parseJsonOrLines(recipe.instructions ?? recipe.modoPreparo ?? recipe.manual2),
@@ -69,15 +69,15 @@ export function UserProvider({ children }) {
 useEffect(() => {
   async function carregarUsuario() {
     const id = localStorage.getItem('userId')
-    const role = localStorage.getItem('userRole')
-    if (id && role) {
-      const endpoint = role === 'chef' ? `${API_BASE}/chefe/${id}` : `${API_BASE}/usuario/${id}`
+    const funcao =localStorage.getItem('userFuncao')
+    if (id && funcao) {
+      const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/${id}` : `${API_BASE}/usuario/${id}`
       const res = await fetch(endpoint)
       if (res.ok) {
         const body = await res.json()
-        const normalized = normalizeUser(body, role)
+        const normalized = normalizeUser(body)
         setUser(normalized)
-        if (role === 'usuario') await loadFavoritos(normalized.id)
+        if (funcao === 'usuario') await loadFavoritos(normalized.id)
       }
     }
     setLoading(false) // só aqui!
@@ -128,9 +128,9 @@ async function toggleFavorito(receitaId) {
 
   async function register(data) {
     try {
-      if (data.role === 'chef') {
+      if (data.funcao === 'Chefe') {
         const payload = {
-          nomeUsuario: data.email ? data.email.split('@')[0] : 'chef' + Date.now(),
+          nomeUsuario: data.email ? data.email.split('@')[0] : 'Chefe' + Date.now(),
           nomeCompleto: data.name || data.email,
           idade: Number(data.age) || 18,
           senha: data.password,
@@ -141,7 +141,7 @@ async function toggleFavorito(receitaId) {
         })
         if (!res.ok) throw new Error('Falha ao cadastrar chefe')
         const created = await res.json()
-        const normalized = normalizeUser(created, 'chef')
+        const normalized = normalizeUser(created, 'Chefe')
         setUser(normalized)
         return { ok: true, user: normalized }
       } else {
@@ -167,35 +167,55 @@ async function toggleFavorito(receitaId) {
     }
   }
 
-  async function login(email, password, role) {
+  async function login(email, password) {
   try {
-    const endpoint = role === 'chef' ? `${API_BASE}/chefe/login` : `${API_BASE}/usuario/login`
-    const res = await fetch(endpoint, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
+    const res = await fetch(`${API_BASE}/usuario/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        senha: password
+      })
     })
+
     if (res.status === 403) return 'inactive'
     if (!res.ok) return false
+
     const body = await res.json()
-    const normalized = normalizeUser(body, role)
+
+    const normalized = normalizeUser(body)
+
     setUser(normalized)
-    localStorage.setItem('userId', String(normalized.id))
-    localStorage.setItem('userRole', role)
-    if (role === 'usuario') await loadFavoritos(normalized.id)
+
+    localStorage.setItem(
+      'userId',
+      String(normalized.id)
+    )
+
+    localStorage.setItem(
+      'userFuncao',
+      normalized.funcao
+    )
+
+    await loadFavoritos(normalized.id)
+
     return true
-  } catch (err) {
+  } catch {
     return false
   }
 }
 
-  async function reactivateAccount(email, password, role) {
+  async function reactivateAccount(email, password, funcao) {
     try {
-      const endpoint = role === 'chef' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
+      const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
       const res = await fetch(endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
       })
       if (!res.ok) return { ok: false }
       const body = await res.json()
-      setUser(normalizeUser(body, role))
+      setUser(normalizeUser(body, funcao))
       return { ok: true }
     } catch {
       return { ok: false }
@@ -205,7 +225,7 @@ async function toggleFavorito(receitaId) {
   async function deactivateAccount() {
     if (!user) return { ok: false }
     try {
-      const endpoint = user.role === 'chef'
+      const endpoint = user.funcao === 'Chefe'
         ? `${API_BASE}/chefe/inativar/${user.id}`
         : `${API_BASE}/usuario/delete/${user.id}`
       const res = await fetch(endpoint, { method: 'PUT' })
@@ -220,8 +240,8 @@ async function toggleFavorito(receitaId) {
   async function changePassword(currentPassword, newPassword) {
     if (!user) return { ok: false }
     try {
-      const endpoint = user.role === 'chef' ? `${API_BASE}/chefe/${user.id}` : `${API_BASE}/usuario/${user.id}`
-      const payload = user.role === 'chef'
+      const endpoint = user.funcao === 'Chefe' ? `${API_BASE}/chefe/${user.id}` : `${API_BASE}/usuario/${user.id}`
+      const payload = user.funcao === 'Chefe'
         ? { nomeUsuario: user.username, nomeCompleto: user.name, idade: user.age, gmail: user.email, senha: newPassword }
         : { nomeCompleto: user.name, nomeDeUsuario: user.username, idade: user.age, gmail: user.email, senha: newPassword, restricoesAlimentares: user.preferences?.join(',') ?? null }
       const res = await fetch(endpoint, {
@@ -237,7 +257,7 @@ async function toggleFavorito(receitaId) {
   }
 
   async function updateChefProfile(updated) {
-    if (!user || user.role !== 'chef') return { ok: false, error: 'Usuário inválido' }
+    if (!user || user.funcao !== 'Chefe') return { ok: false, error: 'Usuário inválido' }
     try {
       const payload = {
         nomeUsuario: updated.username || user.username || (updated.name ? updated.name.split(' ')[0] : undefined),
@@ -255,7 +275,7 @@ async function toggleFavorito(receitaId) {
         return { ok: false, error: errorText || 'Falha ao atualizar perfil' }
       }
       const updatedChef = await res.json()
-      const normalized = normalizeUser(updatedChef, 'chef')
+      const normalized = normalizeUser(updatedChef, 'Chefe')
       setUser(prev => ({ ...prev, ...normalized }))
       return { ok: true, user: normalized }
     } catch (err) {
@@ -264,7 +284,7 @@ async function toggleFavorito(receitaId) {
   }
 
   async function updateUserProfile(updated) {
-    if (!user || user.role !== 'usuario') return { ok: false, error: 'Usuário inválido' }
+    if (!user || user.funcao !== 'usuario') return { ok: false, error: 'Usuário inválido' }
     try {
       const payload = {
         nomeCompleto: updated.name || user.name,
@@ -293,7 +313,7 @@ async function toggleFavorito(receitaId) {
   }
 
   async function publishRecipe(recipe) {
-    if (!user || user.role !== 'chef') {
+    if (!user || user.funcao !== 'Chefe') {
       return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
     }
     try {
@@ -328,7 +348,7 @@ async function toggleFavorito(receitaId) {
     setUser(null); 
     setToken(null)
     localStorage.removeItem('userId')
-    localStorage.removeItem('userRole') }
+    localStorage.removeItem('userfuncao') }
 
   async function deleteRecipe(id) {
     try {

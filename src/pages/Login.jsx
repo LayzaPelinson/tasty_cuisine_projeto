@@ -23,12 +23,12 @@ function Login() {
     setError('')
     if (mode === 'register') {
       register({ ...form, role: activeTab }).then(res => {
-        if (res && res.ok) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+        if (res && res.ok) navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
         else setError(res.error || 'Falha no cadastro')
       })
     } else {
       login(form.email, form.password, activeTab).then(result => {
-        if (result === true) navigate(activeTab === 'chef' ? '/chef-profile' : '/')
+        if (result === true) navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
         else if (result === 'inactive') { setInactiveEmail(form.email); setReactivatePwd(''); setReactivateError('') }
         else setError('E-mail ou senha inválidos.')
       })
@@ -39,11 +39,11 @@ function Login() {
     e.preventDefault()
     setReactivateError('')
     const res = await reactivateAccount(inactiveEmail, reactivatePwd, activeTab)
-    if (res.ok) { setInactiveEmail(null); navigate(activeTab === 'chef' ? '/chef-profile' : '/') }
+    if (res.ok) { setInactiveEmail(null); navigate(activeTab === 'Chefe' ? '/chef-profile' : '/') }
     else setReactivateError('Senha incorreta. Tente novamente.')
   }
 
-  const isChef = activeTab === 'chef'
+  const isChef = activeTab === 'Chefe'
 
   return (
     <main className="login-page">

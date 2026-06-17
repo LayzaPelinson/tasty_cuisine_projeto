@@ -19,10 +19,10 @@ function Header() {
                     <Link to="/login">Login</Link>
                 ) : (
                     <>
-                        {user.role !== 'chef' && <Link to="/">Home</Link>}
+                        {user.role !== 'Chefe' && <Link to="/">Home</Link>}
                         <Link to="/recipes">Receitas</Link>
-                        {user.role !== 'chef' && <Link to="/chefs">Chefes</Link>}
-                        {user.role === 'chef' ? (
+                        {user.role !== 'Chefe' && <Link to="/chefs">Chefes</Link>}
+                        {user.role === 'Chefe' ? (
                             <>
                                 <Link to="/publish">Publicar Receita</Link>
                                 <Link to="/chef-profile">Perfil</Link>
