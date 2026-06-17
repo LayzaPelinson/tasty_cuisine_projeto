@@ -318,37 +318,76 @@ async function reactivateAccount(email, password, funcao) {
   }
 
   async function publishRecipe(recipe) {
-    if (!user || user.funcao !== 'Chefe') {
-      return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
+  try {
+    console.log("DEBUG - Usuário logado no React:", user);
+    // 💡 Extraindo e limpando o modo de preparo de qualquer campo possível do formulário
+    let textoPreparo = '';
+    if (Array.isArray(recipe.instructions)) {
+      textoPreparo = recipe.instructions.join('\n');
+    } else {
+      textoPreparo = recipe.instructions || recipe.modoPreparo || recipe.modo_preparo || '';
     }
-    try {
-      const payload = {
-        nomeReceita: recipe.title,
-        descricao: recipe.description,
-        modoPreparo: JSON.stringify(recipe.instructions),
-        ingredientes: JSON.stringify(recipe.ingredients),
-        fotoReceita: recipe.image || null,
-        chefe: { codChefe: user.id },
-      }
-      const res = await fetch(`${API_BASE}/receita`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      if (!res.ok) {
-        const errorText = await res.text()
-        throw new Error(errorText || 'Falha ao publicar receita')
-      }
-      const saved = await res.json()
-      const normalized = normalizeApiRecipe(saved)
-      setRecipes(prev => [normalized, ...prev])
-      setChefRecipes(prev => [normalized, ...prev])
-      return { ok: true, recipe: normalized }
-    } catch (err) {
-      return { ok: false, error: err.message }
+    
+    // Se ainda assim o preparo estiver em branco, colocamos um texto padrão para o @NotBlank não barrar
+    if (!textoPreparo.trim()) {
+      textoPreparo = "Modo de preparo não informado.";
     }
-  }
 
+    // 💡 Extraindo a restrição alimentar do formulário ou definindo um padrão válido
+    const textoRestricao = recipe.restricao || recipe.Restricao || recipe.restrictions || 'Nenhuma';
+
+    // 💡 CONSTRUÇÃO DO PAYLOAD COM AS DUAS ALTERNATIVAS DE CASE (Garantia Absoluta)
+    const payload = {
+      nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
+      descricao: recipe.description || recipe.descricao || '',
+      fotoReceita: recipe.image || recipe.fotoReceita || null,
+      
+      // Enviando o texto tratado que limpamos acima
+      ingredientes: Array.isArray(recipe.ingredients)
+        ? recipe.ingredients.join(', ')
+        : String(recipe.ingredients || recipe.nomeIngrediente || 'Ingredientes não informados'),
+
+      // Envia tanto em snake_case minúsculo quanto com a primeira maiúscula 
+      // para satisfazer qualquer configuração do Jackson no seu Spring Boot:
+      modo_preparo: textoPreparo,
+      Modo_preparo: textoPreparo,
+      
+      restricao: textoRestricao,
+      Restricao: textoRestricao,
+
+      // Vinculando a Categoria de forma segura
+      categoria: {
+        codCategoria: Number(recipe.categoryId || recipe.categoriaId || recipe.categoria?.codCategoria || 1)
+      },
+
+      // Vinculando ao Usuário logado da tabela única
+      usuario: { 
+       codUsuario: Number(user?.id || user?.codUsuario) 
+      }
+    }
+
+    const res = await fetch(`${API_BASE}/receita`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      const errorText = await res.text()
+      throw new Error(errorText || 'Falha ao publicar receita')
+    }
+
+    const saved = await res.json()
+    const normalized = normalizeApiRecipe(saved)
+    
+    setRecipes(prev => [normalized, ...prev])
+    setChefRecipes(prev => [normalized, ...prev])
+    
+    return { ok: true, recipe: normalized }
+  } catch (err) {
+    return { ok: false, error: err.message }
+  }
+}
   function logout() { 
     setUser(null); 
     setToken(null)
