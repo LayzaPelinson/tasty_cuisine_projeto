@@ -5,7 +5,7 @@ import { useUser } from '../hooks/useUser.jsx'
 import '../styles/login.css'
 
 function Login() {
-  const [activeTab, setActiveTab] = useState('usuario')
+  const [activeTab, setActiveTab] = useState('usuario') // 'usuario' ou 'Chefe'
   const [mode, setMode] = useState('login')
   const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
@@ -18,19 +18,32 @@ function Login() {
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
+
   function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    
     if (mode === 'register') {
-      register({ ...form, role: activeTab }).then(res => {
-        if (res && res.ok) navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
-        else setError(res.error || 'Falha no cadastro')
+      // 💡 CORRIGIDO: Passando 'funcao' em vez de 'role' para o hook reconhecer
+      register({ ...form, funcao: activeTab }).then(res => {
+        if (res && res.ok) {
+          navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
+        } else {
+          setError(res.error || 'Falha no cadastro')
+        }
       })
     } else {
+      // 💡 CORRIGIDO: Passando activeTab para a função de login saber quem está autenticando
       login(form.email, form.password, activeTab).then(result => {
-        if (result === true) navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
-        else if (result === 'inactive') { setInactiveEmail(form.email); setReactivatePwd(''); setReactivateError('') }
-        else setError('E-mail ou senha inválidos.')
+        if (result === true) {
+          navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
+        } else if (result === 'inactive') {
+          setInactiveEmail(form.email)
+          setReactivatePwd('')
+          setReactivateError('')
+        } else {
+          setError('E-mail ou senha inválidos.')
+        }
       })
     }
   }
@@ -39,28 +52,30 @@ function Login() {
     e.preventDefault()
     setReactivateError('')
     const res = await reactivateAccount(inactiveEmail, reactivatePwd, activeTab)
-    if (res.ok) { setInactiveEmail(null); navigate(activeTab === 'Chefe' ? '/chef-profile' : '/') }
-    else setReactivateError('Senha incorreta. Tente novamente.')
+    if (res.ok) {
+      setInactiveEmail(null)
+      navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
+    } else {
+      setReactivateError('Senha incorreta. Tente novamente.')
+    }
   }
 
   const isChef = activeTab === 'Chefe'
 
   return (
     <main className="login-page">
-      <button
-        className="admin-access-btn"
-        onClick={() => navigate('/admin')}
-      >
+      <button className="admin-access-btn" onClick={() => navigate('/admin')}>
         <i className="bi bi-shield-lock-fill"></i> Painel Admin
       </button>
       <div className="login-container">
         <AuthTabs activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setError('') }} />
         <div className="login-card">
-          <div className="login-icon">{isChef ? '👨🍳' : '👤'}</div>
+          <div className="login-icon">{isChef ? '👨‍🍳' : '👤'}</div>
           <h1>{mode === 'login' ? 'Bem-vindo de volta' : isChef ? 'Seja um Chefe' : 'Criar Conta'}</h1>
-          <p>{mode === 'login'
-            ? `Acesse sua conta de ${isChef ? 'chefe' : 'usuário'}`
-            : isChef ? 'Compartilhe suas receitas com o mundo' : 'Salve e descubra novas receitas'}
+          <p>
+            {mode === 'login'
+              ? `Acesse sua conta de ${isChef ? 'chefe' : 'usuário'}`
+              : isChef ? 'Compartilhe suas receitas com o mundo' : 'Salve e descubra novas receitas'}
           </p>
 
           {error && <p className="login-error">{error}</p>}

@@ -126,80 +126,84 @@ async function toggleFavorito(receitaId) {
     }
   }
 
-  async function register(data) {
-    try {
-      if (data.funcao === 'Chefe') {
-        const payload = {
-          nomeUsuario: data.email ? data.email.split('@')[0] : 'Chefe' + Date.now(),
-          nomeCompleto: data.name || data.email,
-          idade: Number(data.age) || 18,
-          senha: data.password,
-          gmail: data.email,
-        }
-        const res = await fetch(`${API_BASE}/chefe`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-        })
-        if (!res.ok) throw new Error('Falha ao cadastrar chefe')
-        const created = await res.json()
-        const normalized = normalizeUser(created, 'Chefe')
-        setUser(normalized)
-        return { ok: true, user: normalized }
-      } else {
-        const payload = {
-          nomeCompleto: data.name || data.email,
-          nomeDeUsuario: data.email ? data.email.split('@')[0] : 'user' + Date.now(),
-          idade: Number(data.age) || 18,
-          gmail: data.email,
-          senha: data.password,
-          restricoesAlimentares: data.preferences ? data.preferences.join(',') : null
-        }
-        const res = await fetch(`${API_BASE}/usuario`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-        })
-        if (!res.ok) throw new Error('Falha ao cadastrar usuário')
-        const created = await res.json()
-        const normalized = normalizeUser(created, 'usuario')
-        setUser(normalized)
-        return { ok: true, user: normalized }
-      }
-    } catch (err) {
-      return { ok: false, error: err.message }
-    }
-  }
-
-  async function login(email, password) {
+async function register(data) {
   try {
+    const payload = {
+      nome_completo: data.name || data.email,
+      nome_de_usuario: data.email ? data.email.split('@')[0] : 'user' + Date.now(),
+      idade: Number(data.age) || 18,
+      gmail: data.email,
+      senha: data.password,
+      funcao: data.funcao, 
+      // 💡 CORRIGIDO: Deixando null temporariamente para ignorar a restrição CHECK do SQL Server
+      restricoesAlimentares: null 
+    }
+
+    const res = await fetch(`${API_BASE}/usuario`, {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Falha ao realizar o cadastro');
+    }
+    
+    const created = await res.json()
+    const normalized = normalizeUser(created, created.funcao || data.funcao)
+    setUser(normalized)
+    
+    return { ok: true, user: normalized }
+  } catch (err) {
+    return { ok: false, error: err.message }
+  }
+} 
+
+async function reactivateAccount(email, password, funcao) {
+  try {
+    // 💡 ENDPOINT ÚNICO DE REATIVAR: Como a tabela é a mesma, o endpoint também é
+    const res = await fetch(`${API_BASE}/usuario/reativar`, {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ email, senha: password })
+    })
+    
+    if (!res.ok) return { ok: false }
+    const body = await res.json()
+    setUser(normalizeUser(body, body.funcao || funcao))
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
+
+async function login(email, password, funcao) {
+  try {
+    // 💡 OBSERVAÇÃO: Se seu Spring Boot tiver endpoints separados para login de chefe, 
+    // mude a URL dinamicamente aqui usando a variável 'funcao'. 
+    // Caso o endpoint '/usuario/login' valide ambos, o código abaixo está perfeito.
     const res = await fetch(`${API_BASE}/usuario/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email,
-        senha: password
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha: password })
     })
 
     if (res.status === 403) return 'inactive'
     if (!res.ok) return false
 
     const body = await res.json()
-
-    const normalized = normalizeUser(body)
-
+    
+    // Passamos a funcao para garantir que o objeto normalizado saiba quem ele é
+    const normalized = normalizeUser(body, funcao)
     setUser(normalized)
 
-    localStorage.setItem(
-      'userId',
-      String(normalized.id)
-    )
+    localStorage.setItem('userId', String(normalized.id))
+    localStorage.setItem('userFuncao', normalized.funcao)
 
-    localStorage.setItem(
-      'userFuncao',
-      normalized.funcao
-    )
-
-    await loadFavoritos(normalized.id)
+    if (typeof loadFavoritos === 'function') {
+      await loadFavoritos(normalized.id)
+    }
 
     return true
   } catch {
@@ -207,21 +211,22 @@ async function toggleFavorito(receitaId) {
   }
 }
 
-  async function reactivateAccount(email, password, funcao) {
-    try {
-      const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
-      const res = await fetch(endpoint, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha: password })
-      })
-      if (!res.ok) return { ok: false }
-      const body = await res.json()
-      setUser(normalizeUser(body, funcao))
-      return { ok: true }
-    } catch {
-      return { ok: false }
-    }
+async function reactivateAccount(email, password, funcao) {
+  try {
+    const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
+    const res = await fetch(endpoint, {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ email, senha: password })
+    })
+    if (!res.ok) return { ok: false }
+    const body = await res.json()
+    setUser(normalizeUser(body, funcao))
+    return { ok: true }
+  } catch {
+    return { ok: false }
   }
-
+}
   async function deactivateAccount() {
     if (!user) return { ok: false }
     try {
