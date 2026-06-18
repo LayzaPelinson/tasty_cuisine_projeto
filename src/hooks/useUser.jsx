@@ -58,57 +58,57 @@ export function UserProvider({ children }) {
   const [recipes, setRecipes] = useState([])
   const [recipesLoaded, setRecipesLoaded] = useState(false)
   const [chefRecipes, setChefRecipes] = useState([])
-  const [recipeStats, setRecipeStats] = useState({}) 
+  const [recipeStats, setRecipeStats] = useState({})
   const [favoritos, setFavoritos] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadRecipes()
   }, [])
-  
-useEffect(() => {
-  async function carregarUsuario() {
-    const id = localStorage.getItem('userId')
-    const funcao =localStorage.getItem('userFuncao')
-    if (id && funcao) {
-      const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/${id}` : `${API_BASE}/usuario/${id}`
-      const res = await fetch(endpoint)
-      if (res.ok) {
-        const body = await res.json()
-        const normalized = normalizeUser(body)
-        setUser(normalized)
-        if (funcao === 'usuario') await loadFavoritos(normalized.id)
+
+  useEffect(() => {
+    async function carregarUsuario() {
+      const id = localStorage.getItem('userId')
+      const funcao = localStorage.getItem('userFuncao')
+      if (id && funcao) {
+        const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/${id}` : `${API_BASE}/usuario/${id}`
+        const res = await fetch(endpoint)
+        if (res.ok) {
+          const body = await res.json()
+          const normalized = normalizeUser(body)
+          setUser(normalized)
+          if (funcao === 'usuario') await loadFavoritos(normalized.id)
+        }
       }
+      setLoading(false) // só aqui!
     }
-    setLoading(false) // só aqui!
-  }
-  loadRecipes()
-  carregarUsuario()
-}, [])
+    loadRecipes()
+    carregarUsuario()
+  }, [])
 
   async function loadFavoritos(userId) {
-  const res = await fetch(`${API_BASE}/favorito/findAll`)
-  const data = await res.json()
-  if (Array.isArray(data)) {
-    setFavoritos(data.filter(f => String(f.usuario?.codUser) === String(userId)))
+    const res = await fetch(`${API_BASE}/favorito/findAll`)
+    const data = await res.json()
+    if (Array.isArray(data)) {
+      setFavoritos(data.filter(f => String(f.usuario?.codUser) === String(userId)))
+    }
   }
-}
-async function toggleFavorito(receitaId) {
-  if (!user) return
-  const jaExiste = favoritos.find(f => String(f.receita?.codReceitas) === String(receitaId))
-  if (jaExiste) {
-    await fetch(`${API_BASE}/favorito/${jaExiste.codFavoritos}`, { method: 'DELETE' })
-    setFavoritos(prev => prev.filter(f => f.codFavoritos !== jaExiste.codFavoritos))
-  } else {
-    const res = await fetch(`${API_BASE}/favorito`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario: { codUser: user.id }, receita: { codReceitas: receitaId } })
-    })
-    const saved = await res.json()
-    await loadFavoritos(String(user.id))
+  async function toggleFavorito(receitaId) {
+    if (!user) return
+    const jaExiste = favoritos.find(f => String(f.receita?.codReceitas) === String(receitaId))
+    if (jaExiste) {
+      await fetch(`${API_BASE}/favorito/${jaExiste.codFavoritos}`, { method: 'DELETE' })
+      setFavoritos(prev => prev.filter(f => f.codFavoritos !== jaExiste.codFavoritos))
+    } else {
+      const res = await fetch(`${API_BASE}/favorito`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario: { codUser: user.id }, receita: { codReceitas: receitaId } })
+      })
+      const saved = await res.json()
+      await loadFavoritos(String(user.id))
+    }
   }
-}
 
   async function loadRecipes() {
     try {
@@ -126,107 +126,107 @@ async function toggleFavorito(receitaId) {
     }
   }
 
-async function register(data) {
-  try {
-    const payload = {
-      nome_completo: data.name || data.email,
-      nome_de_usuario: data.email ? data.email.split('@')[0] : 'user' + Date.now(),
-      idade: Number(data.age) || 18,
-      gmail: data.email,
-      senha: data.password,
-      funcao: data.funcao, 
-      // 💡 CORRIGIDO: Deixando null temporariamente para ignorar a restrição CHECK do SQL Server
-      restricoesAlimentares: null 
+  async function register(data) {
+    try {
+      const payload = {
+        nome_completo: data.name || data.email,
+        nome_de_usuario: data.email ? data.email.split('@')[0] : 'user' + Date.now(),
+        idade: Number(data.age) || 18,
+        gmail: data.email,
+        senha: data.password,
+        funcao: data.funcao,
+        // 💡 CORRIGIDO: Deixando null temporariamente para ignorar a restrição CHECK do SQL Server
+        restricoesAlimentares: null
+      }
+
+      const res = await fetch(`${API_BASE}/usuario`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Falha ao realizar o cadastro');
+      }
+
+      const created = await res.json()
+      const normalized = normalizeUser(created, created.funcao || data.funcao)
+      setUser(normalized)
+
+      return { ok: true, user: normalized }
+    } catch (err) {
+      return { ok: false, error: err.message }
     }
+  }
 
-    const res = await fetch(`${API_BASE}/usuario`, {
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify(payload)
-    })
+  async function reactivateAccount(email, password, funcao) {
+    try {
+      // 💡 ENDPOINT ÚNICO DE REATIVAR: Como a tabela é a mesma, o endpoint também é
+      const res = await fetch(`${API_BASE}/usuario/reativar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha: password })
+      })
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Falha ao realizar o cadastro');
+      if (!res.ok) return { ok: false }
+      const body = await res.json()
+      setUser(normalizeUser(body, body.funcao || funcao))
+      return { ok: true }
+    } catch {
+      return { ok: false }
     }
-    
-    const created = await res.json()
-    const normalized = normalizeUser(created, created.funcao || data.funcao)
-    setUser(normalized)
-    
-    return { ok: true, user: normalized }
-  } catch (err) {
-    return { ok: false, error: err.message }
   }
-} 
 
-async function reactivateAccount(email, password, funcao) {
-  try {
-    // 💡 ENDPOINT ÚNICO DE REATIVAR: Como a tabela é a mesma, o endpoint também é
-    const res = await fetch(`${API_BASE}/usuario/reativar`, {
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ email, senha: password })
-    })
-    
-    if (!res.ok) return { ok: false }
-    const body = await res.json()
-    setUser(normalizeUser(body, body.funcao || funcao))
-    return { ok: true }
-  } catch {
-    return { ok: false }
-  }
-}
+  async function login(email, password, funcao) {
+    try {
+      // 💡 OBSERVAÇÃO: Se seu Spring Boot tiver endpoints separados para login de chefe, 
+      // mude a URL dinamicamente aqui usando a variável 'funcao'. 
+      // Caso o endpoint '/usuario/login' valide ambos, o código abaixo está perfeito.
+      const res = await fetch(`${API_BASE}/usuario/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha: password })
+      })
 
-async function login(email, password, funcao) {
-  try {
-    // 💡 OBSERVAÇÃO: Se seu Spring Boot tiver endpoints separados para login de chefe, 
-    // mude a URL dinamicamente aqui usando a variável 'funcao'. 
-    // Caso o endpoint '/usuario/login' valide ambos, o código abaixo está perfeito.
-    const res = await fetch(`${API_BASE}/usuario/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha: password })
-    })
+      if (res.status === 403) return 'inactive'
+      if (!res.ok) return false
 
-    if (res.status === 403) return 'inactive'
-    if (!res.ok) return false
+      const body = await res.json()
 
-    const body = await res.json()
-    
-    // Passamos a funcao para garantir que o objeto normalizado saiba quem ele é
-    const normalized = normalizeUser(body, funcao)
-    setUser(normalized)
+      // Passamos a funcao para garantir que o objeto normalizado saiba quem ele é
+      const normalized = normalizeUser(body, funcao)
+      setUser(normalized)
 
-    localStorage.setItem('userId', String(normalized.id))
-    localStorage.setItem('userFuncao', normalized.funcao)
+      localStorage.setItem('userId', String(normalized.id))
+      localStorage.setItem('userFuncao', normalized.funcao)
 
-    if (typeof loadFavoritos === 'function') {
-      await loadFavoritos(normalized.id)
+      if (typeof loadFavoritos === 'function') {
+        await loadFavoritos(normalized.id)
+      }
+
+      return true
+    } catch {
+      return false
     }
-
-    return true
-  } catch {
-    return false
   }
-}
 
-async function reactivateAccount(email, password, funcao) {
-  try {
-    const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
-    const res = await fetch(endpoint, {
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ email, senha: password })
-    })
-    if (!res.ok) return { ok: false }
-    const body = await res.json()
-    setUser(normalizeUser(body, funcao))
-    return { ok: true }
-  } catch {
-    return { ok: false }
+  async function reactivateAccount(email, password, funcao) {
+    try {
+      const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha: password })
+      })
+      if (!res.ok) return { ok: false }
+      const body = await res.json()
+      setUser(normalizeUser(body, funcao))
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
   }
-}
   async function deactivateAccount() {
     if (!user) return { ok: false }
     try {
@@ -318,73 +318,80 @@ async function reactivateAccount(email, password, funcao) {
   }
 
   async function publishRecipe(recipe) {
-  try {
-    console.log("DEBUG - Usuário logado no React:", user);
-    let textoPreparo = '';
-    if (Array.isArray(recipe.instructions)) {
-      textoPreparo = recipe.instructions.join('\n');
-    } else {
-      textoPreparo = recipe.instructions || recipe.modoPreparo || recipe.modo_preparo || '';
-    }
-    
-    if (!textoPreparo.trim()) {
-      textoPreparo = "Modo de preparo não informado.";
-    }
-
-    const textoRestricao = recipe.restricao || recipe.Restricao || recipe.restrictions || 'Nenhuma';
-
-    const payload = {
-      nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
-      descricao: recipe.description || recipe.descricao || '',
-      fotoReceita: recipe.image || recipe.fotoReceita || null,
-      
-      // Enviando o texto tratado que limpamos acima
-      ingredientes: Array.isArray(recipe.ingredients)
-        ? recipe.ingredients.join(', ')
-        : String(recipe.ingredients || recipe.nomeIngrediente || 'Ingredientes não informados'),
-
-      modo_preparo: textoPreparo,
-      Modo_preparo: textoPreparo,
-      
-      restricao: textoRestricao,
-      Restricao: textoRestricao,
-
-      categoria: {
-        codCategoria: Number(recipe.categoryId || recipe.categoriaId || recipe.categoria?.codCategoria || 1)
-      },
-
-      usuario: { 
-       codUsuario: Number(user?.id || user?.codUsuario) 
+    try {
+      console.log("DEBUG - Usuário logado no React:", user);
+      let textoPreparo = '';
+      if (Array.isArray(recipe.instructions)) {
+        textoPreparo = recipe.instructions.join('\n');
+      } else {
+        textoPreparo = recipe.instructions || recipe.modoPreparo || recipe.modo_preparo || '';
       }
-    }
 
-    const res = await fetch(`${API_BASE}/receita`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
+      if (!textoPreparo.trim()) {
+        textoPreparo = "Modo de preparo não informado.";
+      }
 
-    if (!res.ok) {
-      const errorText = await res.text()
-      throw new Error(errorText || 'Falha ao publicar receita')
-    }
+      const textoRestricao = recipe.restricao || recipe.Restricao || recipe.restrictions || 'Nenhuma';
 
-    const saved = await res.json()
-    const normalized = normalizeApiRecipe(saved)
-    
-    setRecipes(prev => [normalized, ...prev])
-    setChefRecipes(prev => [normalized, ...prev])
-    
-    return { ok: true, recipe: normalized }
-  } catch (err) {
-    return { ok: false, error: err.message }
+      const payload = {
+  nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
+
+  descricao: recipe.description || recipe.descricao || '',
+
+  fotoReceita: recipe.image || recipe.fotoReceita || null,
+
+  ingredientes: JSON.stringify(
+    Array.isArray(recipe.ingredients)
+      ? recipe.ingredients
+      : ["Ingrediente não informado"]
+  ),
+
+  modo_preparo: JSON.stringify(
+    Array.isArray(recipe.instructions)
+      ? recipe.instructions
+      : [textoPreparo]
+  ),
+
+  categorias: JSON.stringify(["1"]),
+
+  restricao: Number(recipe.restricao || 15),
+
+  usuario: {
+    codUser: Number(user?.id || user?.codUsuario)
   }
 }
-  function logout() { 
-    setUser(null); 
+
+      const res = await fetch(`${API_BASE}/receita`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        console.log("PAYLOAD:", payload);
+console.log("JSON:", JSON.stringify(payload, null, 2));
+        const errorText = await res.text()
+        throw new Error(errorText || 'Falha ao publicar receita')
+      }
+
+      const saved = await res.json()
+      const normalized = normalizeApiRecipe(saved)
+
+      setRecipes(prev => [normalized, ...prev])
+      setChefRecipes(prev => [normalized, ...prev])
+
+      return { ok: true, recipe: normalized }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
+  }
+
+  function logout() {
+    setUser(null);
     setToken(null)
     localStorage.removeItem('userId')
-    localStorage.removeItem('userfuncao') }
+    localStorage.removeItem('userfuncao')
+  }
 
   async function deleteRecipe(id) {
     try {
@@ -418,7 +425,7 @@ async function reactivateAccount(email, password, funcao) {
   }
 
   return (
-    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, reactivateAccount, deactivateAccount, changePassword, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView, favoritos, toggleFavorito,loading  }}>
+    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, reactivateAccount, deactivateAccount, changePassword, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView, favoritos, toggleFavorito, loading }}>
       {children}
     </UserContext.Provider>
   )
