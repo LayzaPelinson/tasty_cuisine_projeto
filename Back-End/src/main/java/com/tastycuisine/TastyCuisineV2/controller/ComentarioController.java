@@ -1,15 +1,24 @@
 package com.tastycuisine.TastyCuisineV2.controller;
 
-import com.tastycuisine.TastyCuisineV2.model.entity.Comentario;
-import com.tastycuisine.TastyCuisineV2.model.service.ComentarioService;
-import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import com.tastycuisine.TastyCuisineV2.model.entity.Comentario;
+import com.tastycuisine.TastyCuisineV2.model.service.ComentarioService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/comentario")
@@ -61,13 +70,10 @@ public class ComentarioController {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "comentário não encontrado com o id: " + codComentarios));
         }
     }
-
     @GetMapping("/receita/{codReceita}")
-    public ResponseEntity<Object> findByReceita(@PathVariable String codReceita) {
-        try {
-            return ResponseEntity.ok(comentarioService.findByReceita(Long.parseLong(codReceita)));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codReceita));
-        }
+    public ResponseEntity<List<Comentario>> buscarPorReceita(@PathVariable Long codReceita) {
+        return ResponseEntity.ok(
+            comentarioService.buscarPorReceita(codReceita)
+        );
     }
 }

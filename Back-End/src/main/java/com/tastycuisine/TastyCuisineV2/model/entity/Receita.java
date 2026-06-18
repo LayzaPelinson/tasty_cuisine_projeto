@@ -1,10 +1,19 @@
 package com.tastycuisine.TastyCuisineV2.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
-
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -30,23 +39,24 @@ public class Receita {
 
     @Column(name = "Modo_preparo", nullable = false, columnDefinition = "NVARCHAR(MAX)")
     @NotBlank
-    private String modoPreparo;
+    private String Modo_preparo;
 
-    @Column(name = "Ingredientes", columnDefinition = "NVARCHAR(MAX)")
-    private String ingredientes;
+    @Column(name = "Ingredientes", nullable = false, columnDefinition = "NVARCHAR(MAX)")
+    @NotBlank
+    private String Ingredientes;
+
+        @ManyToOne
+        @JoinColumn(name = "Categoria")
+        private Categoria categoria;
+
+    @Column(name = "Restricao", nullable = false, columnDefinition = "NVARCHAR(MAX)")
+    @NotBlank
+    private String Restricao;
 
     @ManyToOne
-    @JoinColumn(name = "Cod_chefe", nullable = false)
-    private Chefe chefe;
+    @JoinColumn(name = "Cod_usuario", nullable = false)
+    private Usuario usuario;
 
-    @Column(name = "Foto_receita")
+    @Column(name = "Foto_receita", nullable = true, columnDefinition = "NVARCHAR(MAX)")
     private String fotoReceita;
-
-    @ManyToMany
-    @JoinTable(
-        name = "Receitas_Categorias",
-        joinColumns = @JoinColumn(name = "Cod_receitas"),
-        inverseJoinColumns = @JoinColumn(name = "Cod_Categoria")
-    )
-    private List<Categoria> categorias;
 }

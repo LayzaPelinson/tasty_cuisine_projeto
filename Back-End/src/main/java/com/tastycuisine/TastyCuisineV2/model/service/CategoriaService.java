@@ -1,11 +1,12 @@
 package com.tastycuisine.TastyCuisineV2.model.service;
 
-import com.tastycuisine.TastyCuisineV2.model.entity.Categoria;
-import com.tastycuisine.TastyCuisineV2.model.repository.CategoriaRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.tastycuisine.TastyCuisineV2.model.entity.Categoria;
+import com.tastycuisine.TastyCuisineV2.model.repository.CategoriaRepository;
 
 @Service
 public class CategoriaService {
@@ -25,8 +26,6 @@ public class CategoriaService {
     public Categoria update(long codCategoria, Categoria categoria) {
         Categoria existente = findById(codCategoria);
         existente.setNomeCategoria(categoria.getNomeCategoria());
-        existente.setTipoCategoria(categoria.getTipoCategoria());
-        existente.setIcone(categoria.getIcone());
         return categoriaRepository.save(existente);
     }
 

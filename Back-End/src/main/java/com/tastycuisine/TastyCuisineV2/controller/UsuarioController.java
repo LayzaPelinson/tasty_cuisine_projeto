@@ -78,7 +78,7 @@ public class UsuarioController {
         }
     }
 
-    @PatchMapping("/{codUser}/status")
+    @PutMapping("/{codUser}/status")
     public ResponseEntity<Object> alterarStatus(@PathVariable Long codUser) {
         try {
             return ResponseEntity.ok(usuarioService.ativate(codUser));

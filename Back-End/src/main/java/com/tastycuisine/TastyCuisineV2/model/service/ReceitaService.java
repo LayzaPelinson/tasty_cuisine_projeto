@@ -1,11 +1,12 @@
 package com.tastycuisine.TastyCuisineV2.model.service;
 
-import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
-import com.tastycuisine.TastyCuisineV2.model.repository.ReceitaRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
+import com.tastycuisine.TastyCuisineV2.model.repository.ReceitaRepository;
 
 @Service
 public class ReceitaService {
@@ -13,9 +14,13 @@ public class ReceitaService {
     @Autowired
     private ReceitaRepository receitaRepository;
 
-    public List<Receita> findAll() { return receitaRepository.findAll(); }
+    public List<Receita> findAll() {
+        return receitaRepository.findAll();
+    }
 
-    public Receita save(Receita receita) { return receitaRepository.save(receita); }
+    public Receita save(Receita receita) {
+        return receitaRepository.save(receita);
+    }
 
     public Receita findById(long codReceitas) {
         return receitaRepository.findById(codReceitas)
@@ -24,17 +29,20 @@ public class ReceitaService {
 
     public Receita update(long codReceitas, Receita receita) {
         Receita existente = findById(codReceitas);
+
         existente.setNomeReceita(receita.getNomeReceita());
         existente.setDescricao(receita.getDescricao());
-        existente.setModoPreparo(receita.getModoPreparo());
+        existente.setModo_preparo(receita.getModo_preparo());
         existente.setIngredientes(receita.getIngredientes());
-        existente.setChefe(receita.getChefe());
+        existente.setCategoria(receita.getCategoria());
+        existente.setUsuario(receita.getUsuario());
         existente.setFotoReceita(receita.getFotoReceita());
+        existente.setRestricao(receita.getRestricao());
         return receitaRepository.save(existente);
     }
 
-    public List<Receita> findByChefe(long codChefe) {
-        return receitaRepository.findByChefeCodChefe(codChefe);
+    public List<Receita> findByUsuario(long codUsuario) {
+        return receitaRepository.findByUsuarioCodUser(codUsuario);
     }
 
     public List<Receita> buscar(String termo) {
@@ -49,8 +57,8 @@ public class ReceitaService {
 
     public List<Receita> findByCategoria(long codCategoria) {
         return receitaRepository.findAll().stream()
-                .filter(r -> r.getCategorias().stream()
-                        .anyMatch(c -> c.getCodCategoria() == codCategoria))
+                .filter(r -> r.getCategoria() != null &&
+                        r.getCategoria().getCodCategoria() == codCategoria)
                 .collect(java.util.stream.Collectors.toList());
     }
 

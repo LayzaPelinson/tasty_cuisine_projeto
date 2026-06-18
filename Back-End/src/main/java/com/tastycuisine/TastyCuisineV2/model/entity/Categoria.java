@@ -21,11 +21,4 @@ public class Categoria {
     @Column(name = "Nome_Categoria", length = 100, nullable = false)
     @NotBlank
     private String nomeCategoria;
-
-    @Column(name = "Tipo_Categoria", length = 50, nullable = false)
-    @NotBlank
-    private String tipoCategoria;
-
-    @Column(name = "icone")
-    private byte[] icone;
 }

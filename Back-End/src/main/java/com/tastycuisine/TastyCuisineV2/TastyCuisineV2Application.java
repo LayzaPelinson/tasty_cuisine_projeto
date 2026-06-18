@@ -10,4 +10,4 @@ public class TastyCuisineV2Application {
 		SpringApplication.run(TastyCuisineV2Application.class, args);
 	}
 
-}
+}                                                      

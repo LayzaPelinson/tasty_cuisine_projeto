@@ -35,11 +35,11 @@ public class Usuario {
 
     @Column(name = "nome_completo", length = 300, nullable = false)
     @NotBlank
-    private String nomeCompleto;
+    private String nome_completo;
 
     @Column(name = "nome_de_usuario", length = 60, nullable = false)
     @NotBlank
-    private String nomeDeUsuario;
+    private String nome_de_usuario;
 
     @Column(nullable = false)
     @Min(value = 14, message = "A idade mínima permitida é 14 anos")
@@ -57,8 +57,9 @@ public class Usuario {
     @Column(name = "Restricoes_alimentares", nullable = true, columnDefinition = "NVARCHAR(MAX)")
     private String restricoesAlimentares;
 
-    // ── NOVO: foto de perfil salva como base64 ──────────────────────────────
-    // Mesmo padrão do campo foto_perfil da entidade Chefe
     @Column(name = "foto_perfil", nullable = true, columnDefinition = "NVARCHAR(MAX)")
-    private String fotoPerfil;
+    private String foto_perfil;
+
+    @Column(name = "funcao", nullable = true, columnDefinition = "NVARCHAR(MAX)")
+    private String funcao;
 }

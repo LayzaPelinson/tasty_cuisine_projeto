@@ -1,23 +1,18 @@
 package com.tastycuisine.TastyCuisineV2.model.service;
 
-import com.tastycuisine.TastyCuisineV2.model.dto.ComentarioComNotaDTO;
-import com.tastycuisine.TastyCuisineV2.model.entity.Avaliacao;
-import com.tastycuisine.TastyCuisineV2.model.entity.Comentario;
-import com.tastycuisine.TastyCuisineV2.model.repository.ComentarioRepository;
-import com.tastycuisine.TastyCuisineV2.model.repository.AvaliacaoRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-import java.util.List;
+import com.tastycuisine.TastyCuisineV2.model.entity.Comentario;
+import com.tastycuisine.TastyCuisineV2.model.repository.ComentarioRepository;
 
 @Service
 public class ComentarioService {
 
     @Autowired
     private ComentarioRepository comentarioRepository;
-    @Autowired
-    private AvaliacaoRepository avaliacaoRepository;
 
     public List<Comentario> findAll() { return comentarioRepository.findAll(); }
 
@@ -32,6 +27,7 @@ public class ComentarioService {
         Comentario existente = findById(codComentarios);
         existente.setUsuario(comentario.getUsuario());
         existente.setReceita(comentario.getReceita());
+        existente.setNota(comentario.getNota());
         existente.setTexto(comentario.getTexto());
         return comentarioRepository.save(existente);
     }
@@ -39,17 +35,7 @@ public class ComentarioService {
     public void delete(long codComentarios) {
         comentarioRepository.delete(findById(codComentarios));
     }
-
-    public List<ComentarioComNotaDTO> findByReceita(long codReceitas) {
-    List<Comentario> comentarios = comentarioRepository.findByReceitaCodReceitas(codReceitas);
-    
-    return comentarios.stream().map(c -> {
-        Integer nota = avaliacaoRepository
-    .findByReceitaCodReceitasAndUsuarioCodUser(codReceitas, c.getUsuario().getCodUser())
-    .map(Avaliacao::getNota)
-    .orElse(0);
-
-        return new ComentarioComNotaDTO(c, nota);
-    }).toList();
+    public List<Comentario> buscarPorReceita(Long codReceita) {
+    return comentarioRepository.findByReceitaCodReceitas(codReceita);
 }
 }
