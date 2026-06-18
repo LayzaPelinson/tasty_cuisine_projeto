@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
 import com.tastycuisine.TastyCuisineV2.model.service.ReceitaService;
-
+import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
 import jakarta.validation.Valid;
 
 @RestController
@@ -35,7 +33,7 @@ public class ReceitaController {
 
     @PostMapping
     public ResponseEntity<Receita> save(@Valid @RequestBody Receita receita) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(receitaService.save(receita));
+        return ResponseEntity.status(HttpStatus.CREATED).body(receitaService.salvar(receita));
     }
 
     @GetMapping("/{codReceita}")

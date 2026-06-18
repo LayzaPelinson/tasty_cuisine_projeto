@@ -4,23 +4,61 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
+import com.tastycuisine.TastyCuisineV2.model.entity.Usuario;
 import com.tastycuisine.TastyCuisineV2.model.repository.ReceitaRepository;
+import com.tastycuisine.TastyCuisineV2.model.repository.UsuarioRepository;
 
 @Service
 public class ReceitaService {
 
     @Autowired
     private ReceitaRepository receitaRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public List<Receita> findAll() {
         return receitaRepository.findAll();
     }
 
-    public Receita save(Receita receita) {
-        return receitaRepository.save(receita);
-    }
+    @Autowired
+private ObjectMapper objectMapper;
+
+public Receita salvar(Receita dto) {
+
+    Receita receita = new Receita();
+    try{
+    receita.setNomeReceita(dto.getNomeReceita());
+    receita.setDescricao(dto.getDescricao());
+
+    receita.setModo_preparo(
+        objectMapper.writeValueAsString(dto.getModo_preparo())
+    );
+
+    receita.setIngredientes(
+        objectMapper.writeValueAsString(dto.getIngredientes())
+    );
+
+    receita.setCategorias(
+        objectMapper.writeValueAsString(dto.getCategorias())
+    );
+
+    receita.setRestricao(dto.getRestricao());
+    receita.setFotoReceita(dto.getFotoReceita());
+
+    Usuario usuario = usuarioRepository.findById(dto.getUsuario().getCodUser())
+            .orElseThrow();
+
+    receita.setUsuario(usuario);
+
+    return receitaRepository.save(receita); }
+        catch (JsonProcessingException e) {
+        throw new RuntimeException("Erro ao converter JSON", e);
+}} 
+
 
     public Receita findById(long codReceitas) {
         return receitaRepository.findById(codReceitas)
@@ -34,7 +72,7 @@ public class ReceitaService {
         existente.setDescricao(receita.getDescricao());
         existente.setModo_preparo(receita.getModo_preparo());
         existente.setIngredientes(receita.getIngredientes());
-        existente.setCategoria(receita.getCategoria());
+        existente.setCategorias(receita.getCategorias());
         existente.setUsuario(receita.getUsuario());
         existente.setFotoReceita(receita.getFotoReceita());
         existente.setRestricao(receita.getRestricao());
@@ -56,11 +94,25 @@ public class ReceitaService {
     }
 
     public List<Receita> findByCategoria(long codCategoria) {
-        return receitaRepository.findAll().stream()
-                .filter(r -> r.getCategoria() != null &&
-                        r.getCategoria().getCodCategoria() == codCategoria)
-                .collect(java.util.stream.Collectors.toList());
-    }
+
+    return receitaRepository.findAll().stream()
+        .filter(receita -> {
+            try {
+
+                List<Long> categorias =
+                    objectMapper.readValue(
+                        receita.getCategorias(),
+                        new TypeReference<List<Long>>() {}
+                    );
+
+                return categorias.contains(codCategoria);
+
+            } catch (Exception e) {
+                return false;
+            }
+        })
+        .toList();
+}
 
     public void delete(long codReceitas) {
         receitaRepository.delete(findById(codReceitas));
