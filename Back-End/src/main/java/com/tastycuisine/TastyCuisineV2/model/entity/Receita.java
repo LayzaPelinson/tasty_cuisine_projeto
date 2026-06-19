@@ -1,11 +1,16 @@
 package com.tastycuisine.TastyCuisineV2.model.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -45,11 +50,18 @@ public class Receita {
     @NotBlank
     private String ingredientes;
 
-    @Column(name = "Categoria", columnDefinition = "NVARCHAR(MAX)", nullable = false)
-    private String categorias;
-
     @Column(name = "Restricao", nullable = false)
     private int restricao;
+
+    
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+        name = "Receitas_Categorias",
+        joinColumns = @JoinColumn(name = "Cod_receitas"),
+        inverseJoinColumns = @JoinColumn(name = "Cod_Categoria")
+    )
+    private List<Categoria> categoria = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "Cod_usuario", nullable = false)

@@ -11,4 +11,5 @@ import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
 public interface ReceitaRepository extends JpaRepository<Receita, Long> {
     List<Receita> findByUsuarioCodUser(long codChefe);
     List<Receita> findByNomeReceitaContainingIgnoreCase(String termo);
+    List<Receita> findByCategoriaCodCategoria(long codCategoria);
 }

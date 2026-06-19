@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tastycuisine.TastyCuisineV2.model.entity.Categoria;
 import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
 import com.tastycuisine.TastyCuisineV2.model.entity.Usuario;
 import com.tastycuisine.TastyCuisineV2.model.repository.ReceitaRepository;
@@ -19,6 +19,8 @@ public class ReceitaService {
     private ReceitaRepository receitaRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private CategoriaService categoriaService;
 
     public List<Receita> findAll() {
         return receitaRepository.findAll();
@@ -42,9 +44,6 @@ public Receita salvar(Receita dto) {
         objectMapper.writeValueAsString(dto.getIngredientes())
     );
 
-    receita.setCategorias(
-        objectMapper.writeValueAsString(dto.getCategorias())
-    );
 
     receita.setRestricao(dto.getRestricao());
     receita.setFotoReceita(dto.getFotoReceita());
@@ -72,7 +71,6 @@ public Receita salvar(Receita dto) {
         existente.setDescricao(receita.getDescricao());
         existente.setModo_preparo(receita.getModo_preparo());
         existente.setIngredientes(receita.getIngredientes());
-        existente.setCategorias(receita.getCategorias());
         existente.setUsuario(receita.getUsuario());
         existente.setFotoReceita(receita.getFotoReceita());
         existente.setRestricao(receita.getRestricao());
@@ -93,28 +91,18 @@ public Receita salvar(Receita dto) {
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    public List<Receita> findByCategoria(long codCategoria) {
-
-    return receitaRepository.findAll().stream()
-        .filter(receita -> {
-            try {
-
-                List<Long> categorias =
-                    objectMapper.readValue(
-                        receita.getCategorias(),
-                        new TypeReference<List<Long>>() {}
-                    );
-
-                return categorias.contains(codCategoria);
-
-            } catch (Exception e) {
-                return false;
-            }
-        })
-        .toList();
-}
-
     public void delete(long codReceitas) {
         receitaRepository.delete(findById(codReceitas));
+    }
+
+    public Receita adicionarCategoria(long codCategoria,long codReceita){
+        Receita receita = findById(codReceita);
+        Categoria categoria = categoriaService.findById(codCategoria);
+        receita.getCategoria().add(categoria);
+        return receitaRepository.save(receita);
+    }
+
+    public List<Receita> findByCategoria(long codCategoria){
+        return receitaRepository.findByCategoriaCodCategoria(codCategoria);
     }
 }
