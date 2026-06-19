@@ -1,8 +1,3 @@
-IF EXISTS(select * from sys.databases where name = 'TASTYCUISINE')
-USE master
-go
-DROP DATABASE TASTYCUISINE
-GO
 CREATE DATABASE TASTYCUISINE
 GO
 USE TASTYCUISINE
@@ -72,6 +67,11 @@ CREATE TABLE Livros(
     FOREIGN KEY (Cod_User) REFERENCES Usuario(Cod_user),
 );
 
+CREATE TABLE Livro_Receitas(
+    Cod_Livros INT NOT NULL,
+    Cod_Receita INT NOT NULL
+)
+
 GO
 
 insert into Usuario(Nome_completo,Nome_de_usuario,Idade,Gmail,Senha,Restricoes_alimentares,funcao)
@@ -85,6 +85,9 @@ values('arroz','arroz cozido','["Farinha", "Ovo", "Leite"]','["Misture os ingred
 
 insert into livros(Nome_Livro,Cod_User)
 values('edurado',1)
+
+insert into Livro_Receitas(Cod_Livros,Cod_Receita)
+values(1,1)
 
 
 GO
