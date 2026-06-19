@@ -105,4 +105,10 @@ public Receita salvar(Receita dto) {
     public List<Receita> findByCategoria(long codCategoria){
         return receitaRepository.findByCategoriaCodCategoria(codCategoria);
     }
+
+    public Receita removerCategoria(long codCategoria, long codReceita) {
+        Receita receita = findById(codReceita);
+        receita.getCategoria().removeIf(r -> r.getCodCategoria() == codCategoria);
+        return receitaRepository.save(receita);
+    }
 }
