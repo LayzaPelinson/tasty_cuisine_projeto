@@ -334,42 +334,44 @@ export function UserProvider({ children }) {
       const textoRestricao = recipe.restricao || recipe.Restricao || recipe.restrictions || 'Nenhuma';
 
       const payload = {
-  nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
+        nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
 
-  descricao: recipe.description || recipe.descricao || '',
+        descricao: recipe.description || recipe.descricao || '',
 
-  fotoReceita: recipe.image || recipe.fotoReceita || null,
+        fotoReceita: recipe.image || recipe.fotoReceita || null,
 
-  ingredientes: JSON.stringify(
-    Array.isArray(recipe.ingredients)
-      ? recipe.ingredients
-      : ["Ingrediente não informado"]
-  ),
+        ingredientes: JSON.stringify(
+          Array.isArray(recipe.ingredients)
+            ? recipe.ingredients
+            : ["Ingrediente não informado"]
+        ),
 
-  modo_preparo: JSON.stringify(
-    Array.isArray(recipe.instructions)
-      ? recipe.instructions
-      : [textoPreparo]
-  ),
+        modo_preparo: JSON.stringify(
+          Array.isArray(recipe.instructions)
+            ? recipe.instructions
+            : [textoPreparo]
+        ),
 
-  categorias: JSON.stringify(["1"]),
+        restricao: Number(recipe.restricao || 15),
 
-  restricao: Number(recipe.restricao || 15),
-
-  usuario: {
-    codUser: Number(user?.id || user?.codUsuario)
-  }
-}
+        usuario: {
+          codUser: Number(user?.id || user?.codUsuario)
+        }
+      }
 
       const res = await fetch(`${API_BASE}/receita`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
+      const res2 = await fetch(`${API_BASE}/receita`,{
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      })
 
       if (!res.ok) {
         console.log("PAYLOAD:", payload);
-console.log("JSON:", JSON.stringify(payload, null, 2));
+        console.log("JSON:", JSON.stringify(payload, null, 2));
         const errorText = await res.text()
         throw new Error(errorText || 'Falha ao publicar receita')
       }
