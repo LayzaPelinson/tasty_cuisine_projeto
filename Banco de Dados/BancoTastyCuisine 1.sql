@@ -81,10 +81,10 @@ insert into Usuario(Nome_completo,Nome_de_usuario,Idade,Gmail,Senha,Restricoes_a
 VALUES('soso','Sooo','25','gmail@gmail.com','123456','[]','Usuario')
 
 insert into Categorias(Nome_Categoria)
-values('almoco')
+values('Massas')
 
-insert into Receitas(Nome_receita,Descricao,Ingredientes,Modo_preparo,Categoria,Restricao,Cod_usuario)
-values('arroz','arroz cozido','["Farinha", "Ovo", "Leite"]','["Misture os ingredientes","Coloque na forma","Asse por 40 minutos"]',1,15,1)
+insert into Receitas(Nome_receita,Descricao,Ingredientes,Modo_preparo,Restricao,Cod_usuario)
+values('arroz','arroz cozido','["Farinha", "Ovo", "Leite"]','["Misture os ingredientes","Coloque na forma","Asse por 40 minutos"]',15,1)
 
 insert into livros(Nome_Livro,Cod_User)
 values('edurado',1)
@@ -92,12 +92,13 @@ values('edurado',1)
 insert into Livro_Receitas(Cod_Livros,Cod_Receita)
 values(1,1)
 
-
+insert into Receitas_Categorias(Cod_Categoria,Cod_Receita)
+values(1,1)
 GO
  
 SELECT * FROM Usuario
-Select * From Comentarios
-select * from Categorias
+    Select * From Comentarios
+    select * from Categorias
 select * from Receitas
 select * from Favoritos
 select * from Livros    

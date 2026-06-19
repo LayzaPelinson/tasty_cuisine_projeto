@@ -331,21 +331,19 @@ export function UserProvider({ children }) {
         textoPreparo = "Modo de preparo não informado.";
       }
 
-      const textoRestricao = recipe.restricao || recipe.Restricao || recipe.restrictions || 'Nenhuma';
-
       const payload = {
         nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
-
         descricao: recipe.description || recipe.descricao || '',
-
         fotoReceita: recipe.image || recipe.fotoReceita || null,
 
+        // Certifique-se de que o nome dessa chave seja exatamente igual ao atributo do seu DTO/Entity Java
         ingredientes: JSON.stringify(
           Array.isArray(recipe.ingredients)
             ? recipe.ingredients
             : ["Ingrediente não informado"]
         ),
 
+        // Certifique-se de que o nome dessa chave seja exatamente igual ao atributo do seu DTO/Entity Java
         modo_preparo: JSON.stringify(
           Array.isArray(recipe.instructions)
             ? recipe.instructions
@@ -353,32 +351,47 @@ export function UserProvider({ children }) {
         ),
 
         restricao: Number(recipe.restricao || 15),
-
         usuario: {
           codUser: Number(user?.id || user?.codUsuario)
         }
       }
 
+      // 1. Salva a receita básica
       const res = await fetch(`${API_BASE}/receita`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-      const res2 = await fetch(`${API_BASE}/receita`,{
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
-      })
 
       if (!res.ok) {
         console.log("PAYLOAD:", payload);
-        console.log("JSON:", JSON.stringify(payload, null, 2));
         const errorText = await res.text()
         throw new Error(errorText || 'Falha ao publicar receita')
       }
 
+      // Pegamos a receita salva que voltou do banco (ela contém o codReceitas)
       const saved = await res.json()
-      const normalized = normalizeApiRecipe(saved)
+      const idReceitaSalva = saved.codReceitas;
 
+      // 2. Vincula as categorias (assumindo que recipe.categorias seja um array de IDs, ex: [1, 3, 5])
+      if (recipe.categorias && Array.isArray(recipe.categorias)) {
+        for (const codCategoria of recipe.categorias) {
+          // Seu endpoint espera: /categoria/adicionar/{codCategoria}/{receita}
+          // Nota: Como o backend pede o objeto Receita no @PathVariable (ou o ID, dependendo de como o Spring converte),
+          // passamos o id da receita no lugar do parâmetro {receita}
+          const resCategoria = await fetch(`${API_BASE}/categoria/adicionar/${codCategoria}/${idReceitaSalva}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          if (!resCategoria.ok) {
+            console.warn(`Não foi possível associar a categoria ${codCategoria} à receita.`);
+          }
+        }
+      }
+
+      // 3. Atualiza o estado local do React
+      const normalized = normalizeApiRecipe(saved)
       setRecipes(prev => [normalized, ...prev])
       setChefRecipes(prev => [normalized, ...prev])
 
