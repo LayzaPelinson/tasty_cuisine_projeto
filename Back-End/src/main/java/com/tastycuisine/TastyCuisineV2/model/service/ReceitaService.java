@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tastycuisine.TastyCuisineV2.model.entity.Categoria;
 import com.tastycuisine.TastyCuisineV2.model.entity.Receita;
 import com.tastycuisine.TastyCuisineV2.model.entity.Usuario;
@@ -26,38 +24,32 @@ public class ReceitaService {
         return receitaRepository.findAll();
     }
 
-    @Autowired
-private ObjectMapper objectMapper;
-
 public Receita salvar(Receita dto) {
 
     Receita receita = new Receita();
-    try{
+
     receita.setNomeReceita(dto.getNomeReceita());
     receita.setDescricao(dto.getDescricao());
 
-    receita.setModo_preparo(
-        objectMapper.writeValueAsString(dto.getModo_preparo())
-    );
+    receita.setModo_preparo(dto.getModo_preparo());
+    receita.setIngredientes(dto.getIngredientes());
+    System.out.println("INGREDIENTES RECEBIDOS:");
+    System.out.println(dto.getIngredientes());
 
-    receita.setIngredientes(
-        objectMapper.writeValueAsString(dto.getIngredientes())
-    );
-
+    System.out.println("MODO PREPARO RECEBIDO:");
+    System.out.println(dto.getModo_preparo());
 
     receita.setRestricao(dto.getRestricao());
     receita.setFotoReceita(dto.getFotoReceita());
 
-    Usuario usuario = usuarioRepository.findById(dto.getUsuario().getCodUser())
-            .orElseThrow();
+    Usuario usuario = usuarioRepository
+        .findById(dto.getUsuario().getCodUser())
+        .orElseThrow();
 
     receita.setUsuario(usuario);
 
-    return receitaRepository.save(receita); }
-        catch (JsonProcessingException e) {
-        throw new RuntimeException("Erro ao converter JSON", e);
-}} 
-
+    return receitaRepository.save(receita);
+}
 
     public Receita findById(long codReceitas) {
         return receitaRepository.findById(codReceitas)

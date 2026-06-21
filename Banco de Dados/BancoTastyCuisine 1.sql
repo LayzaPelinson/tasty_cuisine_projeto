@@ -73,6 +73,12 @@ CREATE TABLE Livro_Receitas(
 CREATE TABLE Receitas_Categorias(
     Cod_Categoria INT NOT NULL,
     Cod_Receita INT NOT NULL
+    
+    FOREIGN KEY (Cod_receita)
+        REFERENCES Receitas(Cod_receitas),
+
+    FOREIGN KEY (Cod_Categoria)
+        REFERENCES Categorias(Cod_Categoria)
 )
 
 GO
@@ -103,6 +109,7 @@ select * from Receitas
 select * from Favoritos
 select * from Livros    
 SELECT * FROM Livro_Receitas;
+select * from Receitas_Categorias
 
 SELECT COLUMN_NAME
 FROM INFORMATION_SCHEMA.COLUMNS
@@ -112,5 +119,10 @@ SELECT COLUMN_NAME
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = 'Receitas';
 
-insert into livro_receitas(cod_livro,cod_receitas)
-values(3,2)
+SELECT COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Receitas';
+
+SELECT *
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME = 'Receitas_Categorias'

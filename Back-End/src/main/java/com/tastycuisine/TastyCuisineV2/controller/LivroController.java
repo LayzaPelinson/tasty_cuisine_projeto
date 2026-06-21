@@ -27,7 +27,7 @@ public class LivroController {
 
     @GetMapping("/findAll")
     public ResponseEntity<List<Livro>> findAll() {
-        return ResponseEntity.ok(livroService.findAll());
+        return ResponseEntity.ok(livroService.findAll()); 
     }
 
     @GetMapping("/usuario/{codUser}")

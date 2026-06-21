@@ -42,8 +42,8 @@ public class Livro {
     @ManyToMany
     @JoinTable(
         name = "Livro_Receitas",
-        joinColumns = @JoinColumn(name = "Cod_livro"),
-        inverseJoinColumns = @JoinColumn(name = "Cod_receitas")
+        joinColumns = @JoinColumn(name = "Cod_Livros"),
+        inverseJoinColumns = @JoinColumn(name = "Cod_Receita")
     )
     private List<Receita> receitas = new ArrayList<>();
     

@@ -36,6 +36,9 @@ function parseJsonOrLines(value) {
 }
 
 function normalizeApiRecipe(recipe) {
+  console.log("RECEITA DA API:", recipe);
+console.log("MODO_PREPARO:", recipe.modo_preparo);
+console.log("INSTRUCTIONS:", recipe.instructions);
   return {
     id: recipe.id ?? recipe.codReceitas,
     title: recipe.title ?? recipe.nomeReceita,
@@ -46,7 +49,7 @@ function normalizeApiRecipe(recipe) {
     chef: recipe.chef ?? recipe.chefName ?? recipe.chefe?.nomeUsuario ?? recipe.chefe?.nomeCompleto ?? 'Chefe',
     chefId: recipe.chefId ?? recipe.chefe?.codChefe,
     ingredients: parseJsonOrLines(recipe.ingredients ?? recipe.ingredientes),
-    instructions: parseJsonOrLines(recipe.instructions ?? recipe.modoPreparo ?? recipe.manual2),
+    instructions: parseJsonOrLines(recipe.instructions ?? recipe.modo_preparo ?? recipe.manual2),
     chefTip: recipe.chefTip ?? recipe.dica ?? '',
     image: recipe.image ?? null,
   }
@@ -316,90 +319,88 @@ export function UserProvider({ children }) {
       return { ok: false, error: err.message }
     }
   }
-
-  async function publishRecipe(recipe) {
-    try {
-      console.log("DEBUG - Usuário logado no React:", user);
-      let textoPreparo = '';
-      if (Array.isArray(recipe.instructions)) {
-        textoPreparo = recipe.instructions.join('\n');
-      } else {
-        textoPreparo = recipe.instructions || recipe.modoPreparo || recipe.modo_preparo || '';
-      }
-
-      if (!textoPreparo.trim()) {
-        textoPreparo = "Modo de preparo não informado.";
-      }
-
-      const payload = {
-        nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
-        descricao: recipe.description || recipe.descricao || '',
-        fotoReceita: recipe.image || recipe.fotoReceita || null,
-
-        // Certifique-se de que o nome dessa chave seja exatamente igual ao atributo do seu DTO/Entity Java
-        ingredientes: JSON.stringify(
-          Array.isArray(recipe.ingredients)
-            ? recipe.ingredients
-            : ["Ingrediente não informado"]
-        ),
-
-        // Certifique-se de que o nome dessa chave seja exatamente igual ao atributo do seu DTO/Entity Java
-        modo_preparo: JSON.stringify(
-          Array.isArray(recipe.instructions)
-            ? recipe.instructions
-            : [textoPreparo]
-        ),
-
-        restricao: Number(recipe.restricao || 15),
-        usuario: {
-          codUser: Number(user?.id || user?.codUsuario)
-        }
-      }
-
-      // 1. Salva a receita básica
-      const res = await fetch(`${API_BASE}/receita`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-
-      if (!res.ok) {
-        console.log("PAYLOAD:", payload);
-        const errorText = await res.text()
-        throw new Error(errorText || 'Falha ao publicar receita')
-      }
-
-      // Pegamos a receita salva que voltou do banco (ela contém o codReceitas)
-      const saved = await res.json()
-      const idReceitaSalva = saved.codReceitas;
-
-      // 2. Vincula as categorias (assumindo que recipe.categorias seja um array de IDs, ex: [1, 3, 5])
-      if (recipe.categorias && Array.isArray(recipe.categorias)) {
-        for (const codCategoria of recipe.categorias) {
-          // Seu endpoint espera: /categoria/adicionar/{codCategoria}/{receita}
-          // Nota: Como o backend pede o objeto Receita no @PathVariable (ou o ID, dependendo de como o Spring converte),
-          // passamos o id da receita no lugar do parâmetro {receita}
-          const resCategoria = await fetch(`${API_BASE}/categoria/adicionar/${codCategoria}/${idReceitaSalva}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' }
-          });
-
-          if (!resCategoria.ok) {
-            console.warn(`Não foi possível associar a categoria ${codCategoria} à receita.`);
-          }
-        }
-      }
-
-      // 3. Atualiza o estado local do React
-      const normalized = normalizeApiRecipe(saved)
-      setRecipes(prev => [normalized, ...prev])
-      setChefRecipes(prev => [normalized, ...prev])
-
-      return { ok: true, recipe: normalized }
-    } catch (err) {
-      return { ok: false, error: err.message }
-    }
+async function publishRecipe(recipe) {
+  // Mantém a validação de segurança do método antigo
+  if (!user || (user.funcao !== 'chef' && user.funcao !== 'Chefe' && user.funcao !== 'CHEF')) {
+    return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
   }
+
+  try {
+    console.log("DEBUG - Usuário logado no React:", user);
+
+    // Garante que ingredientes e instruções sejam arrays válidos antes de converter
+    const listaIngredientes = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
+    const listaInstrucoes = Array.isArray(recipe.instructions) ? recipe.instructions : [];
+
+    if (listaIngredientes.length === 0) {
+      return { ok: false, error: 'A lista de ingredientes não pode estar vazia.' }
+    }
+    if (listaInstrucoes.length === 0) {
+      return { ok: false, error: 'O modo de preparo não pode estar vazio.' }
+    }
+
+    const payload = {
+      nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
+      descricao: recipe.description || recipe.descricao || '',
+      fotoReceita: recipe.image || recipe.fotoReceita || null,
+
+      // Converte o array estruturado de objetos direto para string JSON (Passa no CHECK do SQL Server)
+      ingredientes: JSON.stringify(listaIngredientes),
+
+      // Converte o array de strings (passos) direto para string JSON (Passa no CHECK do SQL Server)
+      modo_preparo: JSON.stringify(listaInstrucoes),
+
+      restricao: Number(recipe.restricao || 15),
+      usuario: {
+        codUser: Number(user?.id || user?.codUsuario)
+      }
+      
+    }
+
+    // 1. Salva a receita básica (POST)
+    const res = await fetch(`${API_BASE}/receita`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      console.log("PAYLOAD QUE DEU ERRO:", payload);
+      const errorText = await res.text()
+      throw new Error(errorText || 'Falha ao publicar receita')
+    }
+
+    // Pegamos a receita salva que voltou do banco
+    const saved = await res.json()
+    const idReceitaSalva = saved.codReceitas || saved.id;
+
+    // 2. Vincula as categorias na tabela intermediária (PUT)
+    if (recipe.categorias && Array.isArray(recipe.categorias)) {
+      for (const codCategoria of recipe.categorias) {
+        console.log("INGREDIENTES:", payload.ingredientes);
+        console.log("MODO_PREPARO:", payload.modo_preparo);
+        console.log("PAYLOAD:", payload);
+        const resCategoria = await fetch(`${API_BASE}/categoria/adicionar/${codCategoria}/${idReceitaSalva}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!resCategoria.ok) {
+          console.warn(`Não foi possível associar a categoria ${codCategoria} à receita ${idReceitaSalva}.`);
+        }
+      }
+    }
+
+    // 3. Atualiza o estado local do React
+    const normalized = normalizeApiRecipe(saved)
+    setRecipes(prev => [normalized, ...prev])
+    setChefRecipes(prev => [normalized, ...prev])
+
+    return { ok: true, recipe: normalized }
+  } catch (err) {
+    return { ok: false, error: err.message }
+  }
+}
 
   function logout() {
     setUser(null);

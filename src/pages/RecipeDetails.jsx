@@ -23,7 +23,7 @@ function RecipeDetails() {
 
   const { addToHistory } = useFavorites()
   const ingredients = parseList(recipe?.ingredients)
-  const instructions = parseList(recipe?.instructions)
+  const instructions = parseList(recipe?.modo_preparo)
   const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
 
   useEffect(() => {
@@ -43,7 +43,7 @@ function RecipeDetails() {
 
   if (!recipesLoaded) return <h1>Carregando receita...</h1>
   if (!recipe) return <h1>Receita não encontrada</h1>
-
+  console.log(JSON.stringify(recipe, null, 2))
   return (
     <section className="recipe-details">
       <button className="back-btn" onClick={() => navigate(-1)}>
