@@ -52,6 +52,7 @@ console.log("INSTRUCTIONS:", recipe.instructions);
     instructions: parseJsonOrLines(recipe.instructions ?? recipe.modo_preparo ?? recipe.manual2),
     chefTip: recipe.chefTip ?? recipe.dica ?? '',
     image: recipe.image ?? null,
+    active: recipe.status_receita === 'ATIVO',
   }
 }
 
@@ -87,8 +88,101 @@ export function UserProvider({ children }) {
     }
     loadRecipes()
     carregarUsuario()
+    loadCategorias()
   }, [])
 
+  async function toggleUserStatus(userId, currentlyActive) {
+  try {
+    const endpoint = currentlyActive
+      ? `${API_BASE}/usuario/delete/${userId}`
+      : `${API_BASE}/usuario/${userId}/status`
+    const res = await fetch(endpoint, { method: 'PUT' })
+    if (!res.ok) return { ok: false }
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
+
+async function toggleRecipeStatus(recipeId, currentlyActive) {
+  try {
+    const endpoint = currentlyActive
+      ? `${API_BASE}/receita/${recipeId}/inativar`
+      : `${API_BASE}/receita/${recipeId}/ativar`
+    const res = await fetch(endpoint, { method: 'PUT', cache: 'no-store' })
+    if (!res.ok) return { ok: false }
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
+
+async function toggleCommentStatus(commentId, currentlyActive) {
+  try {
+    const endpoint = currentlyActive
+      ? `${API_BASE}/comentario/${commentId}/inativar`
+      : `${API_BASE}/comentario/${commentId}/ativar`
+    const res = await fetch(endpoint, { method: 'PUT' })
+    if (!res.ok) return { ok: false }
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
+
+// ── ADMIN: dados completos sem filtro ────────────────────────────────────
+async function loadAllUsers() {
+  try {
+    const res = await fetch(`${API_BASE}/usuario/findAll`)
+    if (!res.ok) return []
+    return await res.json()
+  } catch {
+    return []
+  }
+}
+
+async function loadAllComments() {
+  try {
+    const res = await fetch(`${API_BASE}/comentario/findAll`)
+    if (!res.ok) return []
+    return await res.json()
+  } catch {
+    return []
+  }
+}
+
+// ── ADMIN: categorias ────────────────────────────────────────────────────
+const [categorias, setCategorias] = useState([])
+
+async function loadCategorias() {
+  try {
+    const res = await fetch(`${API_BASE}/categoria/findAll`)
+    if (!res.ok) return
+    const data = await res.json()
+    setCategorias(Array.isArray(data) ? data : [])
+  } catch {
+    setCategorias([])
+  }
+}
+
+async function createCategoria(nome) {
+  try {
+    const res = await fetch(`${API_BASE}/categoria`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nomeCategoria: nome })
+    })
+    if (!res.ok) {
+      const errText = await res.text()
+      return { ok: false, error: errText }
+    }
+    const created = await res.json()
+    setCategorias(prev => [...prev, created])
+    return { ok: true, categoria: created }
+  } catch (err) {
+    return { ok: false, error: err.message }
+  }
+}
   async function loadFavoritos(userId) {
     const res = await fetch(`${API_BASE}/favorito/findAll`)
     const data = await res.json()
@@ -441,7 +535,18 @@ async function publishRecipe(recipe) {
   }
 
   return (
-    <UserContext.Provider value={{ user, token, setUser, DIET_OPTIONS, register, login, reactivateAccount, deactivateAccount, changePassword, updateChefProfile, updateUserProfile, logout, recipes, recipesLoaded, chefRecipes, publishRecipe, deleteRecipe, editRecipe, recipeStats, trackFavorite, trackView, favoritos, toggleFavorito, loading }}>
+    <UserContext.Provider value={{
+      user, token, setUser, 
+      DIET_OPTIONS, register, login, 
+      reactivateAccount, deactivateAccount, changePassword, 
+      updateChefProfile, updateUserProfile, logout, 
+      recipes, recipesLoaded, chefRecipes, 
+      publishRecipe, deleteRecipe, editRecipe, 
+      recipeStats, trackFavorite, trackView, 
+      favoritos, toggleFavorito, loading,
+      toggleUserStatus, toggleRecipeStatus, toggleCommentStatus,
+      loadAllUsers, loadAllComments,
+      categorias, loadCategorias, createCategoria,loadRecipes }}>
       {children}
     </UserContext.Provider>
   )

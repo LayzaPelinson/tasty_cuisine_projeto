@@ -38,4 +38,16 @@ public class ComentarioService {
     public List<Comentario> buscarPorReceita(Long codReceita) {
     return comentarioRepository.findByReceitaCodReceitas(codReceita);
 }
+
+
+    public Comentario inativar(long codComentario){
+        Comentario cate = findById(codComentario);
+        cate.setStatus_comentarios("INATIVO");
+        return comentarioRepository.save(cate); 
+    }
+    public Comentario ativar(long codComentario){
+        Comentario cate = findById(codComentario);
+        cate.setStatus_comentarios("ATIVO");
+        return comentarioRepository.save(cate);
+    }
 }

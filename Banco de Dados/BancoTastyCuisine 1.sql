@@ -32,6 +32,7 @@ CREATE TABLE Receitas (
     Cod_usuario INT NOT NULL,
     Foto_receita NVARCHAR(MAX),
     Restricao INT NOT NULL,
+    Status_Receita NVARCHAR(20) NOT NULL default 'ATIVO',
     FOREIGN KEY (Cod_usuario) REFERENCES Usuario(Cod_user),
     CONSTRAINT chk_ingredientes CHECK (Ingredientes IS NULL OR ISJSON(Ingredientes) = 1),
     CONSTRAINT chk_modo_preparo CHECK (ISJSON(Modo_preparo) = 1)
@@ -52,6 +53,7 @@ CREATE TABLE Comentarios (
     Texto NVARCHAR(300) NOT NULL,
     Nota INT NOT NULL CHECK (Nota BETWEEN 1 AND 5),
     Data_Comentario DATETIME DEFAULT GETDATE(),
+    Status_Comentarios NVARCHAR(20) NOT NULL default 'ATIVO',
     FOREIGN KEY (Cod_user) REFERENCES Usuario(Cod_user),
     FOREIGN KEY (Cod_receitas) REFERENCES Receitas(Cod_receitas)
 );

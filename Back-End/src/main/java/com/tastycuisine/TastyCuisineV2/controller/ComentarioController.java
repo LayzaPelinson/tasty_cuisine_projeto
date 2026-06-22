@@ -76,4 +76,13 @@ public class ComentarioController {
             comentarioService.buscarPorReceita(codReceita)
         );
     }
+
+        @PutMapping("/{codComentario}/inativar")
+        public ResponseEntity<Object> inativar(@PathVariable String codComentario){
+            return ResponseEntity.ok(comentarioService.inativar(Long.parseLong(codComentario)));
+        }
+        @PutMapping("/{codComentario}/ativar")
+        public ResponseEntity<Object> ativar(@PathVariable String codComentario){
+            return ResponseEntity.ok(comentarioService.ativar(Long.parseLong(codComentario)));
+        }
 }

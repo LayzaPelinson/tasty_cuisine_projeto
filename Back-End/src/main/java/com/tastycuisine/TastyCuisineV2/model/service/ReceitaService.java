@@ -64,6 +64,7 @@ public Receita salvar(Receita dto) {
         existente.setModo_preparo(receita.getModo_preparo());
         existente.setIngredientes(receita.getIngredientes());
         existente.setUsuario(receita.getUsuario());
+        existente.setStatus_receita(receita.getStatus_receita());
         existente.setFotoReceita(receita.getFotoReceita());
         existente.setRestricao(receita.getRestricao());
         return receitaRepository.save(existente);
@@ -102,5 +103,17 @@ public Receita salvar(Receita dto) {
         Receita receita = findById(codReceita);
         receita.getCategoria().removeIf(r -> r.getCodCategoria() == codCategoria);
         return receitaRepository.save(receita);
+    }
+
+    public Receita inativar(long codCategoria){
+        Receita recipe = findById(codCategoria);
+        recipe.setStatus_receita("INATIVO");
+        return receitaRepository.save(recipe);
+    }
+
+    public Receita ativar(long codCategoria){
+        Receita recipe = findById(codCategoria);
+        recipe.setStatus_receita("ATIVO");
+        return receitaRepository.save(recipe);
     }
 }

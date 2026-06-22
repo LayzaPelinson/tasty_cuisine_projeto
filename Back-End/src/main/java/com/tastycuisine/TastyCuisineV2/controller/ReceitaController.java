@@ -107,4 +107,15 @@ public class ReceitaController {
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "receita não encontrada com o id: " + codReceita));
         }
     }
+
+    
+    @PutMapping("/{codReceita}/inativar")
+    public ResponseEntity<Object> inativar(@PathVariable String codReceita){
+        return ResponseEntity.ok(receitaService.inativar(Long.parseLong(codReceita)));
+    }
+    @PutMapping("/{codReceita}/ativar")
+    public ResponseEntity<Object> ativar(@PathVariable String codReceita){
+        return ResponseEntity.ok(receitaService.ativar(Long.parseLong(codReceita)));
+    }
+
 }
