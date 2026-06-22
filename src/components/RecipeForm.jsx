@@ -3,9 +3,9 @@ import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import '../styles/publishRecipe.css'
 
-const DIFFICULTIES = ['Fácil', 'Médio', 'Difícil']
 const UNITS = ['unidades', 'gramas', 'kg', 'ml', 'litros', 'xícaras', 'colheres', 'fatias', 'dentes', 'pitadas', 'a gosto']
-const API_BASE = 'http://localhost:8080' // Ajuste para a URL da sua API se necessário
+const DIFFICULTIES = ['Fácil', 'Médio', 'Difícil']
+const API_BASE = 'http://localhost:8080'
 
 function RecipeForm() {
   const { user, publishRecipe } = useUser()

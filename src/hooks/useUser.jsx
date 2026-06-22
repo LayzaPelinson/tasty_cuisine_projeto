@@ -23,10 +23,22 @@ function normalizeUser(entity) {
 
 function parseJsonOrLines(value) {
   if (!value) return []
-  if (Array.isArray(value)) return value
+  if (Array.isArray(value)) {
+    // Se já for um array, garante que estamos pegando apenas textos
+    return value.map(item => typeof item === 'object' ? (item.nomeIngredient || item.nome || JSON.stringify(item)) : item);
+  }
   try {
     const parsed = JSON.parse(value)
-    return Array.isArray(parsed) ? parsed : [parsed]
+    if (Array.isArray(parsed)) {
+      // Se o JSON convertido contiver objetos, extrai apenas a propriedade de texto
+      return parsed.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          return item.nomeIngredient || item.nome || Object.values(item)[0];
+        }
+        return item;
+      });
+    }
+    return [parsed]
   } catch {
     return value
       .split('\n')
@@ -36,9 +48,6 @@ function parseJsonOrLines(value) {
 }
 
 function normalizeApiRecipe(recipe) {
-  console.log("RECEITA DA API:", recipe);
-console.log("MODO_PREPARO:", recipe.modo_preparo);
-console.log("INSTRUCTIONS:", recipe.instructions);
   return {
     id: recipe.id ?? recipe.codReceitas,
     title: recipe.title ?? recipe.nomeReceita,
@@ -90,6 +99,37 @@ export function UserProvider({ children }) {
     carregarUsuario()
     loadCategorias()
   }, [])
+
+  async function loadChefRecipes(userId) {
+  try {
+    // 1. Faz o fetch correto na API
+    const resposta = await fetch(`${API_BASE}/receita/findAll`);
+    
+    if (!resposta.ok) throw new Error("Erro na requisição das receitas");
+
+    // 2. Transforma a resposta em JSON (O fetch nativo exige isso)
+    const dadosBrutos = await resposta.json(); 
+    
+    if (Array.isArray(dadosBrutos)) {
+      
+      // 3. Filtra as receitas brutas da API ANTES de normalizar, mantendo a consistência dos dados
+      const receitasDoChef = dadosBrutos.filter((receita) => {
+        const donoDaReceitaId = receita.usuario?.codUser || receita.codUser;
+        const ehAtiva = receita.status_receita === 'ATIVO';
+        
+        return ehAtiva && String(donoDaReceitaId) === String(userId);
+      });
+
+      // 4. IMPORTANTE: Aplica a sua função de normalização para o front-end ler os campos em inglês
+      const receitasNormalizadas = receitasDoChef.map(normalizeApiRecipe);
+
+      // 5. Atualiza o estado global do hook
+      setChefRecipes(receitasNormalizadas);
+    }
+  } catch (error) {
+    console.error("Erro ao carregar receitas do chef no hook:", error);
+  }
+}
 
   async function toggleUserStatus(userId, currentlyActive) {
   try {
@@ -213,6 +253,8 @@ async function createCategoria(nome) {
       if (!res.ok) throw new Error('Falha ao carregar receitas')
       const data = await res.json()
       const normalized = Array.isArray(data) ? data.map(normalizeApiRecipe) : []
+      console.log("Receitas carregadas:", JSON.stringify(normalized, null, 2))
+      console.log("hii")
       setRecipes(normalized)
       setRecipesLoaded(true)
       return normalized
@@ -443,7 +485,7 @@ async function publishRecipe(recipe) {
 
       // Converte o array de strings (passos) direto para string JSON (Passa no CHECK do SQL Server)
       modo_preparo: JSON.stringify(listaInstrucoes),
-
+      status_receita: 'ATIVO',
       restricao: Number(recipe.restricao || 15),
       usuario: {
         codUser: Number(user?.id || user?.codUsuario)
@@ -471,9 +513,7 @@ async function publishRecipe(recipe) {
     // 2. Vincula as categorias na tabela intermediária (PUT)
     if (recipe.categorias && Array.isArray(recipe.categorias)) {
       for (const codCategoria of recipe.categorias) {
-        console.log("INGREDIENTES:", payload.ingredientes);
-        console.log("MODO_PREPARO:", payload.modo_preparo);
-        console.log("PAYLOAD:", payload);
+        console.log("STATUS RECEITA:", payload.status_receita);
         const resCategoria = await fetch(`${API_BASE}/categoria/adicionar/${codCategoria}/${idReceitaSalva}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' }
@@ -486,15 +526,24 @@ async function publishRecipe(recipe) {
     }
 
     // 3. Atualiza o estado local do React
-    const normalized = normalizeApiRecipe(saved)
-    setRecipes(prev => [normalized, ...prev])
-    setChefRecipes(prev => [normalized, ...prev])
+    // Dentro da sua função de publicar:
+const normalized = normalizeApiRecipe(saved);
 
-    return { ok: true, recipe: normalized }
+// Força o ID do usuário atual para garantir que o filtro do componente o encontre
+normalized.usuario = {
+  ...normalized.usuario,
+  codUser: user?.codUser // Pegue o ID do usuário logado na sessão
+};
+
+setRecipes(prev => [normalized, ...prev]);
+setChefRecipes(prev => [normalized, ...prev]);
+
+console.log("Receita publicada com sucesso:", normalized);
+return { ok: true, recipe: normalized };
   } catch (err) {
+    console.error("Erro ao publicar receita:", err);
     return { ok: false, error: err.message }
-  }
-}
+  }}
 
   function logout() {
     setUser(null);
@@ -546,7 +595,7 @@ async function publishRecipe(recipe) {
       favoritos, toggleFavorito, loading,
       toggleUserStatus, toggleRecipeStatus, toggleCommentStatus,
       loadAllUsers, loadAllComments,
-      categorias, loadCategorias, createCategoria,loadRecipes }}>
+      categorias, loadCategorias, createCategoria,loadRecipes,loadChefRecipes }}>
       {children}
     </UserContext.Provider>
   )

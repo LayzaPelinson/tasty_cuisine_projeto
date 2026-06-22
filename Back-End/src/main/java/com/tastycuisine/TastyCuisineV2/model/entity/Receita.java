@@ -41,10 +41,10 @@ public class Receita {
     @Column(name = "Descricao", length = 250, nullable = false)
     @NotBlank
     private String descricao;
-
+    
+    @Builder.Default
     @Column(name ="Status_Receita", length = 20, nullable = false)
-    @NotBlank
-    private String status_receita;
+    private String status_receita = "ATIVO";
 
     @Column(name = "Modo_preparo", nullable = false, columnDefinition = "NVARCHAR(MAX)")
     @NotBlank

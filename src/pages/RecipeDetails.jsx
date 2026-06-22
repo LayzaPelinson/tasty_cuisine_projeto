@@ -23,7 +23,7 @@ function RecipeDetails() {
 
   const { addToHistory } = useFavorites()
   const ingredients = parseList(recipe?.ingredients)
-  const instructions = parseList(recipe?.modo_preparo)
+  const instructions = parseList(recipe?.instructions)
   const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
 
   useEffect(() => {
