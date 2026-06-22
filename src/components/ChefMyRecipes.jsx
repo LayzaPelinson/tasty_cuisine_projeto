@@ -12,46 +12,29 @@ const API_BASE = 'http://localhost:8080'
 
 
 function EditModal({ recipe, onSave, onClose }) {
-  // 1. Estados locais do formulário baseados na receita selecionada
+  // 1. Estados locais baseados no objeto normalizado da receita
   const [form, setForm] = useState({
     title: recipe.title || '',
     description: recipe.description || '',
     difficulty: recipe.difficulty || 'Fácil',
-    image: recipe.image || '',
+    // 💡 CORRIGIDO: Se recipe.image (da normalização) vier nulo, tenta buscar o fotoReceita bruto da API
+    image: recipe.image || recipe.fotoReceita || '',
   })
-console.log("RECEITA RECEBIDA NO MODAL:", recipe);
-  // Garantimos que carregamos os arrays já existentes ou um array vazio
+
+  // 2. Estado dos ingredientes: aceita tanto objetos quanto strings
   const [ingredients, setIngredients] = useState(() => {
-    if (!recipe.ingredients) return [];
-
-    if (Array.isArray(recipe.ingredients)) {
-      // Mapeia os ingredientes garantindo que se já forem objetos estruturados, 
-      // eles mantenham a estrutura completa para o formulário interativo ler!
-      return recipe.ingredients.map(ing => {
-        if (typeof ing === 'object' && ing !== null) {
-          return {
-            quantidade: ing.quantidade || '',
-            unidade: ing.unidade || 'gramas',
-            nome: ing.nome || ing.nomeIngredient || ''
-          };
-        }
-        // Se por acaso ainda vier alguma string pura antiga perdida no meio
-        return ing;
-      });
-    }
-    return [];
-  });
+    if (!recipe.ingredients) return []
+    return Array.isArray(recipe.ingredients) ? recipe.ingredients : []
+  })
+  
   const [ingInput, setIngInput] = useState({ quantidade: '', unidade: 'gramas', nome: '' })
-
   const [steps, setSteps] = useState(Array.isArray(recipe.instructions) ? recipe.instructions : [])
   const [stepInput, setStepInput] = useState('')
 
-  // Estados para gerenciar as categorias do back-end
   const [categoriesFromDb, setCategoriesFromDb] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
   const [error, setError] = useState(null)
 
-  // 2. Carrega as categorias do banco e marca as que a receita já possui
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -60,7 +43,6 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
           const data = await res.json()
           setCategoriesFromDb(data)
 
-          // Pré-seleciona as categorias atuais desta receita
           if (recipe.category) {
             const currentCats = Array.isArray(recipe.category) ? recipe.category : [recipe.category]
             const currentIds = currentCats.map(c => c.id || c.codCategoria).filter(Boolean)
@@ -68,7 +50,7 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
           }
         }
       } catch (err) {
-        console.error("Erro ao carregar categorias no modal de edição:", err)
+        console.error("Erro ao carregar categorias:", err)
       }
     }
     loadCategories()
@@ -78,16 +60,12 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
   }
 
-  // Manipulação de Checkboxes de Categoria
   function handleCategoryChange(idCategoria) {
     setSelectedCategories(prev =>
-      prev.includes(idCategoria)
-        ? prev.filter(id => id !== idCategoria)
-        : [...prev, idCategoria]
+      prev.includes(idCategoria) ? prev.filter(id => id !== idCategoria) : [...prev, idCategoria]
     )
   }
 
-  // Funções de Gerenciamento de Ingredientes
   function addIngredient() {
     if (!ingInput.quantidade.trim() || !ingInput.nome.trim()) return
     setIngredients(prev => [...prev, { ...ingInput }])
@@ -98,7 +76,6 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
     setIngredients(prev => prev.filter((_, idx) => idx !== i))
   }
 
-  // Funções de Gerenciamento do Modo de Preparo
   function addStep() {
     if (!stepInput.trim()) return
     setSteps(prev => [...prev, stepInput.trim()])
@@ -112,12 +89,11 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
   function handleSubmit(e) {
     e.preventDefault()
     setError(null)
-
+    
     if (ingredients.length === 0) return setError('Adicione ao menos um ingrediente.')
     if (steps.length === 0) return setError('Adicione ao menos um passo no modo de preparo.')
     if (selectedCategories.length === 0) return setError('Selecione ao menos uma categoria.')
 
-    // Retorna a estrutura normalizada idêntica à do publishRecipe
     onSave({
       title: form.title,
       description: form.description,
@@ -125,7 +101,7 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
       image: form.image,
       ingredients,
       instructions: steps,
-      categorias: selectedCategories,
+      categorias: selectedCategories, 
     })
   }
 
@@ -134,7 +110,7 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
       <div className="edit-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto' }}>
         <h2>Editar Receita</h2>
         <form onSubmit={handleSubmit}>
-
+          
           <label>Título da Receita</label>
           <input name="title" value={form.title} onChange={handleChange} required />
 
@@ -150,7 +126,6 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
             </div>
           </div>
 
-          {/* Categorias Dinâmicas vindas do Back-end */}
           <h3>Categorias</h3>
           <div className="categories-checkbox-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', margin: '10px 0' }}>
             {categoriesFromDb.length === 0 ? (
@@ -159,14 +134,9 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
               categoriesFromDb.map(c => {
                 const idCat = c.id || c.codCategoria;
                 const nomeCat = c.nome || c.nomeCategoria;
-
                 return (
                   <label key={idCat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(idCat)}
-                      onChange={() => handleCategoryChange(idCat)}
-                    />
+                    <input type="checkbox" checked={selectedCategories.includes(idCat)} onChange={() => handleCategoryChange(idCat)} />
                     {nomeCat}
                   </label>
                 )
@@ -174,30 +144,21 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
             )}
           </div>
 
-          {/* Gerenciador Interativo de Ingredientes */}
           <h3>Ingredientes</h3>
           <div className="ingredient-inputs" style={{ display: 'flex', gap: '5px', marginBottom: '10px' }}>
-            <input
-              style={{ width: '30%' }}
-              placeholder="Qtd (ex: 3)"
-              value={ingInput.quantidade}
-              onChange={e => setIngInput(f => ({ ...f, quantidade: e.target.value }))}
-            />
+            <input style={{ width: '30%' }} placeholder="Qtd (ex: 3)" value={ingInput.quantidade} onChange={e => setIngInput(f => ({ ...f, quantidade: e.target.value }))} />
             <select value={ingInput.unidade} onChange={e => setIngInput(f => ({ ...f, unidade: e.target.value }))}>
               {UNITS.map(u => <option key={u}>{u}</option>)}
             </select>
-            <input
-              placeholder="Ingrediente"
-              value={ingInput.nome}
-              onChange={e => setIngInput(f => ({ ...f, nome: e.target.value }))}
-            />
+            <input placeholder="Ingrediente" value={ingInput.nome} onChange={e => setIngInput(f => ({ ...f, nome: e.target.value }))} />
             <button type="button" className="add-btn" onClick={addIngredient}>+</button>
           </div>
 
+          {/* 💡 RENDERIZAÇÃO DOS INGREDIENTES CORRIGIDA — "SECO" NA TELA */}
           {ingredients.length > 0 && (
             <ul className="items-list" style={{ listStyle: 'none', padding: 0, marginBottom: '15px' }}>
               {ingredients.map((ing, i) => {
-                // Se 'ing' for uma string simples (formato antigo da API)
+                // Caso o ingrediente venha como String pura
                 if (typeof ing === 'string') {
                   return (
                     <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
@@ -206,14 +167,12 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
                     </li>
                   )
                 }
-
-                // Se 'ing' for um objeto estruturado (formato novo do formulário)
+                
+                // Caso o ingrediente venha como Objeto do Back-end/Formulário
                 return (
                   <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
                     <span>
-                      {ing.quantidade ? `${ing.quantidade} ` : ''}
-                      {ing.unidade && ing.unidade !== 'unidades' ? `${ing.unidade} de ` : ''}
-                      {ing.nome || ''}
+                      {ing.quantidade || ''} {ing.unidade || 'gramas'} de {ing.nome || ''}
                     </span>
                     <button type="button" style={{ background: 'none', border: 'none', color: '#e53e3e', cursor: 'pointer' }} onClick={() => removeIngredient(i)}>✕</button>
                   </li>
@@ -222,15 +181,9 @@ console.log("RECEITA RECEBIDA NO MODAL:", recipe);
             </ul>
           )}
 
-          {/* Gerenciador Interativo de Passos */}
           <h3>Modo de Preparo</h3>
           <div className="step-inputs" style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '10px' }}>
-            <textarea
-              rows="2"
-              placeholder="Descreva um passo do preparo..."
-              value={stepInput}
-              onChange={e => setStepInput(e.target.value)}
-            />
+            <textarea rows="2" placeholder="Descreva um passo do preparo..." value={stepInput} onChange={e => setStepInput(e.target.value)} />
             <button type="button" className="add-btn" onClick={addStep}>+ Adicionar Passo</button>
           </div>
 
