@@ -10,6 +10,7 @@ function Login() {
   const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
   const [inactiveEmail, setInactiveEmail] = useState(null)
+  const [blockedMessage, setBlockedMessage] = useState(false) // 💡 Novo estado para o modal de bloqueio
   const [reactivatePwd, setReactivatePwd] = useState('')
   const [reactivateError, setReactivateError] = useState('')
   const { login, register, reactivateAccount } = useUser()
@@ -22,9 +23,10 @@ function Login() {
   function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setInactiveEmail(null)
+    setBlockedMessage(false)
     
     if (mode === 'register') {
-      // 💡 CORRIGIDO: Passando 'funcao' em vez de 'role' para o hook reconhecer
       register({ ...form, funcao: activeTab }).then(res => {
         if (res && res.ok) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
@@ -33,11 +35,15 @@ function Login() {
         }
       })
     } else {
-      // 💡 CORRIGIDO: Passando activeTab para a função de login saber quem está autenticando
+      // 💡 A lógica agora avalia primeiro se retornou 'blocked' vindo do seu interceptor/hook de login
       login(form.email, form.password, activeTab).then(result => {
         if (result === true) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
+        } else if (result === 'blocked') { 
+          // 💡 Verificação prioritária: Conta suspensa pelo ADM
+          setBlockedMessage(true)
         } else if (result === 'inactive') {
+          // Conta desativada voluntariamente pelo próprio usuário
           setInactiveEmail(form.email)
           setReactivatePwd('')
           setReactivateError('')
@@ -110,6 +116,28 @@ function Login() {
           </div>
         </div>
       </div>
+
+      {/* 💡 MODAL DE CONTA BLOQUEADA PELO ADMINISTRADOR */}
+      {blockedMessage && (
+        <div className="reactivate-overlay">
+          <div className="reactivate-modal" style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '40px', marginBottom: '10px' }}>⚠️</div>
+            <h3>Acesso Bloqueado</h3>
+            <p style={{ margin: '15px 0', color: '#666', lineHeight: '1.5' }}>
+              Esta conta foi suspensa temporariamente por um administrador do sistema por violar os termos de uso.
+            </p>
+            <div className="reactivate-actions" style={{ justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                className="confirm-btn" 
+                onClick={() => setBlockedMessage(false)}
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {inactiveEmail && (
         <div className="reactivate-overlay">

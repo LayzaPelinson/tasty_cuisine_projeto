@@ -246,3 +246,16 @@
   color: white;
   border-color: #1f6b34;
 }
+
+.confirm-btn{
+  background: #1a1a2e;
+  color: #f42020;
+  border: 1.5px solid rgba(244,124,32,0.3);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .25s;
+  letter-spacing: 0.3px;
+  z-index: 10;
+}

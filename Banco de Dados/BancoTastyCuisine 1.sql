@@ -11,6 +11,7 @@ CREATE TABLE Usuario (
     Gmail NVARCHAR(255) NOT NULL UNIQUE,
     Senha NVARCHAR(250) NOT NULL,
     Status_Usuario NVARCHAR(20) NOT NULL default 'ATIVO',
+    Bloqueado BIT NOT NULL Default 0,
     Restricoes_alimentares NVARCHAR(MAX) default 'lactose' NULL,
     foto_perfil NVARCHAR(MAX) NULL,
     funcao NVARCHAR(30) NOT NULL, -- Chefe ou Usuario,

@@ -219,7 +219,7 @@ function EditModal({ recipe, onSave, onClose }) {
 
 function ChefMyRecipes() {
   // 2. Pegamos a nova função que criamos no hook
-  const { user, chefRecipes, deleteRecipe, editRecipe, loadChefRecipes } = useUser()
+  const { user, chefRecipes, deleteRecipe, editRecipe, loadChefRecipes,toggleRecipeStatus } = useUser()
 
   const [editing, setEditing] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -232,17 +232,21 @@ function ChefMyRecipes() {
     }
   }, [user?.id]);
 
-  async function handleDelete() {
-    setDeleteError('')
-    const res = await deleteRecipe(confirmDelete.codReceitas)
-    if (res.ok) {
-      setConfirmDelete(null)
-      // 4. Se deletou com sucesso, recarrega a lista para sumir da tela!
-      loadChefRecipes(user.id);
-    } else {
-      setDeleteError('Falha ao excluir a receita. Tente novamente.')
-    }
+async function handleDelete() {
+  setDeleteError('')
+  
+  // Como o card usa os dados normalizados, passamos confirmDelete.id
+  // E passamos 'true' para o segundo parâmetro (currentlyActive), pois se estamos deletando, ela está ativa e queremos INATIVAR.
+  const res = await toggleRecipeStatus(confirmDelete.id, true)
+  
+  if (res.ok) {
+    setConfirmDelete(null)
+    // Recarrega a lista do banco. Como a receita agora está INATIVA, o filtro do back/front vai ignorá-la e ela some da tela!
+    loadChefRecipes(user.id); 
+  } else {
+    setDeleteError('Falha ao excluir a receita. Tente novamente.')
   }
+}
 
   return (
     <section className="favorite-recipes">

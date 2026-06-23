@@ -23,14 +23,12 @@ function RecipeDetails() {
   const isChef = user?.funcao === 'Chefe'
 
   const { addToHistory } = useFavorites()
-  console.log(user)
   const ingredients = parseList(recipe?.ingredients)
   const instructions = parseList(recipe?.instructions)
   const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
 
   useEffect(() => {
     if (recipe) addToHistory(recipe.id)
-    console.log(recipe)
   }, [recipe?.id])
 
 
@@ -46,7 +44,6 @@ function RecipeDetails() {
 
   if (!recipesLoaded) return <h1>Carregando receita...</h1>
   if (!recipe) return <h1>Receita não encontrada</h1>
-  console.log(JSON.stringify(recipe, null, 2))
   return (
     <section className="recipe-details">
       <button className="back-btn" onClick={() => navigate(-1)}>
@@ -61,7 +58,7 @@ function RecipeDetails() {
             <span className="tag easy">{recipe.difficulty || 'Médio'}</span>
           </div>
           <div className="recipe-meta">
-            <span><FiUser /> {recipe.chef}</span>
+            <span><FiUser /> {user.name}</span>
           </div>
           <p>{recipe.description}</p>
           {!isChef && (

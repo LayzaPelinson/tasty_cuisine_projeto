@@ -18,6 +18,7 @@ function normalizeUser(entity) {
     preferences: entity.restricoesAlimentares
       ? entity.restricoesAlimentares.split(',').map(pref => pref.trim()).filter(Boolean)
       : [],
+    bloqueado: entity.bloqueado === 'ATIVO',
   }
 }
 
@@ -144,6 +145,17 @@ export function UserProvider({ children }) {
   }
 }
 
+async function toggleUserBlock(userId) { // 💡 Agora recebe apenas o userId!
+  try {
+    // Chama o endpoint único de bloquear que faz o toggle no Java
+    const res = await fetch(`${API_BASE}/usuario/bloquear/${userId}`, { method: 'PUT' })
+    if (!res.ok) return { ok: false }
+    return { ok: true }
+  } catch {
+    return { ok: false }
+  }
+}
+
 async function toggleRecipeStatus(recipeId, currentlyActive) {
   try {
     const endpoint = currentlyActive
@@ -253,8 +265,6 @@ async function createCategoria(nome) {
       if (!res.ok) throw new Error('Falha ao carregar receitas')
       const data = await res.json()
       const normalized = Array.isArray(data) ? data.map(normalizeApiRecipe) : []
-      console.log("Receitas carregadas:", JSON.stringify(normalized, null, 2))
-      console.log("hii")
       setRecipes(normalized)
       setRecipesLoaded(true)
       return normalized
@@ -318,37 +328,48 @@ async function createCategoria(nome) {
   }
 
   async function login(email, password, funcao) {
-    try {
-      // 💡 OBSERVAÇÃO: Se seu Spring Boot tiver endpoints separados para login de chefe, 
-      // mude a URL dinamicamente aqui usando a variável 'funcao'. 
-      // Caso o endpoint '/usuario/login' valide ambos, o código abaixo está perfeito.
-      const res = await fetch(`${API_BASE}/usuario/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha: password })
-      })
+  try {
+    const res = await fetch(`${API_BASE}/usuario/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha: password })
+    })
 
-      if (res.status === 403) return 'inactive'
-      if (!res.ok) return false
+    // 1. SE O BACKEND DEVOLVER ERRO DE CONTA BLOQUEADA PELO ADMIN
+    // (Ajuste o status se no seu Spring Boot você definiu outro, ex: res.status === 401)
+    if (res.status === 401) return 'blocked'
 
-      const body = await res.json()
+    // 2. SE O BACKEND DEVOLVER ERRO DE CONTA INATIVA PELO PRÓPRIO USUÁRIO
+    if (res.status === 403) return 'inactive'
+    
+    if (!res.ok) return false
 
-      // Passamos a funcao para garantir que o objeto normalizado saiba quem ele é
-      const normalized = normalizeUser(body, funcao)
-      setUser(normalized)
+    const body = await res.json()
 
-      localStorage.setItem('userId', String(normalized.id))
-      localStorage.setItem('userFuncao', normalized.funcao)
-
-      if (typeof loadFavoritos === 'function') {
-        await loadFavoritos(normalized.id)
-      }
-
-      return true
-    } catch {
-      return false
+    // 3. ALTERNATIVA: Se o seu backend deixa o login passar (200 OK) mas envia o BIT bloqueado no JSON body
+    if (body.bloqueado === 1) {
+      return 'blocked'
     }
+    if (body.status_Usuario === 'INATIVO') {
+      return 'inactive'
+    }
+
+    // Segue o fluxo normal de sucesso caso não caia em nenhum bloqueio
+    const normalized = normalizeUser(body, funcao)
+    setUser(normalized)
+
+    localStorage.setItem('userId', String(normalized.id))
+    localStorage.setItem('userFuncao', normalized.funcao)
+
+    if (typeof loadFavoritos === 'function') {
+      await loadFavoritos(normalized.id)
+    }
+
+    return true
+  } catch {
+    return false
   }
+}
 
   async function reactivateAccount(email, password, funcao) {
     try {
@@ -462,7 +483,6 @@ async function publishRecipe(recipe) {
   }
 
   try {
-    console.log("DEBUG - Usuário logado no React:", user);
 
     // Garante que ingredientes e instruções sejam arrays válidos antes de converter
     const listaIngredientes = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
@@ -501,7 +521,6 @@ async function publishRecipe(recipe) {
     })
 
     if (!res.ok) {
-      console.log("PAYLOAD QUE DEU ERRO:", payload);
       const errorText = await res.text()
       throw new Error(errorText || 'Falha ao publicar receita')
     }
@@ -513,7 +532,6 @@ async function publishRecipe(recipe) {
     // 2. Vincula as categorias na tabela intermediária (PUT)
     if (recipe.categorias && Array.isArray(recipe.categorias)) {
       for (const codCategoria of recipe.categorias) {
-        console.log("STATUS RECEITA:", payload.status_receita);
         const resCategoria = await fetch(`${API_BASE}/categoria/adicionar/${codCategoria}/${idReceitaSalva}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' }
@@ -538,7 +556,6 @@ normalized.usuario = {
 setRecipes(prev => [normalized, ...prev]);
 setChefRecipes(prev => [normalized, ...prev]);
 
-console.log("Receita publicada com sucesso:", normalized);
 return { ok: true, recipe: normalized };
   } catch (err) {
     console.error("Erro ao publicar receita:", err);
@@ -595,7 +612,8 @@ return { ok: true, recipe: normalized };
       favoritos, toggleFavorito, loading,
       toggleUserStatus, toggleRecipeStatus, toggleCommentStatus,
       loadAllUsers, loadAllComments,
-      categorias, loadCategorias, createCategoria,loadRecipes,loadChefRecipes }}>
+      categorias, loadCategorias, createCategoria,
+      loadRecipes,loadChefRecipes,toggleUserBlock }}>
       {children}
     </UserContext.Provider>
   )

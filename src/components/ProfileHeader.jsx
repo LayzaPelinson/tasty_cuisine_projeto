@@ -11,7 +11,6 @@ function ProfileHeader({ setActiveTab, isChefe }) {
   const endpoint = isChefe ? `/chefe/${user.id}` : `/usuario/${user.id}`
 
 async function handleConfirmarFoto() {
-  console.log(user)
   await fetch(`http://localhost:8080/chefe/${user.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

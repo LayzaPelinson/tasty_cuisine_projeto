@@ -4,11 +4,11 @@ import { useUser } from '../hooks/useUser'
 import '../styles/admin.css'
 
 const TABS = [
-  { key: 'users',      label: 'Usuários',     icon: 'bi-people-fill' },
-  { key: 'chefs',      label: 'Chefes',       icon: 'bi-person-badge-fill' },
-  { key: 'recipes',    label: 'Receitas',     icon: 'bi-journal-richtext' },
-  { key: 'comments',   label: 'Comentários',  icon: 'bi-chat-dots-fill' },
-  { key: 'categorias', label: 'Categorias',   icon: 'bi-tags-fill' },
+  { key: 'users', label: 'Usuários', icon: 'bi-people-fill' },
+  { key: 'chefs', label: 'Chefes', icon: 'bi-person-badge-fill' },
+  { key: 'recipes', label: 'Receitas', icon: 'bi-journal-richtext' },
+  { key: 'comments', label: 'Comentários', icon: 'bi-chat-dots-fill' },
+  { key: 'categorias', label: 'Categorias', icon: 'bi-tags-fill' },
 ]
 
 function StatusBadge({ active }) {
@@ -308,7 +308,7 @@ function DetailModal({ item, type, onClose, navigate }) {
   }
 
   const titles = { recipe: 'Receita', chef: 'Chefe', comment: 'Comentário', user: 'Usuário' }
-  const icons  = { recipe: 'bi-book', chef: 'bi-person-badge-fill', comment: 'bi-chat-quote-fill', user: 'bi-person-circle' }
+  const icons = { recipe: 'bi-book', chef: 'bi-person-badge-fill', comment: 'bi-chat-quote-fill', user: 'bi-person-circle' }
 
   return (
     <div className="admin-modal-overlay" onClick={onClose}>
@@ -374,7 +374,7 @@ function AdminDashboard() {
     toggleUserStatus,
     toggleRecipeStatus,
     toggleCommentStatus,
-    logout,loadRecipes
+    logout, loadRecipes, toggleUserBlock
   } = useUser()
 
   const [activeTab, setActiveTab] = useState('users')
@@ -398,34 +398,36 @@ function AdminDashboard() {
   }, [])
 
   // ── normalização para o formato que os componentes esperam ──────────────
-  const users = rawUsers
-    .filter(u => u.funcao !== 'Chefe')
-    .map(u => ({
-      id: u.codUser,
-      name: u.nome_completo,
-      email: u.gmail,
-      age: u.idade,
-      active: u.status_Usuario === 'ATIVO',
-    }))
+  // ── normalização corrigida baseada no status_Usuario ──────────────
+  // ── normalização corrigida baseada no campo 'bloqueado' (0 ou 1) ──
+const users = rawUsers
+  .filter(u => u.funcao !== 'Chefe')
+  .map(u => ({
+    id: u.codUser,
+    name: u.nome_completo,
+    email: u.gmail,
+    age: u.idade,
+    // Se bloqueado for 0 (falsy), active é true. Se for 1 (truthy), active é false.
+    active: u.bloqueado === 0, 
+  }))
 
-  const chefs = rawUsers
-    .filter(u => u.funcao === 'Chefe')
-    .map(u => ({
-      id: u.codUser,
-      name: u.nome_completo,
-      email: u.gmail,
-      recipes: recipes.filter(r => r.chefId === u.codUser).length,
-      active: u.status_Usuario === 'ATIVO',
-    }))
-
+const chefs = rawUsers
+  .filter(u => u.funcao === 'Chefe')
+  .map(u => ({
+    id: u.codUser,
+    name: u.nome_completo,
+    email: u.gmail,
+    recipes: recipes.filter(r => r.chefId === u.codUser).length,
+    active: u.bloqueado === 1, // Mesmo critério para os chefes
+  }))
   const recipesNormalized = recipes.map(r => ({
     id: r.id,
     title: r.title,
     chef: r.chef,
     chefId: r.chefId,
     category: Array.isArray(recipes.categorias)
-  ? recipes.categorias.map(c => c.nomeCategoria).join(', ')
-  : (recipes.category ?? 'Geral'),
+      ? recipes.categorias.map(c => c.nomeCategoria).join(', ')
+      : (recipes.category ?? 'Geral'),
     active: r.active ?? false
   }))
 
@@ -441,21 +443,35 @@ function AdminDashboard() {
   }))
 
   const stats = [
-    { label: 'Usuários',    value: users.length,    active: users.filter(u => u.active).length,    icon: 'bi-people-fill',       tab: 'users' },
-    { label: 'Chefes',      value: chefs.length,    active: chefs.filter(c => c.active).length,    icon: 'bi-person-badge-fill', tab: 'chefs' },
-    { label: 'Receitas',    value: recipesNormalized.length,  active: recipesNormalized.filter(r => r.active).length,  icon: 'bi-journal-richtext',  tab: 'recipes' },
-    { label: 'Comentários', value: comments.length, active: comments.filter(c => c.active).length, icon: 'bi-chat-dots-fill',    tab: 'comments' },
+    { label: 'Usuários', value: users.length, active: users.filter(u => u.active).length, icon: 'bi-people-fill', tab: 'users' },
+    { label: 'Chefes', value: chefs.length, active: chefs.filter(c => c.active).length, icon: 'bi-person-badge-fill', tab: 'chefs' },
+    { label: 'Receitas', value: recipesNormalized.length, active: recipesNormalized.filter(r => r.active).length, icon: 'bi-journal-richtext', tab: 'recipes' },
+    { label: 'Comentários', value: comments.length, active: comments.filter(c => c.active).length, icon: 'bi-chat-dots-fill', tab: 'comments' },
   ]
 
   // ── toggles ───────────────────────────────────────────────────────────────
-  async function handleToggleUser(u) {
-    const result = await toggleUserStatus(u.id, u.active)
-    if (result.ok) {
-      setRawUsers(prev => prev.map(x => x.codUser === u.id
-        ? { ...x, status_Usuario: u.active ? 'INATIVO' : 'ATIVO' }
-        : x))
-    }
+  // ── Novo controle de bloqueio de usuários ─────────────────────────
+ // ── Novo controle de bloqueio de usuários alterando o BIT ─────────
+async function handleToggleUser(u) {
+  // Envia para o back-end que faz o toggle usando o ID
+  const result = await toggleUserBlock(u.id)
+  
+  if (result.ok) {
+    // Atualiza o estado na hora alterando a propriedade 'bloqueado'
+    setRawUsers(prev => prev.map(x => {
+      if (x.codUser === u.id) {
+        return { 
+          ...x, 
+          // Se o usuário na tela está ativo (u.active === true), significa que ele não estava bloqueado (0). 
+          // Logo, após o clique, ele deve ser bloqueado (1). Caso contrário, vira (0).
+          bloqueado: u.active ? 1 : 0 
+        }
+      }
+      return x
+    }))
   }
+}
+
 
   async function handleToggleRecipe(r) {
     await toggleRecipeStatus(r.id, r.active)
@@ -522,10 +538,10 @@ function AdminDashboard() {
           <p className="admin-empty">Carregando dados...</p>
         ) : (
           <>
-            {activeTab === 'users'      && <AdminUsers      data={users}     onView={u => setModal({ item: u, type: 'user' })}    onToggle={handleToggleUser} />}
-            {activeTab === 'chefs'      && <AdminChefs      data={chefs}     onView={c => setModal({ item: c, type: 'chef' })}    onToggle={handleToggleUser} />}
-            {activeTab === 'recipes'    && <AdminRecipes    data={recipesNormalized} onView={r => setModal({ item: r, type: 'recipe' })} onToggle={handleToggleRecipe} />}
-            {activeTab === 'comments'   && <AdminComments   data={comments}  onView={c => setModal({ item: c, type: 'comment' })} onToggle={handleToggleComment} />}
+            {activeTab === 'users' && <AdminUsers data={users} onView={u => setModal({ item: u, type: 'user' })} onToggle={handleToggleUser} />}
+            {activeTab === 'chefs' && <AdminChefs data={chefs} onView={c => setModal({ item: c, type: 'chef' })} onToggle={handleToggleUser} />}
+            {activeTab === 'recipes' && <AdminRecipes data={recipesNormalized} onView={r => setModal({ item: r, type: 'recipe' })} onToggle={handleToggleRecipe} />}
+            {activeTab === 'comments' && <AdminComments data={comments} onView={c => setModal({ item: c, type: 'comment' })} onToggle={handleToggleComment} />}
             {activeTab === 'categorias' && <AdminCategorias categorias={categorias} onCreate={handleCreateCategoria} />}
           </>
         )}

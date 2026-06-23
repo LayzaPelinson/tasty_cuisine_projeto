@@ -37,7 +37,7 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function RecipeComments({ recipeId, isUsuario }) {
+function RecipeComments({ recipeId}) {
   const { user } = useUser()
   const [comments, setComments] = useState([])
   const [nota, setNota] = useState(0)
@@ -46,6 +46,7 @@ function RecipeComments({ recipeId, isUsuario }) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const jaAvaliou = comments.some(c => c.usuario?.codUser === user.id)
+  const isChef = user?.funcao === 'Chefe'
 
   useEffect(() => {
     fetch(`${API_BASE}/comentario/receita/${recipeId}`)
@@ -76,7 +77,6 @@ function RecipeComments({ recipeId, isUsuario }) {
 
       if (!resCom.ok) throw new Error()
       const saved = await resCom.json()
-      console.log(user)
       setComments(prev => [{
         ...saved,
         nota: nota,
@@ -102,7 +102,7 @@ function RecipeComments({ recipeId, isUsuario }) {
       <h2>Comentários</h2>
 
 
-      {isUsuario && !jaAvaliou && (
+      {!isChef && !jaAvaliou && (
         <form className="comment-form" onSubmit={handleSubmit}>
           <p className="comment-form-label">Sua avaliação</p>
           <Stars value={nota} onChange={v => { setNota(v); setError('') }} />
@@ -134,7 +134,8 @@ function RecipeComments({ recipeId, isUsuario }) {
         {comments.length === 0 ? (
           <div className="no-comments">
             <span>💬</span>
-            <p>Nenhum comentário ainda. Seja o primeiro a avaliar essa receita!</p>
+            
+            <p>Nenhum comentário ainda.{isChef ? '' : ' Seja o primeiro a comentar!'}</p>
           </div>
         ) : (
           comments.map(c => (

@@ -15,7 +15,7 @@ function RecipeCard({ recipe, actions }) {
       <div className="recipe-card">
         <div className="recipe-image">
           <img src={recipe.image || PLACEHOLDER} alt={recipe.title} />
-          <span className="recipe-category">{recipe.category}</span>
+          <span className="recipe-category">{recipe.category?.[0]?.nomeCategoria || 'Sem Categoria'}</span>
           {!isChef && (
             <button
               className={`favorite-btn${isFavorited ? ' favorited' : ''}`}
@@ -29,7 +29,7 @@ function RecipeCard({ recipe, actions }) {
         <div className="recipe-content">
           <h3>{recipe.title}</h3>
           <div className="recipe-info">
-            <span><FiClock /> {recipe.time}</span>
+            
             <span><FiUser /> {recipe.chef}</span>
           </div>
           <span className={`difficulty difficulty--${(recipe.difficulty || '').toLowerCase()}`}>{recipe.difficulty}</span>

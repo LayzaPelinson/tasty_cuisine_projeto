@@ -104,4 +104,13 @@ public class UsuarioService {
         usuario.setStatus_Usuario("ATIVO"); // faltava isso!
         return usuarioRepository.save(usuario); // e isso!
     }
+
+    public Usuario bloquear(Long codUser){
+        Usuario existente = findById(codUser);
+        if(existente.getBloqueado() == 1){
+            existente.setBloqueado((byte)0);
+        }
+        else existente.setBloqueado((byte)1);
+        return usuarioRepository.save(existente);
+    }
 }
