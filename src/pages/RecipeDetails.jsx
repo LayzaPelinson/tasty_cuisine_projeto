@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useUser } from '../hooks/useUser.jsx'
 import { useFavorites } from '../hooks/useFavorites.jsx'
@@ -17,17 +17,20 @@ function parseList(value) {
 function RecipeDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, recipes, recipesLoaded, favoritos, toggleFavorito  } = useUser()
-  const recipe = recipes.find((item) => item.id === Number(id))
-  const isChef = user?.role === 'Chefe'
+  const { user, recipesLoaded, favoritos, toggleFavorito  } = useUser()
+  const location = useLocation()
+  const recipe = location.state;
+  const isChef = user?.funcao === 'Chefe'
 
   const { addToHistory } = useFavorites()
+  console.log(user)
   const ingredients = parseList(recipe?.ingredients)
   const instructions = parseList(recipe?.instructions)
   const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
 
   useEffect(() => {
     if (recipe) addToHistory(recipe.id)
+    console.log(recipe)
   }, [recipe?.id])
 
 

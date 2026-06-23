@@ -9,10 +9,9 @@ function RecipeCard({ recipe, actions }) {
   const { user, favoritos, toggleFavorito } = useUser()
   
   const isFavorited = favoritos.some(f => String(f.receita?.codReceitas) === String(recipe.id))
-  const isChef = user?.role === 'Chefe'
-
+  const isChef = user?.funcao === 'Chefe'
   return (
-    <Link to={`/recipe/${recipe.id}`} className="recipe-link">
+    <Link to={`/recipe/${recipe.id}`} className="recipe-link" state={recipe}>
       <div className="recipe-card">
         <div className="recipe-image">
           <img src={recipe.image || PLACEHOLDER} alt={recipe.title} />

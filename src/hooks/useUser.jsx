@@ -60,7 +60,7 @@ function normalizeApiRecipe(recipe) {
     ingredients: parseJsonOrLines(recipe.ingredients ?? recipe.ingredientes),
     instructions: parseJsonOrLines(recipe.instructions ?? recipe.modo_preparo ?? recipe.manual2),
     chefTip: recipe.chefTip ?? recipe.dica ?? '',
-    image: recipe.image ?? null,
+    image: recipe.fotoReceita ?? null,
     active: recipe.status_receita === 'ATIVO',
   }
 }
