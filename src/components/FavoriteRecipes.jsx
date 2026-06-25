@@ -5,9 +5,13 @@ import '../styles/favoriteRecipes.css'
 function FavoriteRecipes() {
   const { recipes, favoritos, toggleFavorito } = useUser()
   
-  const favorited = (recipes || []).filter(r => 
-    favoritos.some(f => String(f.receita?.codReceitas) === String(r.id))
-  )
+  // ── Exemplo de encadeamento direto ─────────────────────────────────────────
+const favorited = (recipes || [])
+  .filter(r => favoritos.some(f => String(f.receita?.codReceitas) === String(r.id)),console.log(recipes))
+  
+  .filter(r => r.active)
+  .filter(r => r.activeUser === "ATIVO")
+  .filter(r => r.blockedUser === 1)
 
   return (
     <section className="favorite-recipes">

@@ -63,6 +63,8 @@ function normalizeApiRecipe(recipe) {
     chefTip: recipe.chefTip ?? recipe.dica ?? '',
     image: recipe.fotoReceita ?? null,
     active: recipe.status_receita === 'ATIVO',
+    blockedUser: recipe.usuario?.bloqueado,
+    activeUser: recipe.usuario?.status_Usuario,
   }
 }
 

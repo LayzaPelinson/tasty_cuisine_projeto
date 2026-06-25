@@ -12,45 +12,56 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
   const sectionRef = useRef(null)
 
   // 1. LIMPEZA DOS DADOS BRUTOS (Evita que objetos brutos cheguem ao Filter ou Map)
-  const sanitizedRecipes = allRecipes.map(r => {
-    // Se a categoria vier como Array do Spring Boot, pegamos o primeiro item.
-    // Se vier como objeto puro, pegamos a propriedade. Se for String, usa ela mesma.
-    let catText = ''
-    if (Array.isArray(r.categoria)) {
-      catText = r.categoria[0]?.nomeCategoria || ''
-    } else if (r.categoria && typeof r.categoria === 'object') {
-      catText = r.categoria.nomeCategoria || ''
-    } else {
-      catText = r.category || ''
-    }
+const sanitizedRecipes = allRecipes.map(r => {
+  let catText = ''
+  if (Array.isArray(r.categoria)) {
+    catText = r.categoria[0]?.nomeCategoria || ''
+  } else if (r.categoria && typeof r.categoria === 'object') {
+    catText = r.categoria.nomeCategoria || ''
+  } else {
+    catText = r.category || ''
+  }
 
-    return {
-      ...r,
-      id_seguro: r.codReceitas || r.id || Math.random(),
-      titulo_seguro: r.nomeReceita || r.title || 'Receita sem título',
-      categoria_segura: String(catText), // Força virar String pura
-      chef_seguro: r.usuario?.nome_completo || r.usuario?.nome_de_usuario || r.chef || 'Anônimo',
-      dificuldade_segura: r.difficulty || ''
-    }
+  return {
+    ...r,
+    id_seguro: r.codReceitas || r.id || Math.random(),
+    titulo_seguro: r.nomeReceita || r.title || 'Receita sem título',
+    categoria_segura: String(catText), 
+    chef_seguro: r.usuario?.nome_completo || r.usuario?.nome_de_usuario || r.chef || 'Anônimo',
+    dificuldade_segura: r.difficulty || ''
+  }
+})
+
+// 2. FILTRAGEM SEGURA (Agora com validação de Bloqueio e Status)
+const filtered = sanitizedRecipes
+  .filter((r) => {
+    return r.activeUser === "ATIVO";
   })
-
-  // 2. FILTRAGEM (Usando apenas as propriedades tratadas e seguras)
-  const filtered = sanitizedRecipes
-    .filter((r) => {
-      if (!q && category) {
-        return norm(r.categoria_segura) === norm(category)
-      }
-      return true
-    })
-    .filter((r) => {
-      if (!q) return true
-      return (
-        norm(r.titulo_seguro).includes(q) ||
-        norm(r.categoria_segura).includes(q) ||
-        norm(r.chef_seguro).includes(q) ||
-        norm(r.dificuldade_segura).includes(q)
-      )
-    })
+  .filter((r) => {
+    console.log(r)
+    return r.blockedUser === 1;
+  })
+  // 💡 PRIMEIRO FILTRO: Segurança e Status da Receita/Dono
+  .filter((r) => {
+    return r.active;
+  })
+  // SEGUNDO FILTRO: Por Categoria selecionada
+  .filter((r) => {
+    if (!q && category) {
+      return norm(r.categoria_segura) === norm(category)
+    }
+    return true
+  })
+  // TERCEIRO FILTRO: Pelo termo de busca da barra de pesquisa (q)
+  .filter((r) => {
+    if (!q) return true
+    return (
+      norm(r.titulo_seguro).includes(q) ||
+      norm(r.categoria_segura).includes(q) ||
+      norm(r.chef_seguro).includes(q) ||
+      norm(r.dificuldade_segura).includes(q)
+    )
+  })
 
   // 3. EXIBIÇÃO (Garante o fatiamento correto da lista)
   const displayed = limit ? filtered.slice(0, limit) : filtered
