@@ -238,6 +238,56 @@
   color: #2c1d18;
 }
 
+/* CATEGORY FORM */
+.admin-category-form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: white;
+  border-radius: 20px;
+  padding: 18px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  max-width: 480px;
+}
+
+.admin-category-form input {
+  flex: 1;
+  border: 1.5px solid #e0d8ce;
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #2c1d18;
+  background: #f4efe6;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-category-form input:focus {
+  border-color: #F27A1A;
+  background: white;
+}
+
+.admin-category-form input::placeholder {
+  color: #bbb;
+}
+
+.admin-error-text {
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  margin: -12px 0 16px;
+  padding-left: 4px;
+}
+
+.admin-success-text {
+  color: #1f6b34;
+  font-size: 13px;
+  font-weight: 600;
+  margin: -12px 0 16px;
+  padding-left: 4px;
+}
+
 /* TABLE */
 .admin-table-wrapper {
   background: white;
