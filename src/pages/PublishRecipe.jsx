@@ -6,7 +6,7 @@ function PublishRecipe() {
     <div className="publish-page">
       <div className="publish-page-header">
         <h1>Publicar Receita</h1>
-        <p className="publish-subtitle">Compartilhe sua receita com a comunidade Confeitiço.</p>
+        <p className="publish-subtitle">Compartilhe sua receita com a comunidade TastyCuisine.</p>
       </div>
       <div className="publish-page-body">
         <RecipeForm />
