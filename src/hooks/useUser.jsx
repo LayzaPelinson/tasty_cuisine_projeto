@@ -276,6 +276,51 @@ async function createCategoria(nome) {
       return []
     }
   }
+  const calculateAge = (dateString) => { // <-- Removido o ": string"
+    const parts = dateString.split('/');
+
+    if (parts.length !== 3) return null;
+
+    const day = Number(parts[0]);
+    const month = Number(parts[1]);
+    const year = Number(parts[2]);
+
+    if (
+      isNaN(day) ||
+      isNaN(month) ||
+      isNaN(year) ||
+      day < 1 ||
+      day > 31 ||
+      month < 1 ||
+      month > 12 ||
+      year < 1900
+    ) {
+      return null;
+    }
+
+    const birth = new Date(year, month - 1, day);
+
+    if (
+      birth.getDate() !== day ||
+      birth.getMonth() !== month - 1 ||
+      birth.getFullYear() !== year
+    ) {
+      return null;
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
 
   async function register(data) {
     try {
