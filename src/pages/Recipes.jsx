@@ -1,20 +1,23 @@
+import { useUser } from '../hooks/useUser.jsx'
+import { useState } from 'react'
+import RecipeCard from "../components/RecipeCard.jsx";
+
 function ChefRecipesView() {
   const { recipes, recipesLoaded } = useUser()
   const [search, setSearch] = useState('')
 
   const allRecipes = recipes || []
-  const q = norm(search)
+  //const q = norm(search)
 
-  const filtered = q
-    ? allRecipes.filter((r) =>
+  /*const filtered =
+      allRecipes.filter((r) =>
         norm(r.title).includes(q) ||
         norm(r.category).includes(q) ||
         norm(r.chef || '').includes(q) ||
         norm(r.difficulty || '').includes(q)
-      )
-    : allRecipes
+      )*/
 
-  const byChef = filtered.reduce((acc, r) => {
+  const byChef = allRecipes.reduce((acc, r) => {
     const key = r.chef || 'Desconhecido'
     if (!acc[key]) acc[key] = []
     acc[key].push(r)
@@ -44,7 +47,7 @@ function ChefRecipesView() {
         </p>
 
         <div className="recipes-search chef-search">
-          <FiSearch className="search-icon" />
+          {/*<FiSearch className="search-icon" />*/}
 
           <input
             type="text"
