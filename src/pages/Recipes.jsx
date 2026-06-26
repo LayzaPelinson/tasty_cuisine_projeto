@@ -1,6 +1,8 @@
 import { useUser } from '../hooks/useUser.jsx'
 import { useState } from 'react'
 import RecipeCard from "../components/RecipeCard.jsx";
+import { FiSearch } from "react-icons/fi";
+import '../styles/recipe.css'
 
 function ChefRecipesView() {
   const { recipes, recipesLoaded } = useUser()
@@ -38,18 +40,18 @@ function ChefRecipesView() {
         <span>Receitas Saudáveis</span>
 
         <h1>
-          Receitas dos <br />
-          Chefes
+          Receitas
         </h1>
 
         <p>
-          Explore todas as receitas criadas pelos chefs da plataforma.
+          Explore todas as receitas criadas pelos chefes da plataforma.
         </p>
 
         <div className="recipes-search chef-search">
-          {/*<FiSearch className="search-icon" />*/}
-
+          
+          <FiSearch className="search-icon" />
           <input
+            className='search-input'
             type="text"
             placeholder="Buscar por nome, chef, categoria ou dificuldade..."
             value={search}

@@ -63,3 +63,15 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 32px;
 }
+
+.search-input{
+  background: #FBF5EF;
+  border: 1px solid #F0C8A0;
+  border-radius: 14px;
+
+  padding: 8px 30px;
+  margin-left: 20px;
+  font-size: 15px;
+
+  transition: .3s;
+}

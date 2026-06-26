@@ -44,6 +44,7 @@ function RecipeDetails() {
 
   if (!recipesLoaded) return <h1>Carregando receita...</h1>
   if (!recipe) return <h1>Receita não encontrada</h1>
+  console.log(recipe)
   return (
     <section className="recipe-details">
       <button className="back-btn" onClick={() => navigate(-1)}>
@@ -54,7 +55,7 @@ function RecipeDetails() {
         <div className="recipe-details-info">
           <h1>{recipe.title}</h1>
           <div className="recipe-tags">
-            <span className="tag">{recipe.category || 'Geral'}</span>
+            <span className="tag">{recipe.category[0]?.nomeCategoria || 'Geral'}</span>
             <span className="tag easy">{recipe.difficulty || 'Médio'}</span>
           </div>
           <div className="recipe-meta">

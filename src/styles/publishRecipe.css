@@ -141,10 +141,6 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
 }
-/* INPUT FILE */
-.file-input {
-  background: white;
-}
 /* INGREDIENTES / PASSOS */
 .ingredient-inputs {
   display: grid;
@@ -174,7 +170,10 @@
   cursor: pointer;
   transition: .2s;
 }
-.add-btn:hover { background: #18552a; }
+.add-btn:hover {
+  padding: 14px 22px; 
+  background: #18552a; 
+}
 .items-list {
   list-style: none;
   padding: 0;
@@ -377,4 +376,98 @@ ol.items-list li::before {
   .recipe-form-card {
     padding: 24px;
   }
+}
+.form-description {
+  width: 100%;
+  min-height: 120px; 
+  resize: vertical;
+}
+
+.form-title{
+  width: 80%;
+  min-height: 12px;
+  resize: vertical;
+}
+
+
+.form-url{
+  width: 100%;
+  min-height: 12px; 
+  resize: vertical;
+}
+
+/* Container do Checkbox */
+/* 1. Ajuste no container principal */
+.category-checkbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  padding: 12px 14px;
+  background: #FBF5EF;
+  border: 1px solid #F0C8A0;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* 2. Ajuste no quadradinho customizado */
+.category-checkbox::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #C4703A;
+  border-radius: 4px;
+  margin-right: 10px;
+  background: white;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  vertical-align: middle; 
+}
+
+/* 3. Ajuste no texto */
+.checkbox-text {
+  font-size: 14px;
+  color: #3D2010;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center; /* Garante que a linha do texto case com o meio do quadrado */
+}
+/* Esconde o quadradinho padrão do navegador */
+.category-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+
+/* Efeito de Hover (passar o mouse por cima) */
+.category-checkbox:hover {
+  background: #ffe9ce;
+  border-color: #C4703A;
+}
+
+/* Estilo de quando o Checkbox estiver CHECADO (Ativo) */
+.category-checkbox:has(input:checked) {
+  background: #F0C8A0; /* Fundo levemente mais escuro ao selecionar */
+  border-color: #C4703A;
+}
+
+.category-checkbox:has(input:checked)::before {
+  background-color: #C4703A;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  background-size: 14px;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-color: #C4703A;
+}
+
+/* Estilo do texto ao lado do checkbox */
+.checkbox-text {
+  font-size: 14px;
+  color: #3D2010; /* Tom escuro do seu projeto */
+  font-weight: 500;
 }
