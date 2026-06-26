@@ -39,7 +39,7 @@ const filtered = sanitizedRecipes
   })
   .filter((r) => {
     console.log(r)
-    return r.blockedUser === 1;
+    return r.blockedUser === 0;
   })
   // 💡 PRIMEIRO FILTRO: Segurança e Status da Receita/Dono
   .filter((r) => {
@@ -89,38 +89,39 @@ const filtered = sanitizedRecipes
   }
 
   return (
-    <section className="recipes-section" ref={sectionRef}>
-      {showHeader && (
-        <>
-          <span className="recipes-subtitle">Receitas em Destaque</span>
-          <h2>As mais populares da nossa comunidade.</h2>
-        </>
-      )}
-      {filtered.length === 0 ? (
-        <p className="no-results">Nenhuma receita encontrada para esta categoria.</p>
-      ) : (
-        <div className="recipes-grid">
-          {displayed.map((recipe) => (
-            <div 
-              key={recipe.id_seguro} 
-              onClick={locked ? onGuestClick : undefined} 
-              style={locked ? { cursor: 'pointer' } : {}}
-            >
-              {/* Passamos o objeto tratado para o Card não quebrar internamente */}
-              <RecipeCard recipe={{
-                ...recipe,
-                id: recipe.id_seguro,
-                title: recipe.titulo_seguro,
-                category: recipe.categoria_segura,
-                chef: recipe.chef_seguro,
-                difficulty: recipe.dificuldade_segura
-              }} />
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-  )
+  <section className="chef-recipes-page recipes-section" ref={sectionRef}>
+    {showHeader && (
+      <div className="chef-recipes-header">
+        <span className="recipes-subtitle">Receitas em Destaque</span>
+        <h1>As mais populares da nossa comunidade.</h1>
+      </div>
+    )}
+    
+    {filtered.length === 0 ? (
+      <p className="chef-recipes-empty">Nenhuma receita encontrada para esta categoria.</p>
+    ) : (
+      <div className="recipes-grid">
+        {displayed.map((recipe) => (
+          <div 
+            key={recipe.id_seguro} 
+            onClick={locked ? onGuestClick : undefined} 
+            style={locked ? { cursor: 'pointer' } : {}}
+          >
+            {/* Passamos o objeto tratado para o Card não quebrar internamente */}
+            <RecipeCard recipe={{
+              ...recipe,
+              id: recipe.id_seguro,
+              title: recipe.titulo_seguro,
+              category: recipe.categoria_segura,
+              chef: recipe.chef_seguro,
+              difficulty: recipe.dificuldade_segura
+            }} />
+          </div>
+        ))}
+      </div>
+    )}
+  </section>
+) 
 }
 
 export default RecipesSection

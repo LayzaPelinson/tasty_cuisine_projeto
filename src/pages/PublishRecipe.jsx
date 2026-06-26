@@ -7,7 +7,10 @@ import '../styles/publishRecipe.css'
 const UNITS = ['unidades', 'gramas', 'kg', 'ml', 'litros', 'xícaras', 'colheres', 'fatias', 'dentes', 'pitadas', 'a gosto']
 const API_BASE = 'http://localhost:8080'
 
+function PublishRecipe() {
+  
 const { user, publishRecipe } = useUser()
+
   const navigate = useNavigate()
 
   // Estado para armazenar as categorias vindas do banco
@@ -97,7 +100,6 @@ const { user, publishRecipe } = useUser()
     setTimeout(() => navigate('/chef-profile'), 2000)
   }
 
-function PublishRecipe() {
   return (
     <div className="publish-page">
       <div className="publish-page-header">
