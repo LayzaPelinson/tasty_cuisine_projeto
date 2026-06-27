@@ -4,7 +4,7 @@ import { FiSave } from 'react-icons/fi'
 import '../styles/editProfilePanel.css'
 
 function ChefEditProfilePanel({ editing, setEditing }) {
-  const { user, updateChefProfile } = useUser()
+  const { user, updateUserProfile } = useUser()
   const [form, setForm] = useState({
     name: user?.name ?? '',
     email: user?.email ?? '',
@@ -25,7 +25,7 @@ function ChefEditProfilePanel({ editing, setEditing }) {
 
   async function handleSave() {
     setError('')
-    const result = await updateChefProfile({
+    const result = await updateUserProfile({
       name: form.name,
       email: form.email,
       age: form.age,

@@ -6,7 +6,6 @@ import '../styles/publishRecipe.css'
 import '../styles/recipesSection.css'
 import '../styles/login.css'
 
-const API_BASE = 'http://localhost:8080';
 function EditModal({ recipe, onSave, onClose }) {
   // Função interna para realizar o parse seguro de strings JSON vindas do Spring Boot
   const parseList = (value) => {
@@ -17,64 +16,67 @@ function EditModal({ recipe, onSave, onClose }) {
 
   const UNITS = ['unidades', 'gramas', 'kg', 'ml', 'litros', 'xícaras', 'colheres', 'fatias', 'dentes', 'pitadas', 'a gosto']
   const API_BASE = 'http://localhost:8080'
-  
+
   const [categoriesFromDb, setCategoriesFromDb] = useState([])
-  
-  // 1. MAPEAMENTO SEGURO DAS CATEGORIAS (Varre as estruturas para manter selecionado)
-  const [selectedCategories, setSelectedCategories] = useState(() => {
-    const catData = recipe.categoria || recipe.categorias || recipe.category || []
-    const cats = Array.isArray(catData) ? catData : [catData]
-    return cats.map(c => {
-      if (typeof c === 'object' && c !== null) return c.id || c.codCategoria
-      return c
-    }).filter(Boolean)
-  })
+  const [rawRecipe, setRawRecipe] = useState(null)
+  const [loadingRecipe, setLoadingRecipe] = useState(true)
 
-  // 2. MAPEAMENTO DOS CAMPOS DE TEXTO E IMAGEM
-  const [form, setForm] = useState({
-    title: recipe.nomeReceita || recipe.title || '',
-    description: recipe.descricao || recipe.description || '',
-    difficulty: recipe.dificuldade || recipe.difficulty || 'Fácil',
-    image: recipe.fotoReceita || recipe.foto_receita || recipe.image || '',
-  })
-
-  // 3. MAPEAMENTO DOS INGREDIENTES (Trata se vier como Array de String ou Array Real)
-  const [ingredients, setIngredients] = useState(() => {
-    let rawIng = recipe.ingredientes || recipe.ingredients || recipe.itens || '[]'
-    if (Array.isArray(rawIng) && rawIng.length === 1 && typeof rawIng[0] === 'string') {
-      rawIng = rawIng[0]
-    }
-    if (typeof rawIng === 'string') {
-      return parseList(rawIng)
-    }
-    if (Array.isArray(rawIng)) {
-      return rawIng.map(ing => ({
-        quantidade: ing.quantidade ?? ing.qtd ?? ing.qtdIngrediente ?? '',
-        unidade: ing.unidade ?? ing.uniMedida ?? 'gramas',
-        nome: ing.nome ?? ing.nomeIngrediente ?? ''
-      }))
-    }
-    return []
-  })
-  
+  const [selectedCategories, setSelectedCategories] = useState([])
+  const [form, setForm] = useState({ title: '', description: '', difficulty: 'Fácil', image: '' })
+  const [ingredients, setIngredients] = useState([])
   const [ingInput, setIngInput] = useState({ quantidade: '', unidade: 'gramas', nome: '' })
-  
-  // 4. MAPEAMENTO DO MODO DE PREPARO
-  const [steps, setSteps] = useState(() => {
-    let rawSteps = recipe.modo_preparo || recipe.modoPreparo || recipe.instructions || '[]'
-    if (Array.isArray(rawSteps) && rawSteps.length === 1 && typeof rawSteps[0] === 'string') {
-      rawSteps = rawSteps[0]
-    }
-    if (typeof rawSteps === 'string') {
-      return parseList(rawSteps)
-    }
-    return Array.isArray(rawSteps) ? rawSteps : []
-  })
-  
+  const [steps, setSteps] = useState([])
   const [stepInput, setStepInput] = useState('')
   const [error, setError] = useState(null)
 
-  // 5. CARREGA AS CATEGORIAS DO BANCO
+  // ── 1. Busca a receita CRUA direto da API, não a versão normalizada ──────
+  useEffect(() => {
+    async function loadRawRecipe() {
+      setLoadingRecipe(true)
+      try {
+        const res = await fetch(`${API_BASE}/receita/${recipe.id}`)
+        if (!res.ok) throw new Error('Falha ao buscar receita')
+        const data = await res.json()
+        setRawRecipe(data)
+
+        // Categorias selecionadas (array de objetos {codCategoria, nomeCategoria})
+        const cats = Array.isArray(data.categoria) ? data.categoria : []
+        setSelectedCategories(cats.map(c => c.codCategoria).filter(Boolean))
+        console.log('data.categoria:', data.categoria)
+        // Campos de texto e imagem
+        setForm({
+          title: data.nomeReceita || '',
+          description: data.descricao || '',
+          difficulty: data.dificuldade || 'Fácil',
+          image: data.fotoReceita || '',
+        })
+
+        // Ingredientes — vem como string JSON: '[{"quantidade":"123","unidade":"gramas","nome":"3"}, ...]'
+        const parsedIngredients = parseList(data.ingredientes)
+        setIngredients(
+          Array.isArray(parsedIngredients)
+            ? parsedIngredients.map(ing => ({
+              quantidade: ing.quantidade ?? '',
+              unidade: ing.unidade ?? 'gramas',
+              nome: ing.nome ?? '',
+            }))
+            : []
+        )
+
+        // Modo de preparo — vem como string JSON: '["passo 1", "passo 2"]'
+        const parsedSteps = parseList(data.modo_preparo)
+        setSteps(Array.isArray(parsedSteps) ? parsedSteps : [])
+      } catch (err) {
+        console.error('Erro ao carregar receita para edição:', err)
+        setError('Não foi possível carregar os dados da receita.')
+      } finally {
+        setLoadingRecipe(false)
+      }
+    }
+    loadRawRecipe()
+  }, [recipe.id])
+
+  // ── 2. Carrega as categorias disponíveis do banco ────────────────────────
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -84,13 +86,13 @@ function EditModal({ recipe, onSave, onClose }) {
           setCategoriesFromDb(data)
         }
       } catch (err) {
-        console.error("Erro ao carregar categorias no modal:", err)
+        console.error('Erro ao carregar categorias no modal:', err)
       }
     }
     loadCategories()
   }, [])
 
-  // 6. CONTROLADORES DE EVENTOS
+  // ── 3. Controladores de eventos ───────────────────────────────────────────
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
   }
@@ -126,161 +128,139 @@ function EditModal({ recipe, onSave, onClose }) {
   function handleSubmit(e) {
     e.preventDefault()
     setError(null)
-    
-    if (ingredients.length === 0) return setError('Adicione au menos um ingrediente.')
+
+    if (ingredients.length === 0) return setError('Adicione ao menos um ingrediente.')
     if (steps.length === 0) return setError('Adicione ao menos um passo no modo de preparo.')
     if (selectedCategories.length === 0) return setError('Selecione ao menos uma categoria.')
 
     const updatedRecipe = {
-      ...recipe,
+      ...rawRecipe,
       nomeReceita: form.title,
       descricao: form.description,
       dificuldade: form.difficulty,
       fotoReceita: form.image,
       ingredientes: JSON.stringify(ingredients),
       modo_preparo: JSON.stringify(steps),
-      categoria: selectedCategories.map(id => ({ codCategoria: id }))
+      categoria: selectedCategories.map(id => ({ codCategoria: id })),
     }
 
     onSave(updatedRecipe)
   }
 
-  return (
-    <div className="reactivate-overlay" style={{ overflowY: 'auto', padding: '30px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
-      <div className="reactivate-modal publish-recipe-container" style={{ maxWidth: '700px', width: '92%', margin: '20px auto', textAlign: 'left', background: '#fff', padding: '30px', borderRadius: '16px' }}>
-        
-        <div className="publish-page-header" style={{ marginBottom: '25px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
-          <h2 style={{ margin: 0, fontSize: '24px', color: '#333' }}>Editar Receita</h2>
-          <p className="publish-subtitle" style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>Modifique os dados necessários da sua publicação.</p>
+  if (loadingRecipe) {
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <p>Carregando receita...</p>
         </div>
+      </div>
+    )
+  }
 
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <h2>Editar Receita</h2>
         <form onSubmit={handleSubmit}>
-          {/* TÍTULO */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>Título da Receita</label>
-            <input className="form-title" name="title" value={form.title} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} required />
+          <div>
+            <label>Título</label>
+            <input name="title" value={form.title} onChange={handleChange} required />
           </div>
 
-          {/* DESCRIÇÃO */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>Descrição</label>
-            <textarea name="description" className="form-description" rows="3" value={form.description} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', resize: 'vertical', fontFamily: 'inherit' }} required />
+          <div>
+            <label>Descrição</label>
+            <textarea name="description" rows="2" value={form.description} onChange={handleChange} required />
           </div>
 
-          {/* DIFICULDADE */}
-          <div style={{ marginBottom: '25px' }}>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>Dificuldade</label>
-            <select name="difficulty" value={form.difficulty} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}>
-              <option value="Fácil">Fácil</option>
-              <option value="Médio">Médio</option>
-              <option value="Difícil">Difícil</option>
+          <div>
+            <label>Dificuldade</label>
+            <select name="difficulty" value={form.difficulty} onChange={handleChange}>
+              <option>Fácil</option>
+              <option>Médio</option>
+              <option>Difícil</option>
             </select>
           </div>
 
-          {/* CATEGORIAS */}
-          <h3 style={{ fontSize: '18px', borderBottom: '1px solid #eee', paddingBottom: '8px', marginTop: '25px' }}>Categorias</h3>
-          <div className="categories-checkbox-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', margin: '15px 0 25px 0' }}>
-            {categoriesFromDb.length === 0 ? (
-              <p style={{ fontSize: '14px', color: '#888' }}>Carregando categorias...</p>
-            ) : (
-              categoriesFromDb.map(c => {
-                const idCat = c.id || c.codCategoria;
-                const nomeCat = c.nome || c.nomeCategoria;
-                return (
-                  <label key={idCat} className="category-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={selectedCategories.includes(idCat)}
-                      onChange={() => handleCategoryChange(idCat)}
-                    />
-                    <span className="checkbox-text">{nomeCat}</span>
-                  </label>
-                )
-              })
-            )}
+          <div>
+            <label>Foto (URL)</label>
+            <input name="image" value={form.image} onChange={handleChange} placeholder="https://exemplo.com/foto.jpg" />
           </div>
 
-          {/* INGREDIENTES */}
-          <h3 style={{ fontSize: '18px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>Ingredientes</h3>
-          <div className="ingredient-inputs" style={{ display: 'flex', gap: '10px', alignItems: 'center', margin: '15px 0 10px 0' }}>
+          <h3>Categorias</h3>
+          <div className="categories-checkboxes">
+            {categoriesFromDb.map(cat => (
+              <label key={cat.codCategoria} className="category-checkbox">
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.includes(cat.codCategoria)}
+                  onChange={() => handleCategoryChange(cat.codCategoria)}
+                />
+                {cat.nomeCategoria}
+              </label>
+            ))}
+          </div>
+
+          <h3>Ingredientes</h3>
+          <div className="ingredient-inputs">
             <input
-              style={{ width: '80px', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
-              placeholder="Qtd"
+              placeholder="Quantidade"
               value={ingInput.quantidade}
               onChange={e => setIngInput(f => ({ ...f, quantidade: e.target.value }))}
             />
-            <select 
-              style={{ width: '130px', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', background: '#fff', height: '45px' }}
-              value={ingInput.unidade} 
-              onChange={e => setIngInput(f => ({ ...f, unidade: e.target.value }))}
-            >
-              {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+            <select value={ingInput.unidade} onChange={e => setIngInput(f => ({ ...f, unidade: e.target.value }))}>
+              {UNITS.map(u => <option key={u}>{u}</option>)}
             </select>
             <input
-              style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
-              placeholder="Ingrediente (ex: Ovos)"
+              placeholder="Ingrediente"
               value={ingInput.nome}
               onChange={e => setIngInput(f => ({ ...f, nome: e.target.value }))}
             />
-            <button type="button" className="add-btn" style={{ padding: '12px 18px', height: '45px' }} onClick={addIngredient}>+ Adicionar</button>
+            <button type="button" onClick={addIngredient}>+ Adicionar</button>
           </div>
-
           {ingredients.length > 0 && (
-            <ul className="items-list" style={{ listStyle: 'none', padding: '5px 10px', background: '#f8f9fa', borderRadius: '8px', marginBottom: '25px' }}>
+            <ul className="items-list">
               {ingredients.map((ing, i) => (
-                <li key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i !== ingredients.length - 1 ? '1px solid #eee' : 'none', fontSize: '14px' }}>
-                  <span><strong>{ing.quantidade} {ing.unidade}</strong> — {ing.nome}</span>
-                  <button type="button" style={{ background: 'transparent', border: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', padding: '0 5px' }} onClick={() => removeIngredient(i)}>✕</button>
+                <li key={i}>
+                  <span>{ing.quantidade} {ing.unidade} — {ing.nome}</span>
+                  <button type="button" onClick={() => removeIngredient(i)}>✕</button>
                 </li>
               ))}
             </ul>
           )}
 
-          {/* MODO DE PREPARO */}
-          <h3 style={{ fontSize: '18px', borderBottom: '1px solid #eee', paddingBottom: '8px', marginTop: '25px' }}>Modo de Preparo</h3>
-          <div className="step-inputs" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', margin: '15px 0 10px 0' }}>
+          <h3>Modo de Preparo</h3>
+          <div className="step-inputs">
             <textarea
               rows="2"
-              style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd', resize: 'vertical', fontFamily: 'inherit' }}
               placeholder="Descreva um passo do preparo..."
               value={stepInput}
               onChange={e => setStepInput(e.target.value)}
             />
-            <button type="button" className="add-btn" style={{ padding: '12px 18px', height: '45px', whiteSpace: 'nowrap' }} onClick={addStep}>+ Passo</button>
+            <button type="button" onClick={addStep}>+ Adicionar Passo</button>
           </div>
-
           {steps.length > 0 && (
-            <ol className="items-list" style={{ padding: '5px 10px 5px 25px', background: '#f8f9fa', borderRadius: '8px', marginBottom: '25px' }}>
+            <ol className="items-list">
               {steps.map((step, i) => (
-                <li key={i} style={{ padding: '8px 0', borderBottom: i !== steps.length - 1 ? '1px solid #eee' : 'none', fontSize: '14px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
-                    <span style={{ flex: 1 }}>{step}</span>
-                    <button type="button" style={{ background: 'transparent', border: 'none', color: '#e53e3e', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }} onClick={() => removeStep(i)}>✕</button>
-                  </div>
+                <li key={i}>
+                  <span>{step}</span>
+                  <button type="button" onClick={() => removeStep(i)}>✕</button>
                 </li>
               ))}
             </ol>
           )}
 
-          {/* FOTO DA RECEITA */}
-          <h3 style={{ fontSize: '18px', borderBottom: '1px solid #eee', paddingBottom: '8px', marginTop: '25px' }}>Foto da Receita</h3>
-          <div style={{ marginBottom: '20px', marginTop: '15px' }}>
-            <label style={{ display: 'block', fontWeight: '600', marginBottom: '8px' }}>URL da imagem</label>
-            <input className='form-url' name="image" value={form.image} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} placeholder="https://exemplo.com/foto.jpg" />
-          </div>
+          {error && <p className="error-text">{error}</p>}
 
-          {error && <p className="error-text" style={{ color: '#e53e3e', marginTop: '15px', fontWeight: '500' }}>{error}</p>}
-
-          {/* BOTÕES INFERIORES */}
-          <div className="reactivate-actions" style={{ marginTop: '30px', display: 'flex', gap: '12px', justifyContent: 'flex-end', borderTop: '1px solid #eee', paddingTop: '20px' }}>
-            <button type="submit" className="login-btn" style={{ margin: 0, padding: '12px 24px', borderRadius: '8px', fontWeight: '600' }}>Salvar Alterações</button>
-            <button type="button" onClick={onClose} style={{ padding: '12px 24px', background: '#e2e8f0', color: '#4a5568', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>Cancelar</button>
+          <div className="modal-actions">
+            <button type="button" onClick={onClose}>Cancelar</button>
+            <button type="submit">Salvar Alterações</button>
           </div>
         </form>
       </div>
     </div>
   )
 }
+
 
 function ChefMyRecipes() {
   // 2. Pegamos a nova função que criamos no hook
