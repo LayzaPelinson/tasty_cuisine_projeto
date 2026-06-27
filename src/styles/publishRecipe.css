@@ -54,12 +54,12 @@
   z-index: 2;
 }
 .publish-page-body {
-  padding-top: 20px;
+  padding-top: 60px;
 }
 /* CARD */
 .recipe-form-card {
   width: min(1100px, 92%);
-  margin: -30px auto 0;
+  margin: 0 auto;
 
   position: relative;
   z-index: 5;

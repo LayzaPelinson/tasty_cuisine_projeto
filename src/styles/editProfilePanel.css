@@ -6,7 +6,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-bottom: 8px;
+  margin: 32px auto 8px;
+  width: min(1000px, 92%);
 }
 .edit-profile-fields {
   display: flex;

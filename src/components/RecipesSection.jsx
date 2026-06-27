@@ -1,9 +1,11 @@
 import RecipeCard from './RecipeCard'
 import '../styles/recipesSection.css'
 import { useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useUser } from '../hooks/useUser'
 
 function RecipesSection({ showHeader = true, category, limit, search, locked = false, onGuestClick }) {
+  const navigate = useNavigate()
   const { recipes, recipesLoaded } = useUser()
   const allRecipes = recipes || []
 
@@ -94,23 +96,23 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
 
   if (!recipesLoaded) {
     return (
-      <section className="recipes-section" ref={sectionRef}>
+      <section className="chef-recipes-page" ref={sectionRef}>
         {showHeader && (
-          <>
-            <span className="recipes-subtitle">Receitas em Destaque</span>
-            <h2>As mais populares da nossa comunidade.</h2>
-          </>
+          <div className="chef-recipes-header">
+            <span>Receitas em Destaque</span>
+            <h1>As mais populares da nossa comunidade.</h1>
+          </div>
         )}
-        <p className="no-results">Carregando receitas...</p>
+        <p className="chef-recipes-empty">Carregando receitas...</p>
       </section>
     )
   }
 
   return (
-    <section className="chef-recipes-page-recipes-section" ref={sectionRef}>
+    <section className="chef-recipes-page" ref={sectionRef}>
       {showHeader && (
         <div className="chef-recipes-header">
-          <span className="recipes-subtitle">Receitas em Destaque</span>
+          <span>Receitas em Destaque</span>
           <h1>As mais populares da nossa comunidade.</h1>
         </div>
       )}
@@ -122,7 +124,7 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
           {displayed.map((recipe) => (
             <div
               key={recipe.id_seguro}
-              onClick={() => navigate(`/receita/${recipe.id_seguro}`)} // 💡 Passa o ID na URL
+              onClick={() => locked ? onGuestClick?.() : navigate(`/receita/${recipe.id_seguro}`)}
               style={{ cursor: 'pointer' }}
             >
               <RecipeCard recipe={recipe} />
