@@ -11,17 +11,26 @@ function ChefRecipesView() {
   const [activeCategory, setActiveCategory] = useState(null)
 
   const allRecipes = recipes || []
-  //const q = norm(search)
 
-  /*const filtered =
-      allRecipes.filter((r) =>
-        norm(r.title).includes(q) ||
-        norm(r.category).includes(q) ||
-        norm(r.chef || '').includes(q) ||
-        norm(r.difficulty || '').includes(q)
-      )*/
+  const norm = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const q = norm(search)
 
-  const byChef = allRecipes.reduce((acc, r) => {
+  const getCategoryText = (r) => {
+    if (Array.isArray(r.category)) return r.category.map(c => c?.nomeCategoria || c).join(' ')
+    return r.category || r.categoria_segura || ''
+  }
+
+  const filtered = allRecipes.filter(r => {
+    const matchSearch = !q ||
+      norm(r.title).includes(q) ||
+      norm(r.chef).includes(q) ||
+      norm(getCategoryText(r)).includes(q) ||
+      norm(r.difficulty).includes(q)
+    const matchCategory = !activeCategory || norm(getCategoryText(r)).includes(norm(activeCategory))
+    return matchSearch && matchCategory
+  })
+
+  const byChef = filtered.reduce((acc, r) => {
     const key = r.chef && r.chef !== 'Chefe' ? r.chef : (r.usuario?.nome_completo || r.usuario?.nome_de_usuario || 'Desconhecido')
     if (!acc[key]) acc[key] = []
     acc[key].push(r)
