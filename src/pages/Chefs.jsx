@@ -37,6 +37,9 @@ function Chefs({ chefeId }) {
   return (
     <section className="chefs-page">
       <div className="chefs-section-header">
+        <span>Conheça nossos especialistas</span>
+        <h1>Nossos Chefes</h1>
+        <p>Profissionais apaixonados que transformam ingredientes simples em experiências únicas.</p>
         <button className="chefs-ver-mais-btn" onClick={() => navigate('/chefs/todos')}>
           Ver todos os chefes
         </button>
