@@ -154,32 +154,39 @@ const { user, publishRecipe } = useUser()
         </div>
 
         <h3>Ingredientes</h3>
-        <div className="ingredient-inputs">
-          <input
-            placeholder="Quantidade (ex: 3)"
-            value={ingInput.quantidade}
-            onChange={e => setIngInput(f => ({ ...f, quantidade: e.target.value }))}
-          />
-          <select value={ingInput.unidade} onChange={e => setInst => setIngInput(f => ({ ...f, unidade: e.target.value }))}>
-            {UNITS.map(u => <option key={u}>{u}</option>)}
-          </select>
-          <input
-            placeholder="Ingrediente (ex: Ovos)"
-            value={ingInput.nome}
-            onChange={e => setIngInput(f => ({ ...f, nome: e.target.value }))}
-          />
-          <button type="button" className="add-btn" onClick={addIngredient}>+ Adicionar</button>
-        </div>
-        {ingredients.length > 0 && (
-          <ul className="items-list">
-            {ingredients.map((ing, i) => (
-              <li key={i}>
-                <span>{ing.quantidade} {ing.unidade} — {ing.nome}</span>
-                <button type="button" onClick={() => removeIngredient(i)}>✕</button>
-              </li>
-            ))}
-          </ul>
-        )}
+<div className="ingredient-inputs">
+  <input
+    placeholder="Quantidade (ex: 3)"
+    value={ingInput.quantidade}
+    onChange={e => setIngInput(f => ({ ...f, quantidade: e.target.value }))}
+  />
+  
+  {/* 💡 CORRIGIDO: Tirado o 'setInst =>' intruso do onChange */}
+  <select 
+    value={ingInput.unidade} 
+    onChange={e => setIngInput(f => ({ ...f, unidade: e.target.value }))}
+  >
+    {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+  </select>
+
+  <input
+    placeholder="Ingrediente (ex: Ovos)"
+    value={ingInput.nome}
+    onChange={e => setIngInput(f => ({ ...f, nome: e.target.value }))}
+  />
+  <button type="button" className="add-btn" onClick={addIngredient}>+ Adicionar</button>
+</div>
+
+{ingredients.length > 0 && (
+  <ul className="items-list">
+    {ingredients.map((ing, i) => (
+      <li key={i}>
+        <span>{ing.quantidade} {ing.unidade} — {ing.nome}</span>
+        <button type="button" onClick={() => removeIngredient(i)}>✕</button>
+      </li>
+    ))}
+  </ul>
+)}
 
         <h3>Modo de Preparo</h3>
         <div className="step-inputs">

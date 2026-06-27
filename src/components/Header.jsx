@@ -21,7 +21,7 @@ function Header() {
                     <>
                         {user.funcao !== 'Chefe' && <Link to="/">Home</Link>}
                         <Link to="/recipes">Receitas</Link>
-                        {user.funcao !== 'Chefe' && <Link to="/chefs">Chefes</Link>}
+                        {/*{user.funcao !== 'Chefe' && <Link to="/chefs">Chefes</Link>}*/}
                         {user.funcao === 'Chefe' ? (
                             <>
                                 <Link to="/publish">Publicar Receita</Link>
