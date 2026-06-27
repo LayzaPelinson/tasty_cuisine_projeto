@@ -24,12 +24,11 @@ function EditProfilePanel({ editing, setEditing }) {
   async function handleSave() {
     setError('')
     const result = await updateUserProfile({
+
       name: form.name,
       email: form.email,
       age: form.age,
-      preferences: prefs,
-    })
-
+      preferences: prefs,})
     if (!result.ok) {
       setError(result.error || 'Falha ao salvar perfil')
       return

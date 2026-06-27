@@ -499,13 +499,14 @@ async function createCategoria(nome) {
     if (!user || user.funcao !== 'usuario') return { ok: false, error: 'Usuário inválido' }
     try {
       const payload = {
-        nomeCompleto: updated.name || user.name,
-        nomeDeUsuario: user.username,
+        nome_completo: updated.name || user.name,
+        nome_de_usuario: user.username,
         idade: Number(updated.age ?? user.age) || user.age,
         gmail: updated.email || user.email,
         senha: updated.password ?? null,
         restricoesAlimentares: updated.preferences ? updated.preferences.join(',') : user.preferences?.join(',') ?? null,
       }
+      console.log(JSON.stringify(payload))
       const res = await fetch(`${API_BASE}/usuario/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -523,6 +524,7 @@ async function createCategoria(nome) {
       return { ok: false, error: err.message }
     }
   }
+  
 async function publishRecipe(recipe) {
   // Mantém a validação de segurança do método antigo
   if (!user || (user.funcao !== 'chef' && user.funcao !== 'Chefe' && user.funcao !== 'CHEF')) {
