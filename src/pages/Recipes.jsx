@@ -1,12 +1,14 @@
 import { useUser } from '../hooks/useUser.jsx'
 import { useState } from 'react'
 import RecipeCard from "../components/RecipeCard.jsx";
+import Categories from '../components/Categories.jsx'
 import { FiSearch } from "react-icons/fi";
 import '../styles/recipe.css'
 
 function ChefRecipesView() {
   const { recipes, recipesLoaded } = useUser()
   const [search, setSearch] = useState('')
+  const [activeCategory, setActiveCategory] = useState(null)
 
   const allRecipes = recipes || []
   //const q = norm(search)
@@ -48,7 +50,6 @@ function ChefRecipesView() {
         </p>
 
         <div className="recipes-search chef-search">
-          
           <FiSearch className="search-icon" />
           <input
             className='search-input'
@@ -59,6 +60,10 @@ function ChefRecipesView() {
           />
         </div>
       </div>
+      <Categories
+        active={activeCategory}
+        onSelect={(cat) => setActiveCategory(prev => prev === cat ? null : cat)}
+      />
 
       {Object.keys(byChef).length === 0 ? (
         <p className="chef-recipes-empty">
