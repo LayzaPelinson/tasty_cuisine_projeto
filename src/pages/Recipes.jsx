@@ -22,7 +22,7 @@ function ChefRecipesView() {
       )*/
 
   const byChef = allRecipes.reduce((acc, r) => {
-    const key = r.chef || 'Desconhecido'
+    const key = r.chef && r.chef !== 'Chefe' ? r.chef : (r.usuario?.nome_completo || r.usuario?.nome_de_usuario || 'Desconhecido')
     if (!acc[key]) acc[key] = []
     acc[key].push(r)
     return acc
@@ -75,8 +75,6 @@ function ChefRecipesView() {
             key={chefName}
             className="chef-recipes-section"
           >
-            <h2>{chefName}</h2>
-
             <div className="recipes-grid">
               {chefRecipesList.map((recipe) => (
                 <RecipeCard

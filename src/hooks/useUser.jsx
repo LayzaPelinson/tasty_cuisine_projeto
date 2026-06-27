@@ -56,7 +56,7 @@ function normalizeApiRecipe(recipe) {
     category: recipe.category ?? recipe.categoria ?? 'Geral',
     difficulty: recipe.difficulty ?? recipe.dificuldade ?? 'Médio',
     time: recipe.time ?? recipe.tempo ?? '',
-    chef: recipe.chef ?? recipe.chefName ?? recipe.chefe?.nomeUsuario ?? recipe.chefe?.nomeCompleto ?? 'Chefe',
+    chef: recipe.chef ?? recipe.chefName ?? recipe.usuario?.nome_completo ?? recipe.usuario?.nome_de_usuario ?? recipe.chefe?.nomeCompleto ?? recipe.chefe?.nomeUsuario ?? 'Desconhecido',
     chefId: recipe.chefId ?? recipe.chefe?.codChefe,
     ingredients: parseJsonOrLines(recipe.ingredients ?? recipe.ingredientes),
     instructions: parseJsonOrLines(recipe.instructions ?? recipe.modo_preparo ?? recipe.manual2),
