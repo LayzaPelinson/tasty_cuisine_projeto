@@ -216,7 +216,7 @@ const { user, publishRecipe } = useUser()
         </div>
 
         {error && <p className="error-text">{error}</p>}
-        {success && <p className="publish-success">✓ Receita publicada com sucesso! Redirecionando...</p>}
+        {success && <p className="publish-success">✓ Receita publicada com sucesso! Aguarde a aprovação de algum ADM.</p>}
         <button type="submit" className="submit-btn">Publicar Receita</button>
       </form>
     </section>
