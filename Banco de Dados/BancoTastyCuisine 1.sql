@@ -32,7 +32,7 @@ CREATE TABLE Receitas (
     Cod_usuario INT NOT NULL,
     Foto_receita NVARCHAR(MAX),
     Restricao INT NOT NULL,
-    Status_Receita NVARCHAR(20) NOT NULL default 'ATIVO',
+    Status_Receita NVARCHAR(20) NOT NULL default 'INATIVO',
     FOREIGN KEY (Cod_usuario) REFERENCES Usuario(Cod_user),
     CONSTRAINT chk_ingredientes CHECK (Ingredientes IS NULL OR ISJSON(Ingredientes) = 1),
     CONSTRAINT chk_modo_preparo CHECK (ISJSON(Modo_preparo) = 1)
