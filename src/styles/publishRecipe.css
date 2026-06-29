@@ -1,37 +1,76 @@
 .publish-page {
   min-height: 100vh;
-  background: #f4efe6;
-  padding: 50px 20px;
+  background: #F5EDE3;
+  padding-bottom: 40px;
 }
 .publish-page-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #f4efe6;
-  padding: 16px 20px 12px;
+  background: #C4703A;
+  border-bottom-left-radius: 32px;
+  border-bottom-right-radius: 32px;
+
+  padding: 70px 32px 40px;
   text-align: center;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.publish-page-header::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.07);
+  top: -70px;
+  right: -50px;
+}
+
+.publish-page-header::after {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255,180,100,.10);
+  bottom: -40px;
+  left: -30px;
 }
 .publish-page h1 {
-  font-size: 64px;
-  color: #f47c20;
+  color: white;
+  font-size: 60px;
   font-family: "Cormorant Garamond", serif;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
 }
 .publish-subtitle {
-  font-size: 20px;
-  margin-bottom: 0;
+  color: rgba(255,230,200,.9);
+  font-size: 17px;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
 }
 .publish-page-body {
-  padding-top: 20px;
+  padding-top: 60px;
 }
 /* CARD */
 .recipe-form-card {
-  max-width: 900px;
+  width: min(1100px, 92%);
   margin: 0 auto;
+
+  position: relative;
+  z-index: 5;
+
   background: white;
-  padding: 40px;
-  border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-radius: 24px;
+  padding: 36px;
+
+  border: 1px solid #EDE0D4;
+
+  box-shadow: 0 8px 20px rgba(139,80,40,.08);
 }
 .recipe-form-card h2 {
   text-align: center;
@@ -47,12 +86,13 @@
 }
 /* TÍTULOS */
 .recipe-form-card h3 {
-  color: #f47c20;
-  font-size: 24px;
-  margin-bottom: 18px;
-  margin-top: 30px;
+  color: #3D2010;
+  font-size: 28px;
   font-family: "Cormorant Garamond", serif;
+  margin-top: 32px;
+  margin-bottom: 16px;
 }
+
 /* FORM */
 .recipe-form-card form {
   display: flex;
@@ -69,18 +109,19 @@
 .recipe-form-card input,
 .recipe-form-card textarea,
 .recipe-form-card select {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #d6d6d6;
-  border-radius: 6px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s;
+  background: #FBF5EF;
+  border: 1px solid #F0C8A0;
+  border-radius: 14px;
+
+  padding: 14px 16px;
+  font-size: 15px;
+
+  transition: .3s;
 }
 .recipe-form-card input:focus,
 .recipe-form-card textarea:focus,
 .recipe-form-card select:focus {
-  border-color: #f47c20;
+  border-color: #C4703A;
 }
 /* GRID-3 */
 .recipe-form-card .grid-3 {
@@ -99,10 +140,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
-}
-/* INPUT FILE */
-.file-input {
-  background: white;
 }
 /* INGREDIENTES / PASSOS */
 .ingredient-inputs {
@@ -133,7 +170,10 @@
   cursor: pointer;
   transition: .2s;
 }
-.add-btn:hover { background: #18552a; }
+.add-btn:hover {
+  padding: 14px 22px; 
+  background: #18552a; 
+}
 .items-list {
   list-style: none;
   padding: 0;
@@ -170,19 +210,23 @@ ol.items-list li::before {
 }
 /* BOTÃO */
 .recipe-form-card button[type="submit"] {
-  margin-top: 30px;
-  height: 58px;
+  margin-top: 32px;
+
+  height: 60px;
+
   border: none;
-  border-radius: 6px;
-  background: #f47c20;
+  border-radius: 16px;
+
+  background: #C4703A;
   color: white;
-  font-size: 24px;
-  font-weight: 600;
-  cursor: pointer;
+
+  font-size: 18px;
+  font-weight: 700;
+
   transition: .3s;
 }
 .recipe-form-card button[type="submit"]:hover {
-  background: #dd6f16;
+  background: #A95E2F;
 }
 .publish-success {
   background: #eaf7ee;
@@ -217,18 +261,23 @@ ol.items-list li::before {
   padding: 7px 0;
   font-size: 13px;
 }
-.btn-edit {
-  padding: 8px 20px;
-  border: none;
-  border-radius: 8px;
-  background: #f47c20;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: .2s;
+.add-btn {
+  background: #C4703A;
+  border-radius: 12px;
 }
-.btn-edit:hover { background: #dd6f16; }
+
+.add-btn:hover {
+  background: #A95E2F;
+}
+
+.btn-edit {
+  background: #C4703A;
+  border-radius: 12px;
+}
+
+.btn-edit:hover {
+  background: #A95E2F;
+}
 .btn-delete {
   padding: 8px 20px;
   border: none;
@@ -309,3 +358,116 @@ ol.items-list li::before {
   transition: .2s;
 }
 .btn-cancel:hover { background: #f5f5f5; }
+@media (max-width: 768px) {
+
+  .publish-page h1 {
+    font-size: 42px;
+  }
+
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .ingredient-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .recipe-form-card {
+    padding: 24px;
+  }
+}
+.form-description {
+  width: 100%;
+  min-height: 120px; 
+  resize: vertical;
+}
+
+.form-title{
+  width: 80%;
+  min-height: 12px;
+  resize: vertical;
+}
+
+
+.form-url{
+  width: 100%;
+  min-height: 12px; 
+  resize: vertical;
+}
+
+/* Container do Checkbox */
+/* 1. Ajuste no container principal */
+.category-checkbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  padding: 12px 14px;
+  background: #FBF5EF;
+  border: 1px solid #F0C8A0;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* 2. Ajuste no quadradinho customizado */
+.category-checkbox::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #C4703A;
+  border-radius: 4px;
+  margin-right: 10px;
+  background: white;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  vertical-align: middle; 
+}
+
+/* 3. Ajuste no texto */
+.checkbox-text {
+  font-size: 14px;
+  color: #3D2010;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center; /* Garante que a linha do texto case com o meio do quadrado */
+}
+/* Esconde o quadradinho padrão do navegador */
+.category-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+
+/* Efeito de Hover (passar o mouse por cima) */
+.category-checkbox:hover {
+  background: #ffe9ce;
+  border-color: #C4703A;
+}
+
+/* Estilo de quando o Checkbox estiver CHECADO (Ativo) */
+.category-checkbox:has(input:checked) {
+  background: #F0C8A0; /* Fundo levemente mais escuro ao selecionar */
+  border-color: #C4703A;
+}
+
+.category-checkbox:has(input:checked)::before {
+  background-color: #C4703A;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+  background-size: 14px;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-color: #C4703A;
+}
+
+/* Estilo do texto ao lado do checkbox */
+.checkbox-text {
+  font-size: 14px;
+  color: #3D2010; /* Tom escuro do seu projeto */
+  font-weight: 500;
+}

@@ -77,9 +77,9 @@ public class ReceitaController {
         return ResponseEntity.ok(receitaService.populares());
     }
 
-    @PutMapping("/categoria/adicionar/{codCategoria}/{receita}")
-    public ResponseEntity<Object> adicionarCategoria(@PathVariable Receita receita,@PathVariable long codCategoria){
-        return ResponseEntity.ok(receitaService.adicionarCategoria(codCategoria, receita.getCodReceitas()));
+    @PutMapping("/categoria/adicionar/{codCategoria}/{codReceita}")
+    public ResponseEntity<Object> adicionarCategoria(@PathVariable long codReceita,@PathVariable long codCategoria){
+        return ResponseEntity.ok(receitaService.adicionarCategoria(codCategoria, codReceita));
     }
 
     @PutMapping("/categoria/remover/{codCategoria}/{receita}")

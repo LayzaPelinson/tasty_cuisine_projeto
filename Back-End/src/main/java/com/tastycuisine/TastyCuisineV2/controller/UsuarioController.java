@@ -90,6 +90,19 @@ public class UsuarioController {
             );
         }
     }
+    
+    @PutMapping("/bloquear/{codUser}")
+    public ResponseEntity<Object> bloquearUsuario(@PathVariable Long codUser) {
+        try {
+            return ResponseEntity.ok(usuarioService.bloquear(codUser));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(
+                Map.of("status", 404,
+                       "error", "not found",
+                       "message", "usuario não encontrado com o id: " + codUser)
+            );
+        }
+    }
 
     // ── NOVO: atualiza somente a foto de perfil ─────────────────────────────
     // PATCH /usuario/:id/foto

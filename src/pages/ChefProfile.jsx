@@ -21,13 +21,27 @@ function ChefProfile() {
 
   return (
     <div className="profile-page">
-      <ProfileHeader setActiveTab={() => setEditing(e => !e)} isChefe={true} />
-      <ChefEditProfilePanel editing={editing} setEditing={setEditing} />
-      <ChefProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      {activeTab === 'recipes' && <ChefMyRecipes />}
-      {activeTab === 'stats' && <ChefStatsPanel />}
-      {activeTab === 'settings' && <ChefSettingsPanel />}
-    </div>
+  <ProfileHeader
+    setActiveTab={() => setEditing(e => !e)}
+    isChefe={true}
+  />
+
+  <div className="profile-content">
+    <ChefEditProfilePanel
+      editing={editing}
+      setEditing={setEditing}
+    />
+
+    <ChefProfileTabs
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+    />
+
+    {activeTab === 'recipes' && <ChefMyRecipes />}
+    {activeTab === 'stats' && <ChefStatsPanel />}
+    {activeTab === 'settings' && <ChefSettingsPanel />}
+  </div>
+</div>
   )
 }
 

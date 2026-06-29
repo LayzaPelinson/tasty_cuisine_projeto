@@ -22,7 +22,6 @@ function ChefDetails() {
   }, [id])
 
   const chefRecipes = recipes.filter(r => r.chefId === Number(id))
-  console.log(chefe);
   if (!chefe) return <h1>Chef não encontrado</h1>
 
   return (

@@ -13,17 +13,33 @@ function Chefs({ chefeId }) {
   const [chefs, setChefes] = useState([])
 
   useEffect(() => {
-    fetch(`${API_BASE}/chefe/findAll`)
-      .then(r => r.ok ? r.json() : [])
-      .then(data => setChefes(Array.isArray(data) ? data : []))
-      .catch(() => setChefes([]))
-  }, [chefeId])
+  // 💡 Alterado para o endpoint correto de usuários
+  fetch(`${API_BASE}/usuario/findAll`)
+    .then(r => r.ok ? r.json() : [])
+    .then(data => {
+      if (Array.isArray(data)) {
+        // Filtra apenas os usuários que são Chefes válidos, ativos e não bloqueados
+        const chefesValidos = data.filter(u => 
+          u.funcao?.toLowerCase() === 'chefe' && 
+          u.bloqueado === 0 && 
+          u.status_Usuario === 'ATIVO'
+        )
+        setChefes(chefesValidos)
+      } else {
+        setChefes([])
+      }
+    })
+    .catch(() => setChefes([]))
+}, [chefeId])
 
   const featured = chefs.slice(0, 4)
 
   return (
     <section className="chefs-page">
       <div className="chefs-section-header">
+        <span>Conheça nossos especialistas</span>
+        <h1>Nossos Chefes</h1>
+        <p>Profissionais apaixonados que transformam ingredientes simples em experiências únicas.</p>
         <button className="chefs-ver-mais-btn" onClick={() => navigate('/chefs/todos')}>
           Ver todos os chefes
         </button>

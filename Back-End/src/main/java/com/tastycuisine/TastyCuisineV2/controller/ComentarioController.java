@@ -66,7 +66,7 @@ public class ComentarioController {
             return ResponseEntity.ok().body("Comentário com o id " + codComentarios + " foi removido com sucesso");
         } catch (NumberFormatException e) {
             return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codComentarios));
-        } catch (RuntimeException e) {
+        } catch (RuntimeException e) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
             return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "comentário não encontrado com o id: " + codComentarios));
         }
     }

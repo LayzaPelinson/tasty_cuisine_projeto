@@ -1,105 +1,101 @@
+import { useUser } from '../hooks/useUser.jsx'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import RecipesHero from '../components/RecipesHero'
-import RecipesSection from '../components/RecipesSection'
-import Categories from '../components/Categories'
-import RecipeCard from '../components/RecipeCard'
-import { useUser } from '../hooks/useUser'
-import '../styles/recipesSection.css'
-import '../styles/recipesHero.css'
-import { FiSearch } from 'react-icons/fi'
-
-const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+import RecipeCard from "../components/RecipeCard.jsx";
+import Categories from '../components/Categories.jsx'
+import { FiSearch } from "react-icons/fi";
+import '../styles/recipe.css'
 
 function ChefRecipesView() {
-  const { user, recipes, recipesLoaded } = useUser()
+  const { recipes, recipesLoaded } = useUser()
   const [search, setSearch] = useState('')
+  const [activeCategory, setActiveCategory] = useState(null)
+
   const allRecipes = recipes || []
+
+  const norm = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   const q = norm(search)
 
-  const filtered = q
-    ? allRecipes.filter((r) =>
-        norm(r.title).includes(q) ||
-        norm(r.category).includes(q) ||
-        norm(r.chef || '').includes(q) ||
-        norm(r.difficulty || '').includes(q)
-      )
-    : allRecipes
+  const getCategoryText = (r) => {
+    if (Array.isArray(r.category)) return r.category.map(c => c?.nomeCategoria || c).join(' ')
+    return r.category || r.categoria_segura || ''
+  }
+
+  const filtered = allRecipes.filter(r => {
+    const matchSearch = !q ||
+      norm(r.title).includes(q) ||
+      norm(r.chef).includes(q) ||
+      norm(getCategoryText(r)).includes(q) ||
+      norm(r.difficulty).includes(q)
+    const matchCategory = !activeCategory || norm(getCategoryText(r)).includes(norm(activeCategory))
+    return matchSearch && matchCategory
+  })
 
   const byChef = filtered.reduce((acc, r) => {
-    const key = r.chef || 'Desconhecido'
+    const key = r.chef && r.chef !== 'Chefe' ? r.chef : (r.usuario?.nome_completo || r.usuario?.nome_de_usuario || 'Desconhecido')
     if (!acc[key]) acc[key] = []
     acc[key].push(r)
     return acc
   }, {})
 
   if (!recipesLoaded) {
-    return <p style={{ textAlign: 'center', color: '#888', fontSize: '18px' }}>Carregando receitas...</p>
+    return (
+      <div className="chef-recipes-loading">
+        Carregando receitas...
+      </div>
+    )
   }
 
   return (
-    <div style={{ background: '#f4efe6', minHeight: '100vh', padding: '60px 8%' }}>
-      <h1 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: '56px', color: '#f47c20', textAlign: 'center', marginBottom: '32px' }}>
-        Receitas por Chef
-      </h1>
-      <div className="recipes-search" style={{ maxWidth: '600px', margin: '0 auto 52px' }}>
-        <FiSearch className="search-icon" />
-        <input
-          type="text"
-          placeholder="Buscar por nome, chef, categoria ou dificuldade..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <section className="chef-recipes-page">
+      <div className="chef-recipes-header">
+        <span>Receitas Saudáveis</span>
+
+        <h1>
+          Receitas
+        </h1>
+
+        <p>
+          Explore todas as receitas criadas pelos chefes da plataforma.
+        </p>
+
+        <div className="recipes-search chef-search">
+          <FiSearch className="search-icon" />
+          <input
+            className='search-input'
+            type="text"
+            placeholder="Buscar por nome, chef, categoria ou dificuldade..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
+      <Categories
+        active={activeCategory}
+        onSelect={(cat) => setActiveCategory(prev => prev === cat ? null : cat)}
+      />
+
       {Object.keys(byChef).length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#888', fontSize: '18px' }}>Nenhuma receita encontrada.</p>
+        <p className="chef-recipes-empty">
+          Nenhuma receita encontrada.
+        </p>
       ) : (
         Object.entries(byChef).map(([chefName, chefRecipesList]) => (
-          <div key={chefName} style={{ marginBottom: '60px' }}>
-            <h2 style={{ fontSize: '28px', color: '#2c1d18', marginBottom: '24px', borderBottom: '2px solid #f47c20', paddingBottom: '10px' }}>
-              {chefName}
-            </h2>
+          <section
+            key={chefName}
+            className="chef-recipes-section"
+          >
             <div className="recipes-grid">
               {chefRecipesList.map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                />
               ))}
             </div>
-          </div>
+          </section>
         ))
       )}
-    </div>
+    </section>
   )
 }
-
-function Recipes() {
-  const { user } = useUser()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const active = searchParams.get('categoria') || ''
-  const search = searchParams.get('busca') || ''
-
-  if (user?.role === 'Chefe') return <ChefRecipesView />
-
-  function handleSelect(cat) {
-    const params = {}
-    if (active !== cat) params.categoria = cat
-    if (search) params.busca = search
-    setSearchParams(params)
-  }
-
-  function handleSearch(value) {
-    const params = {}
-    if (active) params.categoria = active
-    if (value) params.busca = value
-    setSearchParams(params)
-  }
-
-  return (
-    <>
-      <RecipesHero search={search} onSearch={handleSearch} />
-      <Categories onSelect={handleSelect} active={active} />
-      <RecipesSection showHeader={false} category={active || null} search={search} />
-    </>
-  )
-}
-
-export default Recipes
+export default ChefRecipesView;

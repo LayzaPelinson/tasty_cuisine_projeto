@@ -32,6 +32,10 @@ public class Usuario {
     @Builder.Default
     @Column(name = "Status_Usuario", length = 20, nullable = false)
     private String Status_Usuario = "ATIVO";
+    
+    @Builder.Default
+    @Column(name = "Bloqueado", length = 1, nullable = false)
+    private byte bloqueado = 0;
 
     @Column(name = "nome_completo", length = 300, nullable = false)
     @NotBlank

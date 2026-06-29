@@ -18,6 +18,7 @@ function normalizeUser(entity) {
     preferences: entity.restricoesAlimentares
       ? entity.restricoesAlimentares.split(',').map(pref => pref.trim()).filter(Boolean)
       : [],
+    bloqueado: entity.bloqueado === 'ATIVO',
   }
 }
 
@@ -55,13 +56,15 @@ function normalizeApiRecipe(recipe) {
     category: recipe.category ?? recipe.categoria ?? 'Geral',
     difficulty: recipe.difficulty ?? recipe.dificuldade ?? 'Médio',
     time: recipe.time ?? recipe.tempo ?? '',
-    chef: recipe.chef ?? recipe.chefName ?? recipe.chefe?.nomeUsuario ?? recipe.chefe?.nomeCompleto ?? 'Chefe',
+    chef: recipe.chef ?? recipe.chefName ?? recipe.usuario?.nome_completo ?? recipe.usuario?.nome_de_usuario ?? recipe.chefe?.nomeCompleto ?? recipe.chefe?.nomeUsuario ?? 'Desconhecido',
     chefId: recipe.chefId ?? recipe.chefe?.codChefe,
     ingredients: parseJsonOrLines(recipe.ingredients ?? recipe.ingredientes),
     instructions: parseJsonOrLines(recipe.instructions ?? recipe.modo_preparo ?? recipe.manual2),
     chefTip: recipe.chefTip ?? recipe.dica ?? '',
-    image: recipe.image ?? null,
+    image: recipe.fotoReceita ?? null,
     active: recipe.status_receita === 'ATIVO',
+    blockedUser: recipe.usuario?.bloqueado,
+    activeUser: recipe.usuario?.status_Usuario,
   }
 }
 
@@ -84,7 +87,7 @@ export function UserProvider({ children }) {
       const id = localStorage.getItem('userId')
       const funcao = localStorage.getItem('userFuncao')
       if (id && funcao) {
-        const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/${id}` : `${API_BASE}/usuario/${id}`
+        const endpoint = `${API_BASE}/usuario/${id}`
         const res = await fetch(endpoint)
         if (res.ok) {
           const body = await res.json()
@@ -101,128 +104,139 @@ export function UserProvider({ children }) {
   }, [])
 
   async function loadChefRecipes(userId) {
-  try {
-    // 1. Faz o fetch correto na API
-    const resposta = await fetch(`${API_BASE}/receita/findAll`);
-    
-    if (!resposta.ok) throw new Error("Erro na requisição das receitas");
+    try {
+      // 1. Faz o fetch correto na API
+      const resposta = await fetch(`${API_BASE}/receita/findAll`);
 
-    // 2. Transforma a resposta em JSON (O fetch nativo exige isso)
-    const dadosBrutos = await resposta.json(); 
-    
-    if (Array.isArray(dadosBrutos)) {
-      
-      // 3. Filtra as receitas brutas da API ANTES de normalizar, mantendo a consistência dos dados
-      const receitasDoChef = dadosBrutos.filter((receita) => {
-        const donoDaReceitaId = receita.usuario?.codUser || receita.codUser;
-        const ehAtiva = receita.status_receita === 'ATIVO';
-        
-        return ehAtiva && String(donoDaReceitaId) === String(userId);
-      });
+      if (!resposta.ok) throw new Error("Erro na requisição das receitas");
 
-      // 4. IMPORTANTE: Aplica a sua função de normalização para o front-end ler os campos em inglês
-      const receitasNormalizadas = receitasDoChef.map(normalizeApiRecipe);
+      // 2. Transforma a resposta em JSON (O fetch nativo exige isso)
+      const dadosBrutos = await resposta.json();
 
-      // 5. Atualiza o estado global do hook
-      setChefRecipes(receitasNormalizadas);
+      if (Array.isArray(dadosBrutos)) {
+
+        // 3. Filtra as receitas brutas da API ANTES de normalizar, mantendo a consistência dos dados
+        const receitasDoChef = dadosBrutos.filter((receita) => {
+          const donoDaReceitaId = receita.usuario?.codUser || receita.codUser;
+          const ehAtiva = receita.status_receita === 'ATIVO';
+
+          return ehAtiva && String(donoDaReceitaId) === String(userId);
+        });
+
+        // 4. IMPORTANTE: Aplica a sua função de normalização para o front-end ler os campos em inglês
+        const receitasNormalizadas = receitasDoChef.map(normalizeApiRecipe);
+
+        // 5. Atualiza o estado global do hook
+        setChefRecipes(receitasNormalizadas);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar receitas do chef no hook:", error);
     }
-  } catch (error) {
-    console.error("Erro ao carregar receitas do chef no hook:", error);
   }
-}
 
   async function toggleUserStatus(userId, currentlyActive) {
-  try {
-    const endpoint = currentlyActive
-      ? `${API_BASE}/usuario/delete/${userId}`
-      : `${API_BASE}/usuario/${userId}/status`
-    const res = await fetch(endpoint, { method: 'PUT' })
-    if (!res.ok) return { ok: false }
-    return { ok: true }
-  } catch {
-    return { ok: false }
-  }
-}
-
-async function toggleRecipeStatus(recipeId, currentlyActive) {
-  try {
-    const endpoint = currentlyActive
-      ? `${API_BASE}/receita/${recipeId}/inativar`
-      : `${API_BASE}/receita/${recipeId}/ativar`
-    const res = await fetch(endpoint, { method: 'PUT', cache: 'no-store' })
-    if (!res.ok) return { ok: false }
-    return { ok: true }
-  } catch {
-    return { ok: false }
-  }
-}
-
-async function toggleCommentStatus(commentId, currentlyActive) {
-  try {
-    const endpoint = currentlyActive
-      ? `${API_BASE}/comentario/${commentId}/inativar`
-      : `${API_BASE}/comentario/${commentId}/ativar`
-    const res = await fetch(endpoint, { method: 'PUT' })
-    if (!res.ok) return { ok: false }
-    return { ok: true }
-  } catch {
-    return { ok: false }
-  }
-}
-
-// ── ADMIN: dados completos sem filtro ────────────────────────────────────
-async function loadAllUsers() {
-  try {
-    const res = await fetch(`${API_BASE}/usuario/findAll`)
-    if (!res.ok) return []
-    return await res.json()
-  } catch {
-    return []
-  }
-}
-
-async function loadAllComments() {
-  try {
-    const res = await fetch(`${API_BASE}/comentario/findAll`)
-    if (!res.ok) return []
-    return await res.json()
-  } catch {
-    return []
-  }
-}
-
-// ── ADMIN: categorias ────────────────────────────────────────────────────
-const [categorias, setCategorias] = useState([])
-
-async function loadCategorias() {
-  try {
-    const res = await fetch(`${API_BASE}/categoria/findAll`)
-    if (!res.ok) return
-    const data = await res.json()
-    setCategorias(Array.isArray(data) ? data : [])
-  } catch {
-    setCategorias([])
-  }
-}
-
-async function createCategoria(nome) {
-  try {
-    const res = await fetch(`${API_BASE}/categoria`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nomeCategoria: nome })
-    })
-    if (!res.ok) {
-      const errText = await res.text()
-      return { ok: false, error: errText }
+    try {
+      const endpoint = currentlyActive
+        ? `${API_BASE}/usuario/delete/${userId}`
+        : `${API_BASE}/usuario/${userId}/status`
+      const res = await fetch(endpoint, { method: 'PUT' })
+      if (!res.ok) return { ok: false }
+      return { ok: true }
+    } catch {
+      return { ok: false }
     }
-    const created = await res.json()
-    setCategorias(prev => [...prev, created])
-    return { ok: true, categoria: created }
-  } catch (err) {
-    return { ok: false, error: err.message }
   }
-}
+
+  async function toggleUserBlock(userId) { // 💡 Agora recebe apenas o userId!
+    try {
+      // Chama o endpoint único de bloquear que faz o toggle no Java
+      const res = await fetch(`${API_BASE}/usuario/bloquear/${userId}`, { method: 'PUT' })
+      if (!res.ok) return { ok: false }
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
+  }
+
+  async function toggleRecipeStatus(recipeId, currentlyActive) {
+    try {
+      const endpoint = currentlyActive
+        ? `${API_BASE}/receita/${recipeId}/inativar`
+        : `${API_BASE}/receita/${recipeId}/ativar`
+      const res = await fetch(endpoint, { method: 'PUT', cache: 'no-store' })
+      if (!res.ok) return { ok: false }
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
+  }
+
+  async function toggleCommentStatus(commentId, currentlyActive) {
+    try {
+      const endpoint = currentlyActive
+        ? `${API_BASE}/comentario/${commentId}/inativar`
+        : `${API_BASE}/comentario/${commentId}/ativar`
+      const res = await fetch(endpoint, { method: 'PUT' })
+      if (!res.ok) return { ok: false }
+      return { ok: true }
+    } catch {
+      return { ok: false }
+    }
+  }
+
+  // ── ADMIN: dados completos sem filtro ────────────────────────────────────
+  async function loadAllUsers() {
+    try {
+      const res = await fetch(`${API_BASE}/usuario/findAll`)
+      if (!res.ok) return []
+      return await res.json()
+    } catch {
+      return []
+    }
+  }
+
+  async function loadAllComments() {
+    try {
+      const res = await fetch(`${API_BASE}/comentario/findAll`)
+      if (!res.ok) return []
+      return await res.json()
+    } catch {
+      return []
+    }
+  }
+
+  // ── ADMIN: categorias ────────────────────────────────────────────────────
+  const [categorias, setCategorias] = useState([])
+
+  async function loadCategorias() {
+    try {
+      const res = await fetch(`${API_BASE}/categoria/findAll`)
+      if (!res.ok) return
+      const data = await res.json()
+      setCategorias(Array.isArray(data) ? data : [])
+    } catch {
+      setCategorias([])
+    }
+  }
+
+  async function createCategoria(nome) {
+    try {
+      const res = await fetch(`${API_BASE}/categoria`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nomeCategoria: nome })
+      })
+      if (!res.ok) {
+        const errText = await res.text()
+        return { ok: false, error: errText }
+      }
+      const created = await res.json()
+      setCategorias(prev => [...prev, created])
+      return { ok: true, categoria: created }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
+  }
   async function loadFavoritos(userId) {
     const res = await fetch(`${API_BASE}/favorito/findAll`)
     const data = await res.json()
@@ -253,8 +267,6 @@ async function createCategoria(nome) {
       if (!res.ok) throw new Error('Falha ao carregar receitas')
       const data = await res.json()
       const normalized = Array.isArray(data) ? data.map(normalizeApiRecipe) : []
-      console.log("Receitas carregadas:", JSON.stringify(normalized, null, 2))
-      console.log("hii")
       setRecipes(normalized)
       setRecipesLoaded(true)
       return normalized
@@ -264,6 +276,51 @@ async function createCategoria(nome) {
       return []
     }
   }
+  const calculateAge = (dateString) => { // <-- Removido o ": string"
+    const parts = dateString.split('/');
+
+    if (parts.length !== 3) return null;
+
+    const day = Number(parts[0]);
+    const month = Number(parts[1]);
+    const year = Number(parts[2]);
+
+    if (
+      isNaN(day) ||
+      isNaN(month) ||
+      isNaN(year) ||
+      day < 1 ||
+      day > 31 ||
+      month < 1 ||
+      month > 12 ||
+      year < 1900
+    ) {
+      return null;
+    }
+
+    const birth = new Date(year, month - 1, day);
+
+    if (
+      birth.getDate() !== day ||
+      birth.getMonth() !== month - 1 ||
+      birth.getFullYear() !== year
+    ) {
+      return null;
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
 
   async function register(data) {
     try {
@@ -319,21 +376,32 @@ async function createCategoria(nome) {
 
   async function login(email, password, funcao) {
     try {
-      // 💡 OBSERVAÇÃO: Se seu Spring Boot tiver endpoints separados para login de chefe, 
-      // mude a URL dinamicamente aqui usando a variável 'funcao'. 
-      // Caso o endpoint '/usuario/login' valide ambos, o código abaixo está perfeito.
       const res = await fetch(`${API_BASE}/usuario/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha: password })
       })
 
+      // 1. SE O BACKEND DEVOLVER ERRO DE CONTA BLOQUEADA PELO ADMIN
+      // (Ajuste o status se no seu Spring Boot você definiu outro, ex: res.status === 401)
+      if (res.status === 401) return 'blocked'
+
+      // 2. SE O BACKEND DEVOLVER ERRO DE CONTA INATIVA PELO PRÓPRIO USUÁRIO
       if (res.status === 403) return 'inactive'
+
       if (!res.ok) return false
 
       const body = await res.json()
 
-      // Passamos a funcao para garantir que o objeto normalizado saiba quem ele é
+      // 3. ALTERNATIVA: Se o seu backend deixa o login passar (200 OK) mas envia o BIT bloqueado no JSON body
+      if (body.bloqueado === 1) {
+        return 'blocked'
+      }
+      if (body.status_Usuario === 'INATIVO') {
+        return 'inactive'
+      }
+
+      // Segue o fluxo normal de sucesso caso não caia em nenhum bloqueio
       const normalized = normalizeUser(body, funcao)
       setUser(normalized)
 
@@ -352,7 +420,7 @@ async function createCategoria(nome) {
 
   async function reactivateAccount(email, password, funcao) {
     try {
-      const endpoint = funcao === 'Chefe' ? `${API_BASE}/chefe/reativar` : `${API_BASE}/usuario/reativar`
+      const endpoint = `${API_BASE}/usuario/reativar`
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -369,9 +437,7 @@ async function createCategoria(nome) {
   async function deactivateAccount() {
     if (!user) return { ok: false }
     try {
-      const endpoint = user.funcao === 'Chefe'
-        ? `${API_BASE}/chefe/inativar/${user.id}`
-        : `${API_BASE}/usuario/delete/${user.id}`
+      const endpoint = `${API_BASE}/usuario/delete/${user.id}`
       const res = await fetch(endpoint, { method: 'PUT' })
       if (!res.ok) return { ok: false }
       setUser(null)
@@ -400,44 +466,17 @@ async function createCategoria(nome) {
     }
   }
 
-  async function updateChefProfile(updated) {
-    if (!user || user.funcao !== 'Chefe') return { ok: false, error: 'Usuário inválido' }
-    try {
-      const payload = {
-        nomeUsuario: updated.username || user.username || (updated.name ? updated.name.split(' ')[0] : undefined),
-        nomeCompleto: updated.name,
-        idade: Number(updated.age) || user.age,
-        gmail: updated.email,
-      }
-      const res = await fetch(`${API_BASE}/chefe/${user.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      if (!res.ok) {
-        const errorText = await res.text()
-        return { ok: false, error: errorText || 'Falha ao atualizar perfil' }
-      }
-      const updatedChef = await res.json()
-      const normalized = normalizeUser(updatedChef, 'Chefe')
-      setUser(prev => ({ ...prev, ...normalized }))
-      return { ok: true, user: normalized }
-    } catch (err) {
-      return { ok: false, error: err.message }
-    }
-  }
-
   async function updateUserProfile(updated) {
-    if (!user || user.funcao !== 'usuario') return { ok: false, error: 'Usuário inválido' }
     try {
       const payload = {
-        nomeCompleto: updated.name || user.name,
-        nomeDeUsuario: user.username,
+        nome_completo: updated.name || user.name,
+        nome_de_usuario: user.username,
         idade: Number(updated.age ?? user.age) || user.age,
         gmail: updated.email || user.email,
         senha: updated.password ?? null,
         restricoesAlimentares: updated.preferences ? updated.preferences.join(',') : user.preferences?.join(',') ?? null,
       }
+      console.log(JSON.stringify(payload))
       const res = await fetch(`${API_BASE}/usuario/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -455,95 +494,98 @@ async function createCategoria(nome) {
       return { ok: false, error: err.message }
     }
   }
-async function publishRecipe(recipe) {
-  // Mantém a validação de segurança do método antigo
-  if (!user || (user.funcao !== 'chef' && user.funcao !== 'Chefe' && user.funcao !== 'CHEF')) {
-    return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
-  }
 
-  try {
-    console.log("DEBUG - Usuário logado no React:", user);
-
-    // Garante que ingredientes e instruções sejam arrays válidos antes de converter
-    const listaIngredientes = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
-    const listaInstrucoes = Array.isArray(recipe.instructions) ? recipe.instructions : [];
-
-    if (listaIngredientes.length === 0) {
-      return { ok: false, error: 'A lista de ingredientes não pode estar vazia.' }
-    }
-    if (listaInstrucoes.length === 0) {
-      return { ok: false, error: 'O modo de preparo não pode estar vazio.' }
+  async function publishRecipe(recipe) {
+    // Mantém a validação de segurança do método antigo
+    if (!user || (user.funcao !== 'chef' && user.funcao !== 'Chefe' && user.funcao !== 'CHEF')) {
+      return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
     }
 
-    const payload = {
-      nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
-      descricao: recipe.description || recipe.descricao || '',
-      fotoReceita: recipe.image || recipe.fotoReceita || null,
+    try {
 
-      // Converte o array estruturado de objetos direto para string JSON (Passa no CHECK do SQL Server)
-      ingredientes: JSON.stringify(listaIngredientes),
+      // Garante que ingredientes e instruções sejam arrays válidos antes de converter
+      const listaIngredientes = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
+      const listaInstrucoes = Array.isArray(recipe.instructions) ? recipe.instructions : [];
 
-      // Converte o array de strings (passos) direto para string JSON (Passa no CHECK do SQL Server)
-      modo_preparo: JSON.stringify(listaInstrucoes),
-      status_receita: 'ATIVO',
-      restricao: Number(recipe.restricao || 15),
-      usuario: {
-        codUser: Number(user?.id || user?.codUsuario)
+      if (listaIngredientes.length === 0) {
+        return { ok: false, error: 'A lista de ingredientes não pode estar vazia.' }
       }
+      if (listaInstrucoes.length === 0) {
+        return { ok: false, error: 'O modo de preparo não pode estar vazio.' }
+      }
+
+      const payload = {
+        nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
+        descricao: recipe.description || recipe.descricao || '',
+        fotoReceita: recipe.image || recipe.fotoReceita || null,
+
+        // Converte o array estruturado de objetos direto para string JSON (Passa no CHECK do SQL Server)
+        ingredientes: JSON.stringify(listaIngredientes),
+
+        // Converte o array de strings (passos) direto para string JSON (Passa no CHECK do SQL Server)
+        modo_preparo: JSON.stringify(listaInstrucoes),
+        status_receita: 'ATIVO',
+        restricao: Number(recipe.restricao || 15),
+        usuario: {
+          codUser: Number(user?.id || user?.codUsuario)
+        }
+
+      }
+
+      // 1. Salva a receita básica (POST)
+      const res = await fetch(`${API_BASE}/receita`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(errorText || 'Falha ao publicar receita')
+      }
+
+      // Pegamos a receita salva que voltou do banco
+      const saved = await res.json()
+      const idReceitaSalva = saved.codReceitas || saved.id;
+
+      // 2. Vincula as categorias na tabela intermediária (PUT)
       
-    }
 
-    // 1. Salva a receita básica (POST)
-    const res = await fetch(`${API_BASE}/receita`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
+      // 3. Atualiza o estado local do React
+      // Dentro da sua função de publicar:
+      const normalized = normalizeApiRecipe(saved);
 
-    if (!res.ok) {
-      console.log("PAYLOAD QUE DEU ERRO:", payload);
-      const errorText = await res.text()
-      throw new Error(errorText || 'Falha ao publicar receita')
-    }
+      // Força o ID do usuário atual para garantir que o filtro do componente o encontre
+      normalized.usuario = {
+        ...normalized.usuario,
+        codUser: user?.codUser // Pegue o ID do usuário logado na sessão
+      };
 
-    // Pegamos a receita salva que voltou do banco
-    const saved = await res.json()
-    const idReceitaSalva = saved.codReceitas || saved.id;
+      setRecipes(prev => [normalized, ...prev]);
+      setChefRecipes(prev => [normalized, ...prev]);
 
-    // 2. Vincula as categorias na tabela intermediária (PUT)
-    if (recipe.categorias && Array.isArray(recipe.categorias)) {
-      for (const codCategoria of recipe.categorias) {
-        console.log("STATUS RECEITA:", payload.status_receita);
-        const resCategoria = await fetch(`${API_BASE}/categoria/adicionar/${codCategoria}/${idReceitaSalva}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (!resCategoria.ok) {
-          console.warn(`Não foi possível associar a categoria ${codCategoria} à receita ${idReceitaSalva}.`);
+      if (recipe.categorias && Array.isArray(recipe.categorias)) {
+        for (const codCategoria of recipe.categorias) {
+          const resCategoria = await fetch(`${API_BASE}/receita/categoria/adicionar/${codCategoria}/${idReceitaSalva}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          if (!resCategoria.ok) {
+            const erroTexto = await resCategoria.text()
+            console.warn(`Não foi possível associar a categoria ${codCategoria} à receita ${idReceitaSalva}.`, erroTexto)
+          }
+          if (!resCategoria.ok) {
+            console.warn(`Não foi possível associar a categoria ${codCategoria} à receita ${idReceitaSalva}.`);
+          }
         }
       }
+
+      return { ok: true, recipe: normalized };
+    } catch (err) {
+      console.error("Erro ao publicar receita:", err);
+      return { ok: false, error: err.message }
     }
-
-    // 3. Atualiza o estado local do React
-    // Dentro da sua função de publicar:
-const normalized = normalizeApiRecipe(saved);
-
-// Força o ID do usuário atual para garantir que o filtro do componente o encontre
-normalized.usuario = {
-  ...normalized.usuario,
-  codUser: user?.codUser // Pegue o ID do usuário logado na sessão
-};
-
-setRecipes(prev => [normalized, ...prev]);
-setChefRecipes(prev => [normalized, ...prev]);
-
-console.log("Receita publicada com sucesso:", normalized);
-return { ok: true, recipe: normalized };
-  } catch (err) {
-    console.error("Erro ao publicar receita:", err);
-    return { ok: false, error: err.message }
-  }}
+  }
 
   function logout() {
     setUser(null);
@@ -585,17 +627,18 @@ return { ok: true, recipe: normalized };
 
   return (
     <UserContext.Provider value={{
-      user, token, setUser, 
-      DIET_OPTIONS, register, login, 
-      reactivateAccount, deactivateAccount, changePassword, 
-      updateChefProfile, updateUserProfile, logout, 
-      recipes, recipesLoaded, chefRecipes, 
-      publishRecipe, deleteRecipe, editRecipe, 
-      recipeStats, trackFavorite, trackView, 
+      user, token, setUser,
+      DIET_OPTIONS, register, login,
+      reactivateAccount, deactivateAccount, changePassword, updateUserProfile, logout,
+      recipes, recipesLoaded, chefRecipes,
+      publishRecipe, deleteRecipe, editRecipe,
+      recipeStats, trackFavorite, trackView,
       favoritos, toggleFavorito, loading,
       toggleUserStatus, toggleRecipeStatus, toggleCommentStatus,
       loadAllUsers, loadAllComments,
-      categorias, loadCategorias, createCategoria,loadRecipes,loadChefRecipes }}>
+      categorias, loadCategorias, createCategoria,
+      loadRecipes, loadChefRecipes, toggleUserBlock
+    }}>
       {children}
     </UserContext.Provider>
   )

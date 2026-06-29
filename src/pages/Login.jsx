@@ -10,10 +10,12 @@ function Login() {
   const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
   const [inactiveEmail, setInactiveEmail] = useState(null)
+  const [blockedMessage, setBlockedMessage] = useState(false) // 💡 Novo estado para o modal de bloqueio
   const [reactivatePwd, setReactivatePwd] = useState('')
   const [reactivateError, setReactivateError] = useState('')
   const { login, register, reactivateAccount } = useUser()
   const navigate = useNavigate()
+  const [birthDate, setBirthDate] = useState('');
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -22,9 +24,10 @@ function Login() {
   function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    
+    setInactiveEmail(null)
+    setBlockedMessage(false)
+
     if (mode === 'register') {
-      // 💡 CORRIGIDO: Passando 'funcao' em vez de 'role' para o hook reconhecer
       register({ ...form, funcao: activeTab }).then(res => {
         if (res && res.ok) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
@@ -33,11 +36,15 @@ function Login() {
         }
       })
     } else {
-      // 💡 CORRIGIDO: Passando activeTab para a função de login saber quem está autenticando
+      // 💡 A lógica agora avalia primeiro se retornou 'blocked' vindo do seu interceptor/hook de login
       login(form.email, form.password, activeTab).then(result => {
         if (result === true) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
+        } else if (result === 'blocked') {
+          // 💡 Verificação prioritária: Conta suspensa pelo ADM
+          setBlockedMessage(true)
         } else if (result === 'inactive') {
+          // Conta desativada voluntariamente pelo próprio usuário
           setInactiveEmail(form.email)
           setReactivatePwd('')
           setReactivateError('')
@@ -61,6 +68,18 @@ function Login() {
   }
 
   const isChef = activeTab === 'Chefe'
+  // 💡 Versão em JavaScript puro (sem as anotações de tipo):
+
+  // Cole esta função fora do seu componente LoginScreen, ou logo no topo do arquivo
+const formatBirthDate = (value) => {
+  // Remove tudo o que não for número
+  const v = value.replace(/\D/g, '');
+  
+  // Aplica a máscara DD/MM/AAAA
+  if (v.length <= 2) return v;
+  if (v.length <= 4) return `${v.slice(0, 2)}/${v.slice(2)}`;
+  return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4, 8)}`;
+};
 
   return (
     <main className="login-page">
@@ -91,8 +110,26 @@ function Login() {
             <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="seu@email.com" required />
             {mode === 'register' && (
               <>
-                <label>Idade</label>
-                <input name="age" type="number" min="14" max="100" value={form.age} onChange={handleChange} placeholder="Sua idade" required />
+                <label htmlFor="age">Data de Nascimento</label>
+                <input
+                  id="age"
+                  name="age"
+                  type="text"
+                  placeholder="DD/MM/AAAA"
+                  maxLength={10}
+                  value={form.age || ''} // O '||' garante que não comece como undefined
+                  onChange={(e) => {
+                    // 1. Pega o que o usuário digitou e passa pela sua máscara
+                    const txtFormatado = formatBirthDate(e.target.value);
+
+                    // 2. Atualiza diretamente o estado do formulário
+                    setForm(prev => ({
+                      ...prev,
+                      age: txtFormatado
+                    }));
+                  }}
+                  required
+                />
               </>
             )}
             <label>Senha</label>
@@ -110,6 +147,28 @@ function Login() {
           </div>
         </div>
       </div>
+
+      {/* 💡 MODAL DE CONTA BLOQUEADA PELO ADMINISTRADOR */}
+      {blockedMessage && (
+        <div className="reactivate-overlay">
+          <div className="reactivate-modal" style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '40px', marginBottom: '10px' }}>⚠️</div>
+            <h3>Acesso Bloqueado</h3>
+            <p style={{ margin: '15px 0', color: '#666', lineHeight: '1.5' }}>
+              Esta conta foi suspensa temporariamente por um administrador do sistema por violar os termos de uso.
+            </p>
+            <div className="reactivate-actions" style={{ justifyContent: 'center' }}>
+              <button
+                type="button"
+                className="confirm-btn"
+                onClick={() => setBlockedMessage(false)}
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {inactiveEmail && (
         <div className="reactivate-overlay">

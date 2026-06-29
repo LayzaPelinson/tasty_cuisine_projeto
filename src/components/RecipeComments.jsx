@@ -37,7 +37,7 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function RecipeComments({ recipeId, isUsuario }) {
+function RecipeComments({ recipeId}) {
   const { user } = useUser()
   const [comments, setComments] = useState([])
   const [nota, setNota] = useState(0)
@@ -46,63 +46,80 @@ function RecipeComments({ recipeId, isUsuario }) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const jaAvaliou = comments.some(c => c.usuario?.codUser === user.id)
+  const isChef = user?.funcao === 'Chefe'
 
-  useEffect(() => {
-    fetch(`${API_BASE}/comentario/receita/${recipeId}`)
-      .then(r => r.ok ? r.json() : [])
-      .then(data => setComments(Array.isArray(data) ? data : []))
-      .catch(() => setComments([]))
-  }, [recipeId])
-  
+useEffect(() => {
+  fetch(`${API_BASE}/comentario/receita/${recipeId}`)
+    .then(r => r.ok ? r.json() : [])
+    .then(data => {
+      if (Array.isArray(data)) {
+        // 💡 Filtra para manter apenas os comentários com status_comentarios "ATIVO"
+        const ativos = data.filter(c => c.status_comentarios === 'ATIVO')
+        setComments(ativos)
+      } else {
+        setComments([])
+      }
+    })
+    .catch(() => setComments([]))
+}, [recipeId])
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    if (nota === 0) return setError('Selecione uma nota.')
-    if (!texto.trim()) return setError('Escreva um comentário.')
-    setError('')
-    setSubmitting(true)
-    try {
-      await fetch(`${API_BASE}/avaliacao`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nota, usuario: { codUser: user.id }, receita: { codReceitas: recipeId } })
+  e.preventDefault()
+  
+  // Validações iniciais permanecem iguais
+  if (nota === 0) return setError('Selecione uma nota.')
+  if (!texto.trim()) return setError('Escreva um comentário.')
+  
+  setError('')
+  setSubmitting(true)
+  
+  try {
+    // 💡 AGORA É UMA REQUISIÇÃO ÚNICA! 
+    // Enviamos a nota e o texto juntos para o @PostMapping do seu ComentarioController
+    const resCom = await fetch(`${API_BASE}/comentario`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        texto, 
+        nota: String(nota), // Convertido para String porque sua Entidade mapeia a 'Nota' como String
+        usuario: { codUser: user.id }, 
+        receita: { codReceitas: recipeId } 
       })
+    })
 
-      const resCom = await fetch(`${API_BASE}/comentario`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texto, usuario: { codUser: user.id }, receita: { codReceitas: recipeId } })
-      })
-
-      if (!resCom.ok) throw new Error()
-      const saved = await resCom.json()
-      console.log(user)
-      setComments(prev => [{
-        ...saved,
-        nota: nota,
-        usuario: {
-          codUser: user.id,
-          nomeDeUsuario: user.name,
-          nomeCompleto: user.name
-        }
-      }, ...prev])
-      setNota(0)
-      setTexto('')
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
-    } catch {
-      setError('Falha ao enviar comentário. Tente novamente.')
-    } finally {
-      setSubmitting(false)
-    }
+    if (!resCom.ok) throw new Error()
+    
+    const saved = await resCom.json()
+    
+    // Atualiza o estado local para renderizar o novo comentário imediatamente na tela
+    setComments(prev => [{
+      ...saved,
+      usuario: {
+        codUser: user.id,
+        nomeDeUsuario: user.name,
+        nomeCompleto: user.name
+      }
+    }, ...prev])
+    
+    // Limpa os campos do formulário e exibe sucesso
+    setNota(0)
+    setTexto('')
+    setSuccess(true)
+    setTimeout(() => setSuccess(false), 3000)
+    
+  } catch {
+    setError('Falha ao enviar comentário. Tente novamente.')
+  } finally {
+    setSubmitting(false)
   }
+}
 
   return (
     <div className="recipe-comments">
       <h2>Comentários</h2>
 
 
-      {isUsuario && !jaAvaliou && (
+      {!isChef && !jaAvaliou && (
         <form className="comment-form" onSubmit={handleSubmit}>
           <p className="comment-form-label">Sua avaliação</p>
           <Stars value={nota} onChange={v => { setNota(v); setError('') }} />
@@ -134,7 +151,8 @@ function RecipeComments({ recipeId, isUsuario }) {
         {comments.length === 0 ? (
           <div className="no-comments">
             <span>💬</span>
-            <p>Nenhum comentário ainda. Seja o primeiro a avaliar essa receita!</p>
+            
+            <p>Nenhum comentário ainda.{isChef ? '' : ' Seja o primeiro a comentar!'}</p>
           </div>
         ) : (
           comments.map(c => (

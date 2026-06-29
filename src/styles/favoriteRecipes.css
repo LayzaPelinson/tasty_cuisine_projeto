@@ -1,10 +1,41 @@
+.favorite-recipes {
+  width: 85%; /* Uma largura ligeiramente maior fica excelente em telas grandes */
+  max-width: 1700px; /* Impede que o conteúdo estique demais em monitores ultra-wide */
+  margin: 0 auto; /* 💡 O SEGREDO: Centraliza o bloco inteiro horizontalmente na página */
+  padding: 40px 0; /* Dá um respiro confortável no topo e na base */
+}
+
 .favorite-recipes h2 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 48px;
   color: #f58220;
   margin-bottom: 30px;
+  text-align: left; /* Mantém o título alinhado com o início do grid */
 }
+
 .favorite-grid {
   display: flex;
   gap: 30px;
+  flex-wrap: wrap; /* 💡 ESSENCIAL: Faz as receitas irem para a linha de baixo quando não couberem mais */
+}
+
+.no-favorites {
+  color: #6b401b;
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+/* 📱 Responsividade rápida para celulares */
+@media (max-width: 768px) {
+  .favorite-recipes {
+    width: 90%; /* Em telas menores, usamos mais espaço da lateral */
+  }
+  
+  .favorite-recipes h2 {
+    font-size: 36px; /* Diminui o título para não quebrar feio no celular */
+  }
+  
+  .favorite-grid {
+    justify-content: center; /* Centraliza os cards no mobile */
+  }
 }
