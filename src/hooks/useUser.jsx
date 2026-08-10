@@ -5,14 +5,13 @@ const UserContext = createContext()
 const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Proteína Alta']
 const API_BASE = 'http://localhost:8080'
 
-
 function normalizeUser(entity) {
   return {
     id: entity.codUser,
     name: entity.nome_completo,
     email: entity.gmail,
     age: entity.idade,
-    funcao: entity.funcao,
+    funcao: 'Chefe',
     username: entity.nome_de_usuario,
     photo: entity.foto_perfil,
     preferences: entity.restricoesAlimentares
@@ -25,13 +24,11 @@ function normalizeUser(entity) {
 function parseJsonOrLines(value) {
   if (!value) return []
   if (Array.isArray(value)) {
-    // Se já for um array, garante que estamos pegando apenas textos
     return value.map(item => typeof item === 'object' ? (item.nomeIngredient || item.nome || JSON.stringify(item)) : item);
   }
   try {
     const parsed = JSON.parse(value)
     if (Array.isArray(parsed)) {
-      // Se o JSON convertido contiver objetos, extrai apenas a propriedade de texto
       return parsed.map(item => {
         if (typeof item === 'object' && item !== null) {
           return item.nomeIngredient || item.nome || Object.values(item)[0];
@@ -85,18 +82,17 @@ export function UserProvider({ children }) {
   useEffect(() => {
     async function carregarUsuario() {
       const id = localStorage.getItem('userId')
-      const funcao = localStorage.getItem('userFuncao')
-      if (id && funcao) {
+      if (id) {
         const endpoint = `${API_BASE}/usuario/${id}`
         const res = await fetch(endpoint)
         if (res.ok) {
           const body = await res.json()
           const normalized = normalizeUser(body)
           setUser(normalized)
-          if (funcao === 'usuario') await loadFavoritos(normalized.id)
+          await loadFavoritos(normalized.id)
         }
       }
-      setLoading(false) // só aqui!
+      setLoading(false)
     }
     loadRecipes()
     carregarUsuario()
@@ -105,17 +101,12 @@ export function UserProvider({ children }) {
 
   async function loadChefRecipes(userId) {
     try {
-      // 1. Faz o fetch correto na API
       const resposta = await fetch(`${API_BASE}/receita/findAll`);
-
       if (!resposta.ok) throw new Error("Erro na requisição das receitas");
 
-      // 2. Transforma a resposta em JSON (O fetch nativo exige isso)
       const dadosBrutos = await resposta.json();
 
       if (Array.isArray(dadosBrutos)) {
-
-        // 3. Filtra as receitas brutas da API ANTES de normalizar, mantendo a consistência dos dados
         const receitasDoChef = dadosBrutos.filter((receita) => {
           const donoDaReceitaId = receita.usuario?.codUser || receita.codUser;
           const ehAtiva = receita.status_receita === 'ATIVO';
@@ -123,10 +114,7 @@ export function UserProvider({ children }) {
           return ehAtiva && String(donoDaReceitaId) === String(userId);
         });
 
-        // 4. IMPORTANTE: Aplica a sua função de normalização para o front-end ler os campos em inglês
         const receitasNormalizadas = receitasDoChef.map(normalizeApiRecipe);
-
-        // 5. Atualiza o estado global do hook
         setChefRecipes(receitasNormalizadas);
       }
     } catch (error) {
@@ -147,9 +135,8 @@ export function UserProvider({ children }) {
     }
   }
 
-  async function toggleUserBlock(userId) { // 💡 Agora recebe apenas o userId!
+  async function toggleUserBlock(userId) {
     try {
-      // Chama o endpoint único de bloquear que faz o toggle no Java
       const res = await fetch(`${API_BASE}/usuario/bloquear/${userId}`, { method: 'PUT' })
       if (!res.ok) return { ok: false }
       return { ok: true }
@@ -184,7 +171,6 @@ export function UserProvider({ children }) {
     }
   }
 
-  // ── ADMIN: dados completos sem filtro ────────────────────────────────────
   async function loadAllUsers() {
     try {
       const res = await fetch(`${API_BASE}/usuario/findAll`)
@@ -205,7 +191,6 @@ export function UserProvider({ children }) {
     }
   }
 
-  // ── ADMIN: categorias ────────────────────────────────────────────────────
   const [categorias, setCategorias] = useState([])
 
   async function loadCategorias() {
@@ -237,6 +222,7 @@ export function UserProvider({ children }) {
       return { ok: false, error: err.message }
     }
   }
+
   async function loadFavoritos(userId) {
     const res = await fetch(`${API_BASE}/favorito/findAll`)
     const data = await res.json()
@@ -244,6 +230,7 @@ export function UserProvider({ children }) {
       setFavoritos(data.filter(f => String(f.usuario?.codUser) === String(userId)))
     }
   }
+
   async function toggleFavorito(receitaId) {
     if (!user) return
     const jaExiste = favoritos.find(f => String(f.receita?.codReceitas) === String(receitaId))
@@ -251,12 +238,11 @@ export function UserProvider({ children }) {
       await fetch(`${API_BASE}/favorito/${jaExiste.codFavoritos}`, { method: 'DELETE' })
       setFavoritos(prev => prev.filter(f => f.codFavoritos !== jaExiste.codFavoritos))
     } else {
-      const res = await fetch(`${API_BASE}/favorito`, {
+      await fetch(`${API_BASE}/favorito`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario: { codUser: user.id }, receita: { codReceitas: receitaId } })
       })
-      const saved = await res.json()
       await loadFavoritos(String(user.id))
     }
   }
@@ -276,35 +262,21 @@ export function UserProvider({ children }) {
       return []
     }
   }
-  const calculateAge = (dateString) => { // <-- Removido o ": string"
-    const parts = dateString.split('/');
 
+  const calculateAge = (dateString) => {
+    const parts = dateString.split('/');
     if (parts.length !== 3) return null;
 
     const day = Number(parts[0]);
     const month = Number(parts[1]);
     const year = Number(parts[2]);
 
-    if (
-      isNaN(day) ||
-      isNaN(month) ||
-      isNaN(year) ||
-      day < 1 ||
-      day > 31 ||
-      month < 1 ||
-      month > 12 ||
-      year < 1900
-    ) {
+    if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || day > 31 || month < 1 || month > 12 || year < 1900) {
       return null;
     }
 
     const birth = new Date(year, month - 1, day);
-
-    if (
-      birth.getDate() !== day ||
-      birth.getMonth() !== month - 1 ||
-      birth.getFullYear() !== year
-    ) {
+    if (birth.getDate() !== day || birth.getMonth() !== month - 1 || birth.getFullYear() !== year) {
       return null;
     }
 
@@ -312,10 +284,7 @@ export function UserProvider({ children }) {
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
 
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birth.getDate())
-    ) {
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
 
@@ -330,8 +299,7 @@ export function UserProvider({ children }) {
         idade: Number(data.age) || 18,
         gmail: data.email,
         senha: data.password,
-        funcao: data.funcao,
-        // 💡 CORRIGIDO: Deixando null temporariamente para ignorar a restrição CHECK do SQL Server
+        funcao: 'Chefe',
         restricoesAlimentares: null
       }
 
@@ -347,7 +315,7 @@ export function UserProvider({ children }) {
       }
 
       const created = await res.json()
-      const normalized = normalizeUser(created, created.funcao || data.funcao)
+      const normalized = normalizeUser(created)
       setUser(normalized)
 
       return { ok: true, user: normalized }
@@ -356,25 +324,7 @@ export function UserProvider({ children }) {
     }
   }
 
-  async function reactivateAccount(email, password, funcao) {
-    try {
-      // 💡 ENDPOINT ÚNICO DE REATIVAR: Como a tabela é a mesma, o endpoint também é
-      const res = await fetch(`${API_BASE}/usuario/reativar`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha: password })
-      })
-
-      if (!res.ok) return { ok: false }
-      const body = await res.json()
-      setUser(normalizeUser(body, body.funcao || funcao))
-      return { ok: true }
-    } catch {
-      return { ok: false }
-    }
-  }
-
-  async function login(email, password, funcao) {
+  async function login(email, password) {
     try {
       const res = await fetch(`${API_BASE}/usuario/login`, {
         method: 'POST',
@@ -382,18 +332,12 @@ export function UserProvider({ children }) {
         body: JSON.stringify({ email, senha: password })
       })
 
-      // 1. SE O BACKEND DEVOLVER ERRO DE CONTA BLOQUEADA PELO ADMIN
-      // (Ajuste o status se no seu Spring Boot você definiu outro, ex: res.status === 401)
       if (res.status === 401) return 'blocked'
-
-      // 2. SE O BACKEND DEVOLVER ERRO DE CONTA INATIVA PELO PRÓPRIO USUÁRIO
       if (res.status === 403) return 'inactive'
-
       if (!res.ok) return false
 
       const body = await res.json()
 
-      // 3. ALTERNATIVA: Se o seu backend deixa o login passar (200 OK) mas envia o BIT bloqueado no JSON body
       if (body.bloqueado === 1) {
         return 'blocked'
       }
@@ -401,12 +345,10 @@ export function UserProvider({ children }) {
         return 'inactive'
       }
 
-      // Segue o fluxo normal de sucesso caso não caia em nenhum bloqueio
-      const normalized = normalizeUser(body, funcao)
+      const normalized = normalizeUser(body)
       setUser(normalized)
 
       localStorage.setItem('userId', String(normalized.id))
-      localStorage.setItem('userFuncao', normalized.funcao)
 
       if (typeof loadFavoritos === 'function') {
         await loadFavoritos(normalized.id)
@@ -418,7 +360,7 @@ export function UserProvider({ children }) {
     }
   }
 
-  async function reactivateAccount(email, password, funcao) {
+  async function reactivateAccount(email, password) {
     try {
       const endpoint = `${API_BASE}/usuario/reativar`
       const res = await fetch(endpoint, {
@@ -428,12 +370,13 @@ export function UserProvider({ children }) {
       })
       if (!res.ok) return { ok: false }
       const body = await res.json()
-      setUser(normalizeUser(body, funcao))
+      setUser(normalizeUser(body))
       return { ok: true }
     } catch {
       return { ok: false }
     }
   }
+
   async function deactivateAccount() {
     if (!user) return { ok: false }
     try {
@@ -450,10 +393,8 @@ export function UserProvider({ children }) {
   async function changePassword(currentPassword, newPassword) {
     if (!user) return { ok: false }
     try {
-      const endpoint = user.funcao === 'Chefe' ? `${API_BASE}/chefe/${user.id}` : `${API_BASE}/usuario/${user.id}`
-      const payload = user.funcao === 'Chefe'
-        ? { nomeUsuario: user.username, nomeCompleto: user.name, idade: user.age, gmail: user.email, senha: newPassword }
-        : { nomeCompleto: user.name, nomeDeUsuario: user.username, idade: user.age, gmail: user.email, senha: newPassword, restricoesAlimentares: user.preferences?.join(',') ?? null }
+      const endpoint = `${API_BASE}/chefe/${user.id}`
+      const payload = { nomeUsuario: user.username, nomeCompleto: user.name, idade: user.age, gmail: user.email, senha: newPassword }
       const res = await fetch(endpoint, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -476,7 +417,6 @@ export function UserProvider({ children }) {
         senha: updated.password ?? null,
         restricoesAlimentares: updated.preferences ? updated.preferences.join(',') : user.preferences?.join(',') ?? null,
       }
-      console.log(JSON.stringify(payload))
       const res = await fetch(`${API_BASE}/usuario/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -487,7 +427,7 @@ export function UserProvider({ children }) {
         return { ok: false, error: errorText || 'Falha ao atualizar perfil' }
       }
       const updatedUser = await res.json()
-      const normalized = normalizeUser(updatedUser, 'usuario')
+      const normalized = normalizeUser(updatedUser)
       setUser(prev => ({ ...prev, ...normalized }))
       return { ok: true, user: normalized }
     } catch (err) {
@@ -496,14 +436,11 @@ export function UserProvider({ children }) {
   }
 
   async function publishRecipe(recipe) {
-    // Mantém a validação de segurança do método antigo
-    if (!user || (user.funcao !== 'chef' && user.funcao !== 'Chefe' && user.funcao !== 'CHEF')) {
+    if (!user) {
       return { ok: false, error: 'Apenas chefs podem publicar receitas.' }
     }
 
     try {
-
-      // Garante que ingredientes e instruções sejam arrays válidos antes de converter
       const listaIngredientes = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
       const listaInstrucoes = Array.isArray(recipe.instructions) ? recipe.instructions : [];
 
@@ -518,21 +455,15 @@ export function UserProvider({ children }) {
         nomeReceita: recipe.title || recipe.nomeReceita || 'Receita Sem Título',
         descricao: recipe.description || recipe.descricao || '',
         fotoReceita: recipe.image || recipe.fotoReceita || null,
-
-        // Converte o array estruturado de objetos direto para string JSON (Passa no CHECK do SQL Server)
         ingredientes: JSON.stringify(listaIngredientes),
-
-        // Converte o array de strings (passos) direto para string JSON (Passa no CHECK do SQL Server)
         modo_preparo: JSON.stringify(listaInstrucoes),
         status_receita: 'ATIVO',
         restricao: Number(recipe.restricao || 15),
         usuario: {
           codUser: Number(user?.id || user?.codUsuario)
         }
-
       }
 
-      // 1. Salva a receita básica (POST)
       const res = await fetch(`${API_BASE}/receita`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -544,21 +475,14 @@ export function UserProvider({ children }) {
         throw new Error(errorText || 'Falha ao publicar receita')
       }
 
-      // Pegamos a receita salva que voltou do banco
       const saved = await res.json()
       const idReceitaSalva = saved.codReceitas || saved.id;
 
-      // 2. Vincula as categorias na tabela intermediária (PUT)
-      
-
-      // 3. Atualiza o estado local do React
-      // Dentro da sua função de publicar:
       const normalized = normalizeApiRecipe(saved);
 
-      // Força o ID do usuário atual para garantir que o filtro do componente o encontre
       normalized.usuario = {
         ...normalized.usuario,
-        codUser: user?.codUser // Pegue o ID do usuário logado na sessão
+        codUser: user?.codUser
       };
 
       setRecipes(prev => [normalized, ...prev]);
@@ -574,9 +498,6 @@ export function UserProvider({ children }) {
             const erroTexto = await resCategoria.text()
             console.warn(`Não foi possível associar a categoria ${codCategoria} à receita ${idReceitaSalva}.`, erroTexto)
           }
-          if (!resCategoria.ok) {
-            console.warn(`Não foi possível associar a categoria ${codCategoria} à receita ${idReceitaSalva}.`);
-          }
         }
       }
 
@@ -591,7 +512,6 @@ export function UserProvider({ children }) {
     setUser(null);
     setToken(null)
     localStorage.removeItem('userId')
-    localStorage.removeItem('userfuncao')
   }
 
   async function deleteRecipe(id) {

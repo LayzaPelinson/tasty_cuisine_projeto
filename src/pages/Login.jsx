@@ -5,7 +5,6 @@ import { useUser } from '../hooks/useUser.jsx'
 import '../styles/login.css'
 
 function Login() {
-  const [activeTab, setActiveTab] = useState('usuario') // 'usuario' ou 'Chefe'
   const [mode, setMode] = useState('login')
   const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
@@ -27,15 +26,15 @@ function Login() {
     setInactiveEmail(null)
     setBlockedMessage(false)
 
-    if (mode === 'register') {
-      register({ ...form, funcao: activeTab }).then(res => {
-        if (res && res.ok) {
-          navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
-        } else {
-          setError(res.error || 'Falha no cadastro')
-        }
-      })
-    } else {
+      if (mode === 'register') { 
+    register({ ...form, funcao: 'Chefe' }).then(res => { 
+      if (res && res.ok) { 
+        navigate('/') 
+      } else { 
+        setError(res.error || 'Falha no cadastro') 
+      } 
+    }) 
+  } else {
       // 💡 A lógica agora avalia primeiro se retornou 'blocked' vindo do seu interceptor/hook de login
       login(form.email, form.password, activeTab).then(result => {
         if (result === true) {
