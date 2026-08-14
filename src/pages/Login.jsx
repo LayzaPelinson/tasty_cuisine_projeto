@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import AuthTabs from '../components/AuthTabs'
 import { useUser } from '../hooks/useUser.jsx'
 import '../styles/login.css'
 
 function Login() {
+  const [activeTab, setActiveTab] = useState('usuario') // 'usuario' ou 'Chefe'
   const [mode, setMode] = useState('login')
   const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
   const [inactiveEmail, setInactiveEmail] = useState(null)
-  const [blockedMessage, setBlockedMessage] = useState(false)
+  const [blockedMessage, setBlockedMessage] = useState(false) // 💡 Novo estado para o modal de bloqueio
   const [reactivatePwd, setReactivatePwd] = useState('')
   const [reactivateError, setReactivateError] = useState('')
   const { login, register, reactivateAccount } = useUser()
   const navigate = useNavigate()
+  const [birthDate, setBirthDate] = useState('');
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -24,21 +27,24 @@ function Login() {
     setInactiveEmail(null)
     setBlockedMessage(false)
 
-    if (mode === 'register') { 
-      register({ ...form, funcao: 'Chefe' }).then(res => { 
-        if (res && res.ok) { 
-          navigate('/chef-profile') 
-        } else { 
-          setError(res.error || 'Falha no cadastro') 
-        } 
-      }) 
+    if (mode === 'register') {
+      register({ ...form, funcao: activeTab }).then(res => {
+        if (res && res.ok) {
+          navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
+        } else {
+          setError(res.error || 'Falha no cadastro')
+        }
+      })
     } else {
-      login(form.email, form.password).then(result => {
+      // 💡 A lógica agora avalia primeiro se retornou 'blocked' vindo do seu interceptor/hook de login
+      login(form.email, form.password, activeTab).then(result => {
         if (result === true) {
-          navigate('/chef-profile')
+          navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
         } else if (result === 'blocked') {
+          // 💡 Verificação prioritária: Conta suspensa pelo ADM
           setBlockedMessage(true)
         } else if (result === 'inactive') {
+          // Conta desativada voluntariamente pelo próprio usuário
           setInactiveEmail(form.email)
           setReactivatePwd('')
           setReactivateError('')
@@ -52,21 +58,28 @@ function Login() {
   async function handleReactivate(e) {
     e.preventDefault()
     setReactivateError('')
-    const res = await reactivateAccount(inactiveEmail, reactivatePwd)
+    const res = await reactivateAccount(inactiveEmail, reactivatePwd, activeTab)
     if (res.ok) {
       setInactiveEmail(null)
-      navigate('/chef-profile')
+      navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
     } else {
       setReactivateError('Senha incorreta. Tente novamente.')
     }
   }
 
-  const formatBirthDate = (value) => {
-    const v = value.replace(/\D/g, '');
-    if (v.length <= 2) return v;
-    if (v.length <= 4) return `${v.slice(0, 2)}/${v.slice(2)}`;
-    return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4, 8)}`;
-  };
+  const isChef = activeTab === 'Chefe'
+  // 💡 Versão em JavaScript puro (sem as anotações de tipo):
+
+  // Cole esta função fora do seu componente LoginScreen, ou logo no topo do arquivo
+const formatBirthDate = (value) => {
+  // Remove tudo o que não for número
+  const v = value.replace(/\D/g, '');
+  
+  // Aplica a máscara DD/MM/AAAA
+  if (v.length <= 2) return v;
+  if (v.length <= 4) return `${v.slice(0, 2)}/${v.slice(2)}`;
+  return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4, 8)}`;
+};
 
   return (
     <main className="login-page">
@@ -74,13 +87,14 @@ function Login() {
         <i className="bi bi-shield-lock-fill"></i> Painel Admin
       </button>
       <div className="login-container">
+        <AuthTabs activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setError('') }} />
         <div className="login-card">
-          <div className="login-icon">👨‍🍳</div>
-          <h1>{mode === 'login' ? 'Bem-vindo de volta' : 'Seja um Chefe'}</h1>
+          <div className="login-icon">{isChef ? '👨‍🍳' : '👤'}</div>
+          <h1>{mode === 'login' ? 'Bem-vindo de volta' : isChef ? 'Seja um Chefe' : 'Criar Conta'}</h1>
           <p>
             {mode === 'login'
-              ? 'Acesse sua conta de chefe'
-              : 'Compartilhe suas receitas com o mundo'}
+              ? `Acesse sua conta de ${isChef ? 'chefe' : 'usuário'}`
+              : isChef ? 'Compartilhe suas receitas com o mundo' : 'Salve e descubra novas receitas'}
           </p>
 
           {error && <p className="login-error">{error}</p>}
@@ -103,9 +117,12 @@ function Login() {
                   type="text"
                   placeholder="DD/MM/AAAA"
                   maxLength={10}
-                  value={form.age || ''}
+                  value={form.age || ''} // O '||' garante que não comece como undefined
                   onChange={(e) => {
+                    // 1. Pega o que o usuário digitou e passa pela sua máscara
                     const txtFormatado = formatBirthDate(e.target.value);
+
+                    // 2. Atualiza diretamente o estado do formulário
                     setForm(prev => ({
                       ...prev,
                       age: txtFormatado
@@ -131,6 +148,7 @@ function Login() {
         </div>
       </div>
 
+      {/* 💡 MODAL DE CONTA BLOQUEADA PELO ADMINISTRADOR */}
       {blockedMessage && (
         <div className="reactivate-overlay">
           <div className="reactivate-modal" style={{ textAlign: 'center' }}>
