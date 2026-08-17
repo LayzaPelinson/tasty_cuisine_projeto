@@ -46,9 +46,7 @@ function AdminLogin() {
     const result = await login(form.email, form.password, 'ADMIN')
 
     if (result === true) {
-      navigate('/admin') // Redireciona para o painel administrativo
-    } else if (result === 'blocked') {
-      setError('Esta conta de administrador está bloqueada.')
+      navigate('/adminPanel') // Redireciona para o painel administrativo
     } else {
       setError('E-mail ou senha do administrador inválidos.')
     }
@@ -76,11 +74,11 @@ function AdminLogin() {
                 type="email"
                 value={form.email}
                 onChange={handleChange}
-                placeholder="admin@tastycuisine.com"
+                placeholder="gmail@gmail.com"
                 required
               />
 
-              <label>Senha Temporária (6 dígitos)</label>
+              <label>Senha</label>
               <input
                 name="password"
                 type="password"
