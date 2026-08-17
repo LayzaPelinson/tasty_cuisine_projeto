@@ -77,6 +77,15 @@ public class UsuarioService {
         return usuarioRepository.save(usuarioExistente);
     }
 
+    public Usuario GetAdm(){
+        List<Usuario> usuarios = findAll();
+        Usuario usuario = usuarios.stream()
+        .filter(u -> u.getFuncao().equals("ADMIN"))
+        .findFirst()
+        .orElse(null);
+        return usuario;
+    }
+
     //login de usuario
     public Usuario login(String gmail, String senha) {
     Usuario usuario = usuarioRepository.findByGmail(gmail)

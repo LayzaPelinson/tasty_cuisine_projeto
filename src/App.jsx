@@ -11,6 +11,7 @@ import ChefDetails from './pages/ChefDetails'
 import Login from './pages/Login'
 import PublishRecipe from './pages/PublishRecipe'
 import AdminDashboard from './pages/AdminDashboard'
+import LoginAdm from './pages/AdminLogin.jsx'
 import AllChefs from './pages/AllChefs'
 
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
@@ -48,7 +49,8 @@ function AppRoutes() {
       <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetails /></ProtectedRoute>} />
       <Route path="/chef/:id" element={<ProtectedRoute><ChefDetails /></ProtectedRoute>} />
       <Route path="/publish" element={<ProtectedRoute chefOnly><PublishRecipe /></ProtectedRoute>} />
-      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/adminPanel" element={<AdminDashboard />} />
+      <Route path="/admin" element={<LoginAdm/>} />
     </Routes>
   )
 }

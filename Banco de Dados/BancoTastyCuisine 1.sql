@@ -16,7 +16,6 @@ CREATE TABLE Usuario (
     foto_perfil NVARCHAR(MAX) NULL,
     funcao NVARCHAR(30) NOT NULL, -- Chefe ou Usuario,
 
-    CONSTRAINT chk_restricoes CHECK (ISJSON(Restricoes_alimentares) = 1),
 );
 
 CREATE TABLE Categorias (

@@ -8,6 +8,7 @@ import com.tastycuisine.TastyCuisineV2.model.repository.UsuarioRepository;
 import com.tastycuisine.TastyCuisineV2.model.service.UsuarioService;
 
 import java.security.SecureRandom;
+import java.util.*;
 
 @Component
 public class AdminInitializer implements CommandLineRunner {
@@ -30,6 +31,16 @@ public class AdminInitializer implements CommandLineRunner {
         // Gera uma senha aleatória de 6 dígitos numéricos
         String senhaAleatoria = gerarSenhaAleatoria6Digitos();
 
+        Optional<Usuario> adminUser = usuarioService.findAll().stream()
+                .filter(u -> "ADMIN".equals(u.getFuncao()))
+                .findFirst();
+        if (adminUser.isEmpty()==false){
+            System.out.println("==================================================");
+            System.out.println("ERRO AO CRIAR ADMINISTRADOR!");
+            System.out.println("Código do ADM já criado: " + adminUser.get().getCodUser());
+            System.out.println("==================================================");
+            return;
+        }
         Usuario admin = new Usuario();
         admin.setIdade(18);
         admin.setNome_completo("ADM_name");

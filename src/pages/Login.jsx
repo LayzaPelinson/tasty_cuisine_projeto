@@ -83,7 +83,7 @@ const formatBirthDate = (value) => {
 
   return (
     <main className="login-page">
-      <button className="admin-access-btn" onClick={() => navigate('/admin')}>
+      <button className="admin-access-btn" onClick={() => navigate('/admin')}> 
         <i className="bi bi-shield-lock-fill"></i> Painel Admin
       </button>
       <div className="login-container">

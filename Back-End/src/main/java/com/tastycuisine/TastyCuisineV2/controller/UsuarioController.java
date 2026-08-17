@@ -51,6 +51,15 @@ public class UsuarioController {
         }
     }
 
+    @GetMapping("/ADMIN")
+    public ResponseEntity<Object> FindADM(){
+        try {
+            return ResponseEntity.ok(usuarioService.GetAdm());
+        } catch (RuntimeException e){
+            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not Found", "message", "ADM não encontrado."));
+        }
+    }
+
     @PutMapping("/{codUser}")
     public ResponseEntity<Object> update(@RequestBody Usuario usuario, @PathVariable Long codUser) {
         try {
