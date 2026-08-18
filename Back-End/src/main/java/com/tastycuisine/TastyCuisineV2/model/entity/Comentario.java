@@ -48,11 +48,7 @@ public class Comentario {
     @Builder.Default
     @Column(name = "Status_Comentarios",length =  20,nullable = false)
     private String status_comentarios = "ATIVO";
-
-    @Column(name = "Texto", length = 300, nullable = false)
-    @NotBlank
-    private String Texto;
-
+    
     @CreationTimestamp
     @Column(name = "Data_Comentario", updatable = false)
     private LocalDateTime Data_Comentario;

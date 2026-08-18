@@ -28,7 +28,6 @@ public class ComentarioService {
         existente.setUsuario(comentario.getUsuario());
         existente.setReceita(comentario.getReceita());
         existente.setNota(comentario.getNota());
-        existente.setTexto(comentario.getTexto());
         return comentarioRepository.save(existente);
     }
 

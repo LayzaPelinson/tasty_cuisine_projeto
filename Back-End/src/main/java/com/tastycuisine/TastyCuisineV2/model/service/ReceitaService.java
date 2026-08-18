@@ -1,5 +1,6 @@
 package com.tastycuisine.TastyCuisineV2.model.service;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,28 @@ public Receita salvar(Receita dto) {
 
     return receitaRepository.save(receita);
 }
+
+    List<String> palavrasProibidas = Arrays.asList("nsfw_termo1", "nsfw_termo2");
+
+    public boolean validarConteudo(Receita receita) {
+        String Titulo = receita.getNomeReceita().toLowerCase();
+        String Descricao = receita.getDescricao().toLowerCase();
+        String ModoPreparo = receita.getModo_preparo().toLowerCase();
+        String Ingredientes = receita.getIngredientes().toLowerCase();
+
+        for (String palavra : palavrasProibidas) {
+            if (textoCompleto.contains(palavra)) {
+                return false; // Conteúdo impróprio detectado!
+            }
+        }
+        return true; // Tudo limpo
+    }
+
+    public boolean ValidarUmPorUm(String text){
+        if(String Palavra : palavrasProibidas){
+            
+        }
+    }
 
     public Receita findById(long codReceitas) {
         return receitaRepository.findById(codReceitas)

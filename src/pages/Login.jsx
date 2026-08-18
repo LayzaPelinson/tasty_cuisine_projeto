@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthTabs from '../components/AuthTabs'
 import { useUser } from '../hooks/useUser.jsx'
@@ -81,11 +81,18 @@ const formatBirthDate = (value) => {
   return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4, 8)}`;
 };
 
+useEffect(() => {
+  function handleKeyDown(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+      navigate('/admin')
+    }
+  }
+  window.addEventListener('keydown', handleKeyDown)
+  return () => window.removeEventListener('keydown', handleKeyDown)
+}, [navigate])
+
   return (
     <main className="login-page">
-      <button className="admin-access-btn" onClick={() => navigate('/admin')}> 
-        <i className="bi bi-shield-lock-fill"></i> Painel Admin
-      </button>
       <div className="login-container">
         <AuthTabs activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setError('') }} />
         <div className="login-card">

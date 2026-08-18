@@ -370,8 +370,7 @@ function AdminDashboard() {
     loadCategorias,
     createCategoria,
     loadAllUsers,
-    loadAllComments,
-    toggleUserStatus,
+    loadAllComments, 
     toggleRecipeStatus,
     toggleCommentStatus,
     logout, loadRecipes, toggleUserBlock
@@ -402,6 +401,7 @@ function AdminDashboard() {
   // ── normalização corrigida baseada no campo 'bloqueado' (0 ou 1) ──
 const users = rawUsers
   .filter(u => u.funcao !== 'Chefe')
+  .filter(u => u.funcao !== 'ADMIN')
   .map(u => ({
     id: u.codUser,
     name: u.nome_completo,
@@ -413,12 +413,13 @@ const users = rawUsers
 
 const chefs = rawUsers
   .filter(u => u.funcao === 'Chefe')
+  .filter(u => u.funcao !== 'ADMIN')
   .map(u => ({
     id: u.codUser,
     name: u.nome_completo,
     email: u.gmail,
     recipes: recipes.filter(r => r.chefId === u.codUser).length,
-    active: u.bloqueado === 1, // Mesmo critério para os chefes
+    active: u.bloqueado === 0, // Mesmo critério para os chefes
   }))
   const recipesNormalized = recipes.map(r => ({
     id: r.id,

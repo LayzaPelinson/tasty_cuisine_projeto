@@ -41,7 +41,6 @@ function RecipeComments({ recipeId}) {
   const { user } = useUser()
   const [comments, setComments] = useState([])
   const [nota, setNota] = useState(0)
-  const [texto, setTexto] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -56,6 +55,7 @@ useEffect(() => {
         // 💡 Filtra para manter apenas os comentários com status_comentarios "ATIVO"
         const ativos = data.filter(c => c.status_comentarios === 'ATIVO')
         setComments(ativos)
+        console.log(ativos)
       } else {
         setComments([])
       }
@@ -68,7 +68,6 @@ useEffect(() => {
   
   // Validações iniciais permanecem iguais
   if (nota === 0) return setError('Selecione uma nota.')
-  if (!texto.trim()) return setError('Escreva um comentário.')
   
   setError('')
   setSubmitting(true)
@@ -80,7 +79,6 @@ useEffect(() => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        texto, 
         nota: String(nota), // Convertido para String porque sua Entidade mapeia a 'Nota' como String
         usuario: { codUser: user.id }, 
         receita: { codReceitas: recipeId } 
@@ -103,12 +101,11 @@ useEffect(() => {
     
     // Limpa os campos do formulário e exibe sucesso
     setNota(0)
-    setTexto('')
     setSuccess(true)
     setTimeout(() => setSuccess(false), 3000)
     
   } catch {
-    setError('Falha ao enviar comentário. Tente novamente.')
+    setError('Falha ao enviar avaliação. Tente novamente.')
   } finally {
     setSubmitting(false)
   }
@@ -123,20 +120,12 @@ useEffect(() => {
         <form className="comment-form" onSubmit={handleSubmit}>
           <p className="comment-form-label">Sua avaliação</p>
           <Stars value={nota} onChange={v => { setNota(v); setError('') }} />
-          {nota > 0 && (
-            <textarea
-              placeholder="Compartilhe sua opinião sobre essa receita..."
-              value={texto}
-              onChange={e => setTexto(e.target.value)}
-              rows={3}
-              maxLength={300}
-            />
-          )}
+          
           {error && <p className="comment-error">{error}</p>}
-          {success && <p className="comment-success">✓ Comentário enviado com sucesso!</p>}
+          {success && <p className="comment-success">✓ Avaliação enviada com sucesso!</p>}
           {nota > 0 && (
             <button type="submit" className="comment-submit" disabled={submitting}>
-              {submitting ? 'Enviando...' : 'Enviar Comentário'}
+              {submitting ? 'Enviando...' : 'Enviar Avaliação'}
             </button>
           )}
         </form>
@@ -152,19 +141,18 @@ useEffect(() => {
           <div className="no-comments">
             <span>💬</span>
             
-            <p>Nenhum comentário ainda.{isChef ? '' : ' Seja o primeiro a comentar!'}</p>
+            <p>Nenhuma avaliação ainda.{isChef ? '' : ' Seja o primeiro a avaliar!'}</p>
           </div>
         ) : (
           comments.map(c => (
             <div key={c.codComentarios} className="comment-card">
               <div className="comment-header">
                 <span className="comment-author">
-                  {c.usuario?.nomeCompleto ?? 'Usuário'}
+                  {c.usuario?.nomeCompleto ?? c.usuario?.nome_completo ?? ""}
                 </span>
                 {c.nota > 0 && <StarsDisplay value={c.nota} />}
                 <span className="comment-date">{formatDate(c.dataComentario)}</span>
               </div>
-              <p className="comment-text">{c.texto}</p>
             </div>
           ))
         )}

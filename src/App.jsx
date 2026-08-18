@@ -27,10 +27,11 @@ function ScrollToTop() {
   return null
 }
 
-function ProtectedRoute({ children, chefOnly = false, chefRedirect = false }) {
+function ProtectedRoute({ children, chefOnly = false, chefRedirect = false,AdminOnly = false}) {
   const { user, loading } = useUser()
   if (!user && !loading) return <Navigate to="/login" replace />
   if (chefOnly && user?.funcao !== 'Chefe') return <Navigate to="/" replace />
+  if(user?.funcao !== "ADMIN" && AdminOnly) return <Navigate to="/" replace />
   if (!user) return null
   if (chefRedirect && user.funcao === 'Chefe') return <Navigate to="/recipes" replace />
   return children
@@ -48,16 +49,17 @@ function AppRoutes() {
       <Route path="/chef-profile" element={<ProtectedRoute chefOnly><ChefProfile /></ProtectedRoute>} />
       <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetails /></ProtectedRoute>} />
       <Route path="/chef/:id" element={<ProtectedRoute><ChefDetails /></ProtectedRoute>} />
-      <Route path="/publish" element={<ProtectedRoute chefOnly><PublishRecipe /></ProtectedRoute>} />
-      <Route path="/adminPanel" element={<AdminDashboard />} />
+      <Route path="/publish" element={<ProtectedRoute chefOnly><PublishRecipe />  </ProtectedRoute>} />
+      <Route path="/adminPanel" element={<ProtectedRoute AdminOnly><AdminDashboard /></ProtectedRoute>}/>
       <Route path="/admin" element={<LoginAdm/>} />
     </Routes>
   )
 }
 
 function AppShell() {
+  const { user } = useUser()
   const { pathname } = useLocation()
-  const isAdmin = pathname === '/admin'
+  const isAdmin = user?.funcao === 'ADMIN'
   return (
     <div className="app">
       <ScrollToTop />

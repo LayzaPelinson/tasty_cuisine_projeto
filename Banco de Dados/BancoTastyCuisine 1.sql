@@ -50,7 +50,6 @@ CREATE TABLE Comentarios (
     Cod_comentarios BIGINT IDENTITY(1,1) PRIMARY KEY,
     Cod_user INT NOT NULL,
     Cod_receitas INT NULL,
-    Texto NVARCHAR(300) NOT NULL,
     Nota INT NOT NULL CHECK (Nota BETWEEN 1 AND 5),
     Data_Comentario DATETIME DEFAULT GETDATE(),
     Status_Comentarios NVARCHAR(20) NOT NULL default 'ATIVO',
@@ -88,8 +87,22 @@ GO
 insert into Usuario(Nome_completo,Nome_de_usuario,Idade,Gmail,Senha,Restricoes_alimentares,funcao)
 VALUES('soso','Sooo','25','gmail@gmail.com','123456','[]','Usuario')
 
-insert into Categorias(Nome_Categoria)
-values('Massas')
+insert into Categorias (Nome_Categoria) values 
+('Massas'),
+('Sobremesas'),
+('Lanches e Petiscos'),
+('Sopas e Caldos'),
+('Saladas'),
+('Carnes'),
+('Aves'),
+('Peixes e Frutos do Mar'),
+('Vegetariana'),
+('Vegana'),
+('Bebidas e Drinks'),
+('Café da Manhã'),
+('Pães e Bolos'),
+('Fitness e Saudável'),
+('Molhos e Acompanhamentos');
 
 insert into Receitas(Nome_receita,Descricao,Ingredientes,Modo_preparo,Restricao,Cod_usuario)
 values('arroz','arroz cozido','["Farinha", "Ovo", "Leite"]','["Misture os ingredientes","Coloque na forma","Asse por 40 minutos"]',15,1)
@@ -105,8 +118,8 @@ values(1,1)
 GO
  
 SELECT * FROM Usuario
-    Select * From Comentarios
-    select * from Categorias
+Select * From Comentarios
+select * from Categorias
 select * from Receitas
 select * from Favoritos
 select * from Livros    
