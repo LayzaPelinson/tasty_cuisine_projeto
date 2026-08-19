@@ -10,15 +10,69 @@ function Login() {
   const [form, setForm] = useState({ name: '', email: '', password: '', age: '', preferences: [] })
   const [error, setError] = useState('')
   const [inactiveEmail, setInactiveEmail] = useState(null)
-  const [blockedMessage, setBlockedMessage] = useState(false) // 💡 Novo estado para o modal de bloqueio
+  const [blockedMessage, setBlockedMessage] = useState(false)
   const [reactivatePwd, setReactivatePwd] = useState('')
   const [reactivateError, setReactivateError] = useState('')
   const { login, register, reactivateAccount } = useUser()
   const navigate = useNavigate()
-  const [birthDate, setBirthDate] = useState('');
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  // Máscara para formatar a data de nascimento como DD/MM/AAAA
+  const formatBirthDate = (value) => {
+    const v = value.replace(/\D/g, '')
+    if (v.length <= 2) return v
+    if (v.length <= 4) return `${v.slice(0, 2)}/${v.slice(2)}`
+    return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4, 8)}`
+  }
+
+  // Validador inteligente focado em e-mail, senha e na regra estrita de idade (> 14 anos)
+  function validateForm() {
+    if (mode === 'register') {
+      // Validação de formato básico de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(form.email)) {
+        return '❌ **E-mail inválido:** Verifique se digitou corretamente (exemplo: seu-email@dominio.com).'
+      }
+
+      // Validação do formato da data de nascimento (DD/MM/AAAA)
+      if (form.age.length !== 10) {
+        return '❌ **Data incompleta:** O campo de Data de Nascimento deve estar no formato completo DD/MM/AAAA.'
+      }
+
+      const [dia, mes, ano] = form.age.split('/').map(Number)
+      const dataNasc = new Date(ano, mes - 1, dia)
+      const hoje = new Date()
+
+      // Verifica se a data é real e válida
+      if (
+        dataNasc.getDate() !== dia ||
+        dataNasc.getMonth() !== mes - 1 ||
+        dataNasc.getFullYear() !== ano ||
+        ano < 1900 ||
+        dataNasc > hoje
+      ) {
+        return '❌ **Data inválida:** A data informada não existe ou está no futuro. Por favor, insira uma data real.'
+      }
+
+      // 💡 Cálculo rigoroso da idade (maior que 14 anos)
+      let idade = hoje.getFullYear() - dataNasc.getFullYear()
+      const m = hoje.getMonth() - dataNasc.getMonth()
+      if (m < 0 || (m === 0 && hoje.getDate() < dataNasc.getDate())) {
+        idade--
+      }
+
+      if (idade <= 14) {
+        return '❌ **Idade não permitida:** Você precisa ter mais de 14 anos para se cadastrar nesta plataforma.'
+      }
+
+      if (form.password.length < 6) {
+        return '❌ **Senha curta:** A senha de segurança precisa ter pelo menos 6 caracteres.'
+      }
+    }
+    return null
   }
 
   function handleSubmit(e) {
@@ -27,29 +81,36 @@ function Login() {
     setInactiveEmail(null)
     setBlockedMessage(false)
 
+    const validationError = validateForm()
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
     if (mode === 'register') {
       register({ ...form, funcao: activeTab }).then(res => {
         if (res && res.ok) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
         } else {
-          setError(res.error || 'Falha no cadastro')
+          let customMsg = res.error || 'Falha no cadastro.'
+          if (customMsg.toLowerCase().includes('email') || customMsg.toLowerCase().includes('já cadastrado')) {
+            customMsg = '⚠️ **E-mail já em uso:** Este endereço de e-mail já possui uma conta cadastrada. Tente fazer login ou recuperar sua senha.'
+          }
+          setError(customMsg)
         }
       })
     } else {
-      // 💡 A lógica agora avalia primeiro se retornou 'blocked' vindo do seu interceptor/hook de login
       login(form.email, form.password, activeTab).then(result => {
         if (result === true) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
         } else if (result === 'blocked') {
-          // 💡 Verificação prioritária: Conta suspensa pelo ADM
           setBlockedMessage(true)
         } else if (result === 'inactive') {
-          // Conta desativada voluntariamente pelo próprio usuário
           setInactiveEmail(form.email)
           setReactivatePwd('')
           setReactivateError('')
         } else {
-          setError('E-mail ou senha inválidos.')
+          setError('⚠️ **Credenciais incorretas:** O e-mail ou a senha informados não conferem. Verifique se há erros de digitação.')
         }
       })
     }
@@ -63,33 +124,21 @@ function Login() {
       setInactiveEmail(null)
       navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
     } else {
-      setReactivateError('Senha incorreta. Tente novamente.')
+      setReactivateError('❌ **Senha incorreta:** A senha informada para reativação não confere com esta conta.')
     }
   }
 
   const isChef = activeTab === 'Chefe'
-  // 💡 Versão em JavaScript puro (sem as anotações de tipo):
 
-  // Cole esta função fora do seu componente LoginScreen, ou logo no topo do arquivo
-const formatBirthDate = (value) => {
-  // Remove tudo o que não for número
-  const v = value.replace(/\D/g, '');
-  
-  // Aplica a máscara DD/MM/AAAA
-  if (v.length <= 2) return v;
-  if (v.length <= 4) return `${v.slice(0, 2)}/${v.slice(2)}`;
-  return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4, 8)}`;
-};
-
-useEffect(() => {
-  function handleKeyDown(e) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'H') {
-      navigate('/admin')
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+        navigate('/admin')
+      }
     }
-  }
-  window.addEventListener('keydown', handleKeyDown)
-  return () => window.removeEventListener('keydown', handleKeyDown)
-}, [navigate])
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [navigate])
 
   return (
     <main className="login-page">
@@ -104,17 +153,22 @@ useEffect(() => {
               : isChef ? 'Compartilhe suas receitas com o mundo' : 'Salve e descubra novas receitas'}
           </p>
 
-          {error && <p className="login-error">{error}</p>}
+          {error && (
+            <div style={{ backgroundColor: '#fff3f3', border: '1px solid #ffcdd2', padding: '10px 12px', borderRadius: '6px', marginBottom: '15px', color: '#c62828', fontSize: '13px', lineHeight: '1.4' }}>
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             {mode === 'register' && (
               <>
                 <label>Nome</label>
-                <input name="name" value={form.name} onChange={handleChange} placeholder="Seu nome completo" required />
+                <input name="name" value={form.name} onChange={handleChange} placeholder="Seu nome" required />
               </>
             )}
             <label>E-mail</label>
             <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="seu@email.com" required />
+            
             {mode === 'register' && (
               <>
                 <label htmlFor="age">Data de Nascimento</label>
@@ -124,21 +178,19 @@ useEffect(() => {
                   type="text"
                   placeholder="DD/MM/AAAA"
                   maxLength={10}
-                  value={form.age || ''} // O '||' garante que não comece como undefined
+                  value={form.age || ''}
                   onChange={(e) => {
-                    // 1. Pega o que o usuário digitou e passa pela sua máscara
-                    const txtFormatado = formatBirthDate(e.target.value);
-
-                    // 2. Atualiza diretamente o estado do formulário
+                    const txtFormatado = formatBirthDate(e.target.value)
                     setForm(prev => ({
                       ...prev,
                       age: txtFormatado
-                    }));
+                    }))
                   }}
                   required
                 />
               </>
             )}
+
             <label>Senha</label>
             <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="••••••••" required />
             <button type="submit" className="login-btn">
@@ -155,7 +207,6 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* 💡 MODAL DE CONTA BLOQUEADA PELO ADMINISTRADOR */}
       {blockedMessage && (
         <div className="reactivate-overlay">
           <div className="reactivate-modal" style={{ textAlign: 'center' }}>
@@ -182,7 +233,7 @@ useEffect(() => {
           <div className="reactivate-modal">
             <h3>Conta Inativa</h3>
             <p>Sua conta está desativada. Confirme sua senha para reativá-la.</p>
-            {reactivateError && <p className="login-error">{reactivateError}</p>}
+            {reactivateError && <div style={{ color: '#c62828', fontSize: '13px', marginBottom: '10px' }}>{reactivateError}</div>}
             <form onSubmit={handleReactivate}>
               <input
                 type="password"

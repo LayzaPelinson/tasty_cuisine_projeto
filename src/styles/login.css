@@ -125,8 +125,7 @@
 
 /* ERRO */
 .login-error {
-  background: #fde8e8;
-  color: #c0392b;
+  background: #fdb9b9;
   border-radius: 10px;
   padding: 8px 14px;
   font-size: 14px;
