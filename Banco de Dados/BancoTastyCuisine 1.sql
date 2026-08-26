@@ -7,7 +7,7 @@ CREATE TABLE Usuario (
     Cod_user INT IDENTITY(1,1) PRIMARY KEY,
     Nome_completo NVARCHAR(300) NOT NULL,
     Nome_de_usuario NVARCHAR(60) NOT NULL,
-    Idade INT NOT NULL,
+    Idade DATE NOT NULL,
     Gmail NVARCHAR(255) NOT NULL UNIQUE,
     Senha NVARCHAR(250) NOT NULL,
     Status_Usuario NVARCHAR(20) NOT NULL default 'ATIVO',
@@ -16,6 +16,7 @@ CREATE TABLE Usuario (
     foto_perfil NVARCHAR(MAX) NULL,
     funcao NVARCHAR(30) NOT NULL, -- Chefe ou Usuario,
 
+    CONSTRAINT CHK_idade CHECK (DATEADD(year, 14, Idade) <= GETDATE()) -- ve se o caba tem mais de 14 anos
 );
 
 CREATE TABLE Categorias (
@@ -41,7 +42,7 @@ CREATE TABLE Receitas (
 CREATE TABLE Favoritos (
     Cod_favoritos BIGINT IDENTITY(1,1) PRIMARY KEY,
     Cod_user INT NOT NULL,
-    Cod_receitas INT,
+    Cod_receitas INT NOT NULL,
     FOREIGN KEY (Cod_user) REFERENCES Usuario(Cod_user),
     FOREIGN KEY (Cod_receitas) REFERENCES Receitas(Cod_receitas)
 );
@@ -49,7 +50,7 @@ CREATE TABLE Favoritos (
 CREATE TABLE Comentarios (
     Cod_comentarios BIGINT IDENTITY(1,1) PRIMARY KEY,
     Cod_user INT NOT NULL,
-    Cod_receitas INT NULL,
+    Cod_receitas INT NOT NULL,
     Nota INT NOT NULL CHECK (Nota BETWEEN 1 AND 5),
     Data_Comentario DATETIME DEFAULT GETDATE(),
     Status_Comentarios NVARCHAR(20) NOT NULL default 'ATIVO',
@@ -74,18 +75,11 @@ CREATE TABLE Livro_Receitas(
 CREATE TABLE Receitas_Categorias(
     Cod_Categoria INT NOT NULL,
     Cod_Receita INT NOT NULL
-    
-    FOREIGN KEY (Cod_receita)
-        REFERENCES Receitas(Cod_receitas),
-
-    FOREIGN KEY (Cod_Categoria)
-        REFERENCES Categorias(Cod_Categoria)
+    FOREIGN KEY (Cod_receita)   REFERENCES Receitas(Cod_receitas),
+    FOREIGN KEY (Cod_Categoria) REFERENCES Categorias(Cod_Categoria)
 )
 
 GO
-
-insert into Usuario(Nome_completo,Nome_de_usuario,Idade,Gmail,Senha,Restricoes_alimentares,funcao)
-VALUES('soso','Sooo','25','gmail@gmail.com','123456','[]','Usuario')
 
 insert into Categorias (Nome_Categoria) values 
 ('Massas'),
@@ -103,6 +97,10 @@ insert into Categorias (Nome_Categoria) values
 ('Pães e Bolos'),
 ('Fitness e Saudável'),
 ('Molhos e Acompanhamentos');
+
+
+insert into Usuario(Nome_completo,Nome_de_usuario,Idade,Gmail,Senha,Restricoes_alimentares,funcao)
+VALUES('soso','Sooo','25','gmail@gmail.com','123456','[]','Usuario')
 
 insert into Receitas(Nome_receita,Descricao,Ingredientes,Modo_preparo,Restricao,Cod_usuario)
 values('arroz','arroz cozido','["Farinha", "Ovo", "Leite"]','["Misture os ingredientes","Coloque na forma","Asse por 40 minutos"]',15,1)
