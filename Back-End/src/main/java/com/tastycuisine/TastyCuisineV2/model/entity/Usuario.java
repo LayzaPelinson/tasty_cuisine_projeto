@@ -1,13 +1,13 @@
 package com.tastycuisine.TastyCuisineV2.model.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,9 +46,7 @@ public class Usuario {
     private String nome_de_usuario;
 
     @Column(nullable = false)
-    @Min(value = 14, message = "A idade mínima permitida é 14 anos")
-    @Max(value = 100, message = "A idade máxima permitida é 100 anos")
-    private int idade;
+    private LocalDate idade;
 
     @Column(length = 255, nullable = false, unique = true)
     @NotBlank

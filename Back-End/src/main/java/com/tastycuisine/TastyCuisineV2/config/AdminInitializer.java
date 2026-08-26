@@ -8,6 +8,7 @@ import com.tastycuisine.TastyCuisineV2.model.repository.UsuarioRepository;
 import com.tastycuisine.TastyCuisineV2.model.service.UsuarioService;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -42,7 +43,7 @@ public class AdminInitializer implements CommandLineRunner {
             return;
         }
         Usuario admin = new Usuario();
-        admin.setIdade(18);
+        admin.setIdade( LocalDate.of(2000, 7, 30));
         admin.setNome_completo("ADM_name");
         admin.setNome_de_usuario("ADM_user");
         admin.setGmail(emailAdmin);
@@ -55,9 +56,10 @@ public class AdminInitializer implements CommandLineRunner {
         System.out.println("==================================================");
         System.out.println("ADMINISTRADOR CRIADO COM SUCESSO!");
         System.out.println("E-mail: " + emailAdmin);
-        System.out.println("Senha temporária (6 dígitos): " + senhaAleatoria);
+        System.out.println("Senha: " + senhaAleatoria);
         System.out.println("==================================================");
     }
+
 
     private String gerarSenhaAleatoria6Digitos() {
         SecureRandom random = new SecureRandom();
