@@ -41,12 +41,12 @@ public class ComentarioService {
 
     public Comentario inativar(long codComentario){
         Comentario cate = findById(codComentario);
-        cate.setStatus_comentarios("INATIVO");
+        cate.setStatusComentarios("INATIVO");
         return comentarioRepository.save(cate); 
     }
     public Comentario ativar(long codComentario){
         Comentario cate = findById(codComentario);
-        cate.setStatus_comentarios("ATIVO");
+        cate.setStatusComentarios("ATIVO");
         return comentarioRepository.save(cate);
     }
 }

@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tastycuisine.TastyCuisineV2.model.dto.MediaNotaDTO;
 import com.tastycuisine.TastyCuisineV2.model.entity.Comentario;
+import com.tastycuisine.TastyCuisineV2.model.repository.ComentarioRepository;
 import com.tastycuisine.TastyCuisineV2.model.service.ComentarioService;
 
 import jakarta.validation.Valid;
@@ -26,6 +28,7 @@ public class ComentarioController {
 
     @Autowired
     private ComentarioService comentarioService;
+    @Autowired ComentarioRepository comentarioRepository;
 
     @GetMapping("/findAll")
     public ResponseEntity<List<Comentario>> findAll() {
@@ -42,20 +45,25 @@ public class ComentarioController {
         try {
             return ResponseEntity.ok(comentarioService.findById(Long.parseLong(codComentarios)));
         } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codComentarios));
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message",
+                    "o id informado não é válido: " + codComentarios));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "comentário não encontrado com o id: " + codComentarios));
+            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message",
+                    "comentário não encontrado com o id: " + codComentarios));
         }
     }
 
     @PutMapping("/{codComentarios}")
-    public ResponseEntity<Object> update(@Valid @RequestBody Comentario comentario, @PathVariable String codComentarios) {
+    public ResponseEntity<Object> update(@Valid @RequestBody Comentario comentario,
+            @PathVariable String codComentarios) {
         try {
             return ResponseEntity.ok(comentarioService.update(Long.parseLong(codComentarios), comentario));
         } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codComentarios));
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message",
+                    "o id informado não é válido: " + codComentarios));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "comentário não encontrado com o id: " + codComentarios));
+            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message",
+                    "comentário não encontrado com o id: " + codComentarios));
         }
     }
 
@@ -65,24 +73,33 @@ public class ComentarioController {
             comentarioService.delete(Long.parseLong(codComentarios));
             return ResponseEntity.ok().body("Comentário com o id " + codComentarios + " foi removido com sucesso");
         } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message", "o id informado não é válido: " + codComentarios));
-        } catch (RuntimeException e) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message", "comentário não encontrado com o id: " + codComentarios));
+            return ResponseEntity.badRequest().body(Map.of("status", 400, "error", "bad request", "message",
+                    "o id informado não é válido: " + codComentarios));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(Map.of("status", 404, "error", "not found", "message",
+                    "comentário não encontrado com o id: " + codComentarios));
         }
     }
+
     @GetMapping("/receita/{codReceita}")
     public ResponseEntity<List<Comentario>> buscarPorReceita(@PathVariable Long codReceita) {
         return ResponseEntity.ok(
-            comentarioService.buscarPorReceita(codReceita)
-        );
+                comentarioService.buscarPorReceita(codReceita));
     }
 
-        @PutMapping("/{codComentario}/inativar")
-        public ResponseEntity<Object> inativar(@PathVariable String codComentario){
-            return ResponseEntity.ok(comentarioService.inativar(Long.parseLong(codComentario)));
-        }
-        @PutMapping("/{codComentario}/ativar")
-        public ResponseEntity<Object> ativar(@PathVariable String codComentario){
-            return ResponseEntity.ok(comentarioService.ativar(Long.parseLong(codComentario)));
-        }
+    @PutMapping("/{codComentario}/inativar")
+    public ResponseEntity<Object> inativar(@PathVariable String codComentario) {
+        return ResponseEntity.ok(comentarioService.inativar(Long.parseLong(codComentario)));
+    }
+
+    @PutMapping("/{codComentario}/ativar")
+    public ResponseEntity<Object> ativar(@PathVariable String codComentario) {
+        return ResponseEntity.ok(comentarioService.ativar(Long.parseLong(codComentario)));
+    }
+
+    @GetMapping("/media/{codReceita}")
+    public ResponseEntity<MediaNotaDTO> getMediaReceita(@PathVariable Long codReceita) {
+        MediaNotaDTO media = comentarioRepository.buscarMediaPorReceita(codReceita);
+        return ResponseEntity.ok(media);
+    }
 }

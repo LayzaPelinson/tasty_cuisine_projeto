@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class TastyCuisineV2Application {
                                                                                                                                                                                                                                
-	public static void main(String[] args) {
+	public static void main(String[] args) { 	
 		SpringApplication.run(TastyCuisineV2Application.class, args);
 	}
 

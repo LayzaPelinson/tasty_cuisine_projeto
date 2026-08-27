@@ -31,7 +31,7 @@ public class Comentario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Cod_comentarios")
-    private long Cod_comentarios;
+    private long codComentarios;
 
     @ManyToOne
     @JoinColumn(name = "Cod_user", nullable = false)
@@ -43,13 +43,13 @@ public class Comentario {
     
     @Column(name = "Nota", nullable = false)
     @NotBlank
-    private String Nota;
+    private Double nota;
 
     @Builder.Default
     @Column(name = "Status_Comentarios",length =  20,nullable = false)
-    private String status_comentarios = "ATIVO";
+    private String statusComentarios = "ATIVO";
     
     @CreationTimestamp
     @Column(name = "Data_Comentario", updatable = false)
-    private LocalDateTime Data_Comentario;
+    private LocalDateTime dataComentario;
 }
