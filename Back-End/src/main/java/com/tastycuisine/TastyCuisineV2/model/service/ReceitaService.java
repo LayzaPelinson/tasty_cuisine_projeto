@@ -33,6 +33,7 @@ public class ReceitaService {
 
         receita.setModo_preparo(dto.getModo_preparo());
         receita.setIngredientes(dto.getIngredientes());
+        receita.setTempoPreparo(dto.getTempoPreparo());
         System.out.println("INGREDIENTES RECEBIDOS:");
         System.out.println(dto.getIngredientes());
 
@@ -67,6 +68,7 @@ public class ReceitaService {
         existente.setStatus_receita(receita.getStatus_receita());
         existente.setFotoReceita(receita.getFotoReceita());
         existente.setRestricao(receita.getRestricao());
+        existente.setTempoPreparo(receita.getTempoPreparo());
         return receitaRepository.save(existente);
     }
 

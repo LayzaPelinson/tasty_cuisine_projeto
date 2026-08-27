@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { CustomSelect } from '../components/CustomSelect'
 
 const UNITS = ['unidades', 'gramas', 'kg', 'ml', 'litros', 'xícaras', 'colheres', 'fatias', 'dentes', 'pitadas', 'a gosto']
+const PREP_TIMES = ['Rápido', 'Mediano', 'Demorado']
 const API_BASE = 'http://localhost:8080'
 
 function PublishRecipe() {
@@ -16,7 +17,11 @@ function PublishRecipe() {
   const [categorySearch, setCategorySearch] = useState('')
 
   const [form, setForm] = useState({
-    title: '', description: '', difficulty: 'Fácil', image: '',
+    title: '',
+    description: '',
+    difficulty: 'Fácil',
+    prepTime: PREP_TIMES[0],
+    image: '',
   })
   const [ingredients, setIngredients] = useState([])
   const [ingInput, setIngInput] = useState({ quantidade: '', unidade: 'gramas', nome: '' })
@@ -117,6 +122,7 @@ function PublishRecipe() {
       title: form.title,
       description: form.description,
       difficulty: form.difficulty,
+      prepTime: form.prepTime,
       image: form.image,
       ingredients,
       instructions: steps,
@@ -314,6 +320,15 @@ function PublishRecipe() {
                 ))}
               </ol>
             )}
+
+            <h3>Tempo de Preparo</h3>
+            <div style={{ maxWidth: '280px', marginBottom: '20px' }}>
+              <CustomSelect
+                value={form.prepTime}
+                onChange={val => setForm(f => ({ ...f, prepTime: val }))}
+                options={PREP_TIMES}
+              />
+            </div>
 
             <h3>Foto da Receita</h3>
             <div>

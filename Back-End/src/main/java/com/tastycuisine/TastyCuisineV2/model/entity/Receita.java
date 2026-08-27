@@ -3,6 +3,8 @@ package com.tastycuisine.TastyCuisineV2.model.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -71,6 +73,21 @@ public class Receita {
     @JoinColumn(name = "Cod_usuario", nullable = false)
     private Usuario usuario;
 
+    @JsonProperty("tempoPreparo")
+    @Column(name = "TempoPreparo", nullable = false, columnDefinition = "NVARCHAR(20)")
+    @NotBlank(message = "O tempo de preparo é obrigatório")
+    private String tempoPreparo;
+
     @Column(name = "Foto_receita", nullable = true, columnDefinition = "NVARCHAR(MAX)")
     private String fotoReceita;
+
+    public String getTempoPreparo() {
+        return tempoPreparo;
+    }
+
+    public void setTempoPreparo(String tempoPreparo) {
+        this.tempoPreparo = tempoPreparo;
+    }
 }
+
+// TempoPreparo NVARCHAR(20) NOT NULL,

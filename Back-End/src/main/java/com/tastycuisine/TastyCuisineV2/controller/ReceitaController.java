@@ -33,6 +33,7 @@ public class ReceitaController {
 
     @PostMapping
     public ResponseEntity<Receita> save(@Valid @RequestBody Receita receita) {
+        System.out.println("Receita Recebida: " + receita.getTempoPreparo()); // 👈 Adicione esta linha
         return ResponseEntity.status(HttpStatus.CREATED).body(receitaService.salvar(receita));
     }
 

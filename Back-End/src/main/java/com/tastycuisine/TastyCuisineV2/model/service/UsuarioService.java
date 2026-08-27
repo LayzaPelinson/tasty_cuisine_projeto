@@ -49,9 +49,6 @@ public class UsuarioService {
         if (usuario.getNome_completo() != null && !usuario.getNome_completo().isBlank()) {
             usuarioExistente.setNome_completo(usuario.getNome_completo());
         }
-        if (usuario.getNome_de_usuario() != null && !usuario.getNome_de_usuario().isBlank()) {
-            usuarioExistente.setNome_de_usuario(usuario.getNome_de_usuario());
-        }
         if (usuario.getGmail() != null && !usuario.getGmail().isBlank()) {
             usuarioExistente.setGmail(usuario.getGmail());
         }

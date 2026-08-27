@@ -43,7 +43,6 @@ public class AdminInitializer {
             admin = new Usuario();
             admin.setIdade(LocalDate.of(2000, 7, 30));
             admin.setNome_completo("ADM_name");
-            admin.setNome_de_usuario("ADM_user");
             admin.setGmail(emailAdmin);
             admin.setSenha(novaSenha);
             admin.setFuncao("ADMIN");

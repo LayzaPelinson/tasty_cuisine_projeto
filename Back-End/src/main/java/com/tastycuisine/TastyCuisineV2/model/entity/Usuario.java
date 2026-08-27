@@ -41,10 +41,6 @@ public class Usuario {
     @NotBlank
     private String nome_completo;
 
-    @Column(name = "nome_de_usuario", length = 60, nullable = false)
-    @NotBlank
-    private String nome_de_usuario;
-
     @Column(nullable = false)
     private LocalDate idade;
 
