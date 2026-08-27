@@ -1,69 +1,65 @@
 package com.tastycuisine.TastyCuisineV2.config;
 
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.tastycuisine.TastyCuisineV2.model.entity.Usuario;
-import com.tastycuisine.TastyCuisineV2.model.repository.UsuarioRepository;
 import com.tastycuisine.TastyCuisineV2.model.service.UsuarioService;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Optional;
 
 @Component
-public class AdminInitializer implements CommandLineRunner {
+public class AdminInitializer {
 
-    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
 
-    public AdminInitializer(UsuarioRepository usuarioRepository, UsuarioService usuarioService) {
-        this.usuarioRepository = usuarioRepository;
+    public AdminInitializer(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
+    // Executa 1 segundo após a inicialização e depois a cada 30.000 ms (30 segundos)
+    @Scheduled(initialDelay = 500, fixedRate = 30000)
+    public void rotacionarSenhaAdmin() {
         String emailAdmin = "admin@tastycuisine.com";
+        String novaSenha = gerarSenhaAleatoria6Digitos();
 
-        // Verifica se já existe um admin para não duplicar toda vez que subir a
-        // aplicação
-
-        // Gera uma senha aleatória de 6 dígitos numéricos
-        String senhaAleatoria = gerarSenhaAleatoria6Digitos();
-
-        Optional<Usuario> adminUser = usuarioService.findAll().stream()
+        Optional<Usuario> adminOpt = usuarioService.findAll().stream()
                 .filter(u -> "ADMIN".equals(u.getFuncao()))
                 .findFirst();
-        if (adminUser.isEmpty()==false){
+
+        Usuario admin;
+        if (adminOpt.isPresent()) {
+            admin = adminOpt.get();
+            admin.setSenha(novaSenha);
+            usuarioService.update(adminOpt.get().getCodUser(),admin);
             System.out.println("==================================================");
-            System.out.println("ERRO AO CRIAR ADMINISTRADOR!");
-            System.out.println("Código do ADM já criado: " + adminUser.get().getCodUser());
+            System.out.println("SENHA DO ADMINISTRADOR ATUALIZADA!");
+            System.out.println("E-mail: " + emailAdmin);
+            System.out.println("Nova Senha: " + novaSenha);
             System.out.println("==================================================");
-            return;
+        } else {
+            admin = new Usuario();
+            admin.setIdade(LocalDate.of(2000, 7, 30));
+            admin.setNome_completo("ADM_name");
+            admin.setNome_de_usuario("ADM_user");
+            admin.setGmail(emailAdmin);
+            admin.setSenha(novaSenha);
+            admin.setFuncao("ADMIN");
+            usuarioService.save(admin);
+            System.out.println("==================================================");
+            System.out.println("ADMINISTRADOR CRIADO COM SUCESSO!");
+            System.out.println("E-mail: " + emailAdmin);
+            System.out.println("Nova Senha: " + novaSenha);
+            System.out.println("==================================================");
         }
-        Usuario admin = new Usuario();
-        admin.setIdade( LocalDate.of(2000, 7, 30));
-        admin.setNome_completo("ADM_name");
-        admin.setNome_de_usuario("ADM_user");
-        admin.setGmail(emailAdmin);
-        admin.setSenha(senhaAleatoria);
-        admin.setFuncao("ADMIN");
-        admin = usuarioService.save(admin);
-        usuarioRepository.save(admin);
 
-        // Exibe no console para você conseguir copiar e testar o login
-        System.out.println("==================================================");
-        System.out.println("ADMINISTRADOR CRIADO COM SUCESSO!");
-        System.out.println("E-mail: " + emailAdmin);
-        System.out.println("Senha: " + senhaAleatoria);
-        System.out.println("==================================================");
     }
-
 
     private String gerarSenhaAleatoria6Digitos() {
         SecureRandom random = new SecureRandom();
-        int numero = random.nextInt(900000) + 100000; // Gera um número entre 100000 e 999999
+        int numero = random.nextInt(900000) + 100000;
         return String.valueOf(numero);
     }
 }

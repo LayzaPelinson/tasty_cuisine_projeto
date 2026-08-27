@@ -37,7 +37,7 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function RecipeComments({ recipeId}) {
+function RecipeComments({ recipeId }) {
   const { user } = useUser()
   const [comments, setComments] = useState([])
   const [nota, setNota] = useState(0)
@@ -47,69 +47,69 @@ function RecipeComments({ recipeId}) {
   const jaAvaliou = comments.some(c => c.usuario?.codUser === user.id)
   const isChef = user?.funcao === 'Chefe'
 
-useEffect(() => {
-  fetch(`${API_BASE}/comentario/receita/${recipeId}`)
-    .then(r => r.ok ? r.json() : [])
-    .then(data => {
-      if (Array.isArray(data)) {
-        // 💡 Filtra para manter apenas os comentários com status_comentarios "ATIVO"
-        const ativos = data.filter(c => c.status_comentarios === 'ATIVO')
-        setComments(ativos)
-        console.log(ativos)
-      } else {
-        setComments([])
-      }
-    })
-    .catch(() => setComments([]))
-}, [recipeId])
+  useEffect(() => {
+    fetch(`${API_BASE}/comentario/receita/${recipeId}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          // 💡 Filtra para manter apenas os comentários com status_comentarios "ATIVO"
+          const ativos = data.filter(c => c.status_comentarios === 'ATIVO')
+          setComments(ativos)
+          console.log(ativos)
+        } else {
+          setComments([])
+        }
+      })
+      .catch(() => setComments([]))
+  }, [recipeId])
 
   async function handleSubmit(e) {
-  e.preventDefault()
-  
-  // Validações iniciais permanecem iguais
-  if (nota === 0) return setError('Selecione uma nota.')
-  
-  setError('')
-  setSubmitting(true)
-  
-  try {
-    // 💡 AGORA É UMA REQUISIÇÃO ÚNICA! 
-    // Enviamos a nota e o texto juntos para o @PostMapping do seu ComentarioController
-    const resCom = await fetch(`${API_BASE}/comentario`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        nota: String(nota), // Convertido para String porque sua Entidade mapeia a 'Nota' como String
-        usuario: { codUser: user.id }, 
-        receita: { codReceitas: recipeId } 
-      })
-    })
+    e.preventDefault()
 
-    if (!resCom.ok) throw new Error()
-    
-    const saved = await resCom.json()
-    
-    // Atualiza o estado local para renderizar o novo comentário imediatamente na tela
-    setComments(prev => [{
-      ...saved,
-      usuario: {
-        codUser: user.id,
-        nomeDeUsuario: user.name,
-        nomeCompleto: user.name
-      }
-    }, ...prev])
-    
-    // Limpa os campos do formulário e exibe sucesso
-    setNota(0)
-    setSuccess(true)
-    setTimeout(() => setSuccess(false), 3000)
-    
-  } catch {
-    setError('Falha ao enviar avaliação. Tente novamente.')
-  } finally {
-    setSubmitting(false)
+    // Validações iniciais permanecem iguais
+    if (nota === 0) return setError('Selecione uma nota.')
+
+    setError('')
+    setSubmitting(true)
+
+    try {
+      // 💡 AGORA É UMA REQUISIÇÃO ÚNICA! 
+      // Enviamos a nota e o texto juntos para o @PostMapping do seu ComentarioController
+      const resCom = await fetch(`${API_BASE}/comentario`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nota: String(nota), // Convertido para String porque sua Entidade mapeia a 'Nota' como String
+          usuario: { codUser: user.id },
+          receita: { codReceitas: recipeId }
+        })
+      })
+
+      if (!resCom.ok) throw new Error()
+
+      const saved = await resCom.json()
+
+      // Atualiza o estado local para renderizar o novo comentário imediatamente na tela
+      setComments(prev => [{
+        ...saved,
+        usuario: {
+          codUser: user.id,
+          nomeDeUsuario: user.name,
+          nomeCompleto: user.name
+        }
+      }, ...prev])
+
+      // Limpa os campos do formulário e exibe sucesso
+      setNota(0)
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 3000)
+
+    } catch {
+      setError('Falha ao enviar avaliação. Tente novamente.')
+    } finally {
+      setSubmitting(false)
+    }
   }
-}
 
   return (
     <div className="recipe-comments">
@@ -120,7 +120,7 @@ useEffect(() => {
         <form className="comment-form" onSubmit={handleSubmit}>
           <p className="comment-form-label">Sua avaliação</p>
           <Stars value={nota} onChange={v => { setNota(v); setError('') }} />
-          
+
           {error && <p className="comment-error">{error}</p>}
           {success && <p className="comment-success">✓ Avaliação enviada com sucesso!</p>}
           {nota > 0 && (
@@ -140,7 +140,7 @@ useEffect(() => {
         {comments.length === 0 ? (
           <div className="no-comments">
             <span>💬</span>
-            
+
             <p>Nenhuma avaliação ainda.{isChef ? '' : ' Seja o primeiro a avaliar!'}</p>
           </div>
         ) : (
@@ -151,7 +151,9 @@ useEffect(() => {
                   {c.usuario?.nomeCompleto ?? c.usuario?.nome_completo ?? ""}
                 </span>
                 {c.nota > 0 && <StarsDisplay value={c.nota} />}
-                <span className="comment-date">{formatDate(c.dataComentario)}</span>
+                <span className="comment-date">
+                  {formatDate(c.data_Comentario ?? c.dataComentario)}
+                </span>
               </div>
             </div>
           ))

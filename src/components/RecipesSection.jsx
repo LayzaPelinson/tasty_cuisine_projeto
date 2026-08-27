@@ -124,7 +124,7 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
           {displayed.map((recipe) => (
             <div
               key={recipe.id_seguro}
-              onClick={() => locked ? onGuestClick?.() : navigate(`/receita/${recipe.id_seguro}`)}
+              onClick={() => locked ? onGuestClick?.() : navigate(`/recipe/${recipe.id_seguro}`)}
               style={{ cursor: 'pointer' }}
             >
               <RecipeCard recipe={recipe} />

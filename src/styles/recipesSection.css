@@ -60,10 +60,16 @@
 .recipes-grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
 }
 
+/* Em telas desktop grandes, fixa em 5 colunas iguais */
+@media (min-width: 1200px) {
+  .recipes-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
 .recipes-section{
   
   background: var(--bg);

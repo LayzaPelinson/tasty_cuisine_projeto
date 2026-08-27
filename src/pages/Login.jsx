@@ -22,11 +22,27 @@ function Login() {
 
   // Máscara para formatar a data de nascimento como DD/MM/AAAA
   const formatBirthDate = (value) => {
-    const v = value.replace(/\D/g, '')
+    const v = value.replace(/\D/g, '').slice(0, 8) 
     if (v.length <= 2) return v
     if (v.length <= 4) return `${v.slice(0, 2)}/${v.slice(2)}`
     return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4, 8)}`
   }
+
+  const convertToDatabaseFormat = (displayDate) => {
+  if (!displayDate) return null
+
+  // Remove qualquer caractere que não seja número
+  const cleanDate = displayDate.replace(/\D/g, '')
+
+  // Garante que temos exatamente 8 dígitos (DDMMYYYY)
+  if (cleanDate.length !== 8) return null
+
+  const day = cleanDate.slice(0, 2)
+  const month = cleanDate.slice(2, 4)
+  const year = cleanDate.slice(4, 8)
+
+  return `${year}-${month}-${day}` // Retorna no formato YYYY-MM-DD
+}
 
   // Validador inteligente focado em e-mail, senha e na regra estrita de idade (> 14 anos)
   function validateForm() {
@@ -86,7 +102,7 @@ function Login() {
       setError(validationError)
       return
     }
-
+    form.age = convertToDatabaseFormat(form.age)
     if (mode === 'register') {
       register({ ...form, funcao: activeTab }).then(res => {
         if (res && res.ok) {
@@ -99,6 +115,8 @@ function Login() {
           setError(customMsg)
         }
       })
+
+      
     } else {
       login(form.email, form.password, activeTab).then(result => {
         if (result === true) {

@@ -1,16 +1,16 @@
+/* PÁGINA E HEADER */
 .publish-page {
   min-height: 100vh;
   background: #F5EDE3;
   padding-bottom: 40px;
 }
+
 .publish-page-header {
   background: #C4703A;
   border-bottom-left-radius: 32px;
   border-bottom-right-radius: 32px;
-
   padding: 70px 32px 40px;
   text-align: center;
-
   position: relative;
   overflow: hidden;
 }
@@ -21,7 +21,7 @@
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: rgba(255,255,255,.07);
+  background: rgba(255, 255, 255, 0.07);
   top: -70px;
   right: -50px;
 }
@@ -32,20 +32,22 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: rgba(255,180,100,.10);
+  background: rgba(255, 180, 100, 0.10);
   bottom: -40px;
   left: -30px;
 }
+
 .publish-page h1 {
   color: white;
   font-size: 60px;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
   margin-bottom: 10px;
   position: relative;
   z-index: 2;
 }
+
 .publish-subtitle {
-  color: rgba(255,230,200,.9);
+  color: rgba(255, 230, 200, 0.9);
   font-size: 17px;
   max-width: 600px;
   margin: 0 auto;
@@ -53,127 +55,287 @@
   position: relative;
   z-index: 2;
 }
+
 .publish-page-body {
   padding-top: 60px;
 }
-/* CARD */
+
+/* CARD DO FORMULÁRIO */
 .recipe-form-card {
   width: min(1100px, 92%);
   margin: 0 auto;
-
   position: relative;
   z-index: 5;
-
   background: white;
   border-radius: 24px;
   padding: 36px;
-
   border: 1px solid #EDE0D4;
-
-  box-shadow: 0 8px 20px rgba(139,80,40,.08);
+  box-shadow: 0 8px 20px rgba(139, 80, 40, 0.08);
 }
+
 .recipe-form-card h2 {
   text-align: center;
   color: #f47c20;
   font-size: 48px;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
   margin-bottom: 10px;
 }
+
 .recipe-form-card > p {
   text-align: center;
   margin-bottom: 40px;
   font-size: 18px;
 }
-/* TÍTULOS */
+
 .recipe-form-card h3 {
   color: #3D2010;
-  font-size: 28px;
-  font-family: "Cormorant Garamond", serif;
+  font-size: 20px;
+  font-weight: 600;
+  font-family: inherit;
   margin-top: 32px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
-/* FORM */
 .recipe-form-card form {
   display: flex;
   flex-direction: column;
 }
+
 .recipe-form-card form > div {
   margin-top: 16px;
 }
+
 .recipe-form-card label {
   font-weight: 600;
   margin-bottom: 8px;
   display: block;
 }
+
 .recipe-form-card input,
-.recipe-form-card textarea,
-.recipe-form-card select {
+.recipe-form-card textarea {
   background: #FBF5EF;
   border: 1px solid #F0C8A0;
   border-radius: 14px;
-
   padding: 14px 16px;
   font-size: 15px;
+  color: #3D2010;
+  transition: all 0.2s ease;
+}
 
-  transition: .3s;
-}
 .recipe-form-card input:focus,
-.recipe-form-card textarea:focus,
-.recipe-form-card select:focus {
+.recipe-form-card textarea:focus {
   border-color: #C4703A;
+  outline: none;
 }
-/* GRID-3 */
-.recipe-form-card .grid-3 {
-  margin-top: 20px;
+
+.form-title,
+.form-description,
+.form-url {
+  width: 100%;
+  box-sizing: border-box;
 }
-.recipe-form-card textarea {
+
+.form-description {
+  min-height: 120px;
   resize: vertical;
 }
-/* GRIDS */
+
+/* COMPONENTE CUSTOM SELECT */
+.custom-select-container {
+  position: relative;
+  width: 130px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.custom-select-trigger {
+  background-color: #FBF5EF;
+  border: 1px solid #F0C8A0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
+  color: #3D2010;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-select-trigger:hover {
+  background-color: #FFF8F0;
+  border-color: #C4703A;
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(196, 112, 58, 0.2);
+}
+
+.custom-select-trigger .arrow {
+  display: inline-block;
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+  color: #C4703A;
+  font-weight: bold;
+}
+
+.custom-select-trigger.open .arrow {
+  transform: rotate(-90deg);
+}
+
+.custom-select-options {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background-color: #FBF5EF;
+  border: 1px solid #F0C8A0;
+  border-radius: 14px;
+  padding: 6px;
+  margin: 0;
+  list-style: none;
+  box-shadow: 0 8px 20px rgba(139, 80, 40, 0.15);
+  z-index: 50;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.custom-select-option {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #3D2010;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.custom-select-option:hover {
+  background-color: #FFF3EB;
+  color: #F27A1A;
+  font-weight: 600;
+  transform: scale(1.02);
+}
+
+.custom-select-option.selected {
+  background-color: #F0C8A0;
+  color: #3D2010;
+  font-weight: bold;
+}
+
+/* GRIDS E INPUTS */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
+
 .grid-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
 }
-/* INGREDIENTES / PASSOS */
-.ingredient-inputs {
+
+.categories-checkbox-grid {
   display: grid;
-  grid-template-columns: 120px 140px 1fr auto;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.ingredient-inputs {
+  display: flex;
   gap: 10px;
   align-items: center;
   margin-top: 12px;
 }
+
 .step-inputs {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: flex-start;
   margin-top: 12px;
 }
+
 .step-inputs textarea {
-  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
 }
+
+/* CHECKBOX CATEGORIAS */
+.category-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #FFF3EB;
+  border: 1px solid #FDBA74;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.category-checkbox:hover:not(.disabled) {
+  transform: scale(1.03);
+  box-shadow: 0 4px 10px rgba(242, 122, 26, 0.15);
+  border-color: #F27A1A;
+}
+
+.category-checkbox.disabled {
+  border-color: #FCA5A5;
+  background-color: #FEF2F2;
+  color: #991B1B;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.checkbox-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.category-tag {
+  background: #FFF3EB;
+  color: #F27A1A;
+  border: 1px solid #FDBA74;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* BOTÕES E LISTAS */
+.add-btn,
+.btn-edit,
+.btn-save,
+.btn-cancel,
+.btn-delete,
+.recipe-form-card button[type="submit"] {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
 .add-btn {
   white-space: nowrap;
-  padding: 10px 18px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 8px;
-  background: #1f6b34;
+  border-radius: 12px;
+  background: #C4703A;
   color: white;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: .2s;
 }
+
 .add-btn:hover {
-  padding: 14px 22px; 
-  background: #18552a; 
+  background: #A95E2F;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(196, 112, 58, 0.25);
 }
+
 .items-list {
   list-style: none;
   padding: 0;
@@ -182,56 +344,67 @@
   flex-direction: column;
   gap: 6px;
 }
+
 .items-list li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f9f5ef;
+  background: #F9F5EF;
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 14px;
 }
+
 .items-list li button {
   background: none;
   border: none;
-  color: #e53e3e;
+  color: #E53E3E;
   cursor: pointer;
   font-size: 16px;
   padding: 0 4px;
   line-height: 1;
+  transition: transform 0.2s ease;
 }
-ol.items-list { list-style: none; counter-reset: step-counter; }
+
+.items-list li button:hover {
+  transform: scale(1.2);
+}
+
+ol.items-list {
+  list-style: none;
+  counter-reset: step-counter;
+}
+
 ol.items-list li::before {
   counter-increment: step-counter;
   content: counter(step-counter) ". ";
   font-weight: 600;
-  color: #f47c20;
+  color: #F47C20;
   margin-right: 6px;
 }
-/* BOTÃO */
+
 .recipe-form-card button[type="submit"] {
   margin-top: 32px;
-
   height: 60px;
-
   border: none;
   border-radius: 16px;
-
   background: #C4703A;
   color: white;
-
   font-size: 18px;
   font-weight: 700;
-
-  transition: .3s;
+  cursor: pointer;
 }
+
 .recipe-form-card button[type="submit"]:hover {
   background: #A95E2F;
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(196, 112, 58, 0.3);
 }
+
 .publish-success {
-  background: #eaf7ee;
-  color: #1f6b34;
-  border: 1px solid #a8d5b5;
+  background: #EAF7EE;
+  color: #1F6B34;
+  border: 1px solid #A8D5B5;
   border-radius: 12px;
   padding: 14px 20px;
   font-size: 16px;
@@ -240,234 +413,34 @@ ol.items-list li::before {
   text-align: center;
 }
 
-.chef-recipe-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.chef-recipe-wrapper .chef-recipe-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-.recipe-card-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-.recipe-card-actions .btn-edit,
-.recipe-card-actions .btn-delete {
-  flex: 1;
-  padding: 7px 0;
-  font-size: 13px;
-}
-.add-btn {
-  background: #C4703A;
-  border-radius: 12px;
+.error-text {
+  color: #DC2626;
+  margin-top: 12px;
+  font-weight: bold;
 }
 
-.add-btn:hover {
-  background: #A95E2F;
-}
-
-.btn-edit {
-  background: #C4703A;
-  border-radius: 12px;
-}
-
-.btn-edit:hover {
-  background: #A95E2F;
-}
-.btn-delete {
-  padding: 8px 20px;
-  border: none;
-  border-radius: 8px;
-  background: #e53e3e;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: .2s;
-}
-.btn-delete:hover { background: #c53030; }
-
-/* MODAL DE EDIÇÃO */
-.edit-modal {
-  background: #fff;
-  border-radius: 16px;
-  padding: 36px 32px;
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-}
-.edit-modal h2 {
-  text-align: center;
-  color: #f47c20;
-  font-size: 32px;
-  font-family: "Cormorant Garamond", serif;
-  margin-bottom: 20px;
-}
-.edit-modal label {
-  display: block;
-  font-weight: 600;
-  margin: 14px 0 6px;
-}
-.edit-modal input,
-.edit-modal textarea,
-.edit-modal select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #d6d6d6;
-  border-radius: 6px;
-  font-size: 15px;
-  outline: none;
-  box-sizing: border-box;
-}
-.edit-modal input:focus,
-.edit-modal textarea:focus,
-.edit-modal select:focus { border-color: #f47c20; }
-.edit-modal textarea { resize: vertical; }
-.edit-modal-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  justify-content: flex-end;
-}
-.btn-save {
-  padding: 10px 28px;
-  border: none;
-  border-radius: 8px;
-  background: #f47c20;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: .2s;
-}
-.btn-save:hover { background: #dd6f16; }
-.btn-cancel {
-  padding: 10px 28px;
-  border: 1px solid #d6d6d6;
-  border-radius: 8px;
-  background: #fff;
-  color: #555;
-  font-size: 16px;
-  cursor: pointer;
-  transition: .2s;
-}
-.btn-cancel:hover { background: #f5f5f5; }
+/* RESPONSIVIDADE */
 @media (max-width: 768px) {
-
   .publish-page h1 {
     font-size: 42px;
   }
 
   .grid-2,
-  .grid-3 {
+  .grid-3,
+  .categories-checkbox-grid {
     grid-template-columns: 1fr;
   }
 
   .ingredient-inputs {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .custom-select-container {
+    width: 100%;
   }
 
   .recipe-form-card {
     padding: 24px;
   }
-}
-.form-description {
-  width: 100%;
-  min-height: 120px; 
-  resize: vertical;
-}
-
-.form-title{
-  width: 80%;
-  min-height: 12px;
-  resize: vertical;
-}
-
-
-.form-url{
-  width: 100%;
-  min-height: 12px; 
-  resize: vertical;
-}
-
-/* Container do Checkbox */
-/* 1. Ajuste no container principal */
-.category-checkbox {
-  display: flex;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-  padding: 12px 14px;
-  background: #FBF5EF;
-  border: 1px solid #F0C8A0;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-/* 2. Ajuste no quadradinho customizado */
-.category-checkbox::before {
-  content: "";
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #C4703A;
-  border-radius: 4px;
-  margin-right: 10px;
-  background: white;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  vertical-align: middle; 
-}
-
-/* 3. Ajuste no texto */
-.checkbox-text {
-  font-size: 14px;
-  color: #3D2010;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center; /* Garante que a linha do texto case com o meio do quadrado */
-}
-/* Esconde o quadradinho padrão do navegador */
-.category-checkbox input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
-
-/* Efeito de Hover (passar o mouse por cima) */
-.category-checkbox:hover {
-  background: #ffe9ce;
-  border-color: #C4703A;
-}
-
-/* Estilo de quando o Checkbox estiver CHECADO (Ativo) */
-.category-checkbox:has(input:checked) {
-  background: #F0C8A0; /* Fundo levemente mais escuro ao selecionar */
-  border-color: #C4703A;
-}
-
-.category-checkbox:has(input:checked)::before {
-  background-color: #C4703A;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
-  background-size: 14px;
-  background-repeat: no-repeat;
-  background-position: center;
-  border-color: #C4703A;
-}
-
-/* Estilo do texto ao lado do checkbox */
-.checkbox-text {
-  font-size: 14px;
-  color: #3D2010; /* Tom escuro do seu projeto */
-  font-weight: 500;
 }

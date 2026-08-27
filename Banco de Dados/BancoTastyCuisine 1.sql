@@ -22,6 +22,7 @@ CREATE TABLE Usuario (
 CREATE TABLE Categorias (
     Cod_Categoria INT IDENTITY(1,1) PRIMARY KEY,
     Nome_Categoria NVARCHAR(100) NOT NULL,
+    Grupo NVARCHAR(30) NOT NULL DEFAULT 'neutro'
 );
 
 CREATE TABLE Receitas (
@@ -80,27 +81,26 @@ CREATE TABLE Receitas_Categorias(
 )
 
 GO
-
-insert into Categorias (Nome_Categoria) values 
-('Massas'),
-('Sobremesas'),
-('Lanches e Petiscos'),
-('Sopas e Caldos'),
-('Saladas'),
-('Carnes'),
-('Aves'),
-('Peixes e Frutos do Mar'),
-('Vegetariana'),
-('Vegana'),
-('Bebidas e Drinks'),
-('Café da Manhã'),
-('Pães e Bolos'),
-('Fitness e Saudável'),
-('Molhos e Acompanhamentos');
+INSERT INTO Categorias (Nome_Categoria, Grupo) VALUES 
+  ('Massas', 'neutro'),
+  ('Sobremesas', 'neutro'),
+  ('Lanches e Petiscos', 'neutro'),
+  ('Sopas e Caldos', 'neutro'),
+  ('Saladas', 'vegetariano'),
+  ('Carnes', 'carnes'),
+  ('Aves', 'carnes'),
+  ('Peixes e Frutos do Mar', 'carnes'),
+  ('Vegetariana', 'vegetariano'),
+  ('Vegana', 'vegano'),
+  ('Bebidas e Drinks', 'neutro'),
+  ('Café da Manhã', 'neutro'),
+  ('Pães e Bolos', 'neutro'),
+  ('Fitness e Saudável', 'neutro'),
+  ('Molhos e Acompanhamentos', 'neutro');
 
 
 insert into Usuario(Nome_completo,Nome_de_usuario,Idade,Gmail,Senha,Restricoes_alimentares,funcao)
-VALUES('soso','Sooo','25','gmail@gmail.com','123456','[]','Usuario')
+VALUES('eu','Euu','2000/08/20','gmail@gmail.com','123456','[]','Usuario')
 
 insert into Receitas(Nome_receita,Descricao,Ingredientes,Modo_preparo,Restricao,Cod_usuario)
 values('arroz','arroz cozido','["Farinha", "Ovo", "Leite"]','["Misture os ingredientes","Coloque na forma","Asse por 40 minutos"]',15,1)

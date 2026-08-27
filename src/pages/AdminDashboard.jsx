@@ -229,6 +229,7 @@ function AdminComments({ data, onView, onToggle }) {
 
 function AdminCategorias({ categorias, onCreate }) {
   const [nome, setNome] = useState('')
+  const [grupo, setGrupo] = useState('neutro')
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
@@ -238,6 +239,11 @@ function AdminCategorias({ categorias, onCreate }) {
     (c.nomeCategoria || '').toLowerCase().includes(search.toLowerCase())
   )
 
+  // Separa as categorias nos 3 grupos solicitados
+  const vegCats = filtered.filter(c => (c.grupo || c.Grupo || '').toLowerCase() === 'vegetariano' || (c.grupo || c.Grupo || '').toLowerCase() === 'vegano')
+  const neutroCats = filtered.filter(c => (c.grupo || c.Grupo || '').toLowerCase() === 'neutro' || !(c.grupo || c.Grupo))
+  const carnesCats = filtered.filter(c => (c.grupo || c.Grupo || '').toLowerCase() === 'carnes')
+
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
@@ -246,11 +252,13 @@ function AdminCategorias({ categorias, onCreate }) {
     if (!nomeTrim) return setError('Digite um nome para a categoria.')
 
     setSaving(true)
-    const result = await onCreate(nomeTrim)
+    // Passa o nome e o grupo para a função de criação
+    const result = await onCreate(nomeTrim, grupo)
     setSaving(false)
 
     if (!result.ok) return setError(result.error || 'Falha ao criar categoria.')
     setNome('')
+    setGrupo('neutro')
     setSuccess(true)
     setTimeout(() => setSuccess(false), 2500)
   }
@@ -265,32 +273,79 @@ function AdminCategorias({ categorias, onCreate }) {
       <form className="admin-category-form" onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Nome da nova categoria (ex: Vegano)"
+          placeholder="Nome da categoria (ex: Camarao)"
           value={nome}
           onChange={e => setNome(e.target.value)}
         />
+        <select
+          className="admin-category-select"
+          value={grupo}
+          onChange={e => setGrupo(e.target.value)}
+        >
+          <option value="vegetariano">Vegetariano / Vegano</option>
+          <option value="neutro">Neutro</option>
+          <option value="carnes">Carnes</option>
+        </select>
         <button type="submit" className="admin-view-btn" disabled={saving}>
           <i className="bi bi-plus-lg"></i> {saving ? 'Salvando...' : 'Adicionar'}
         </button>
       </form>
+
       {error && <p className="admin-error-text">{error}</p>}
       {success && <p className="admin-success-text">✓ Categoria adicionada com sucesso!</p>}
 
-      <div className="admin-table-wrapper">
-        <table className="admin-table">
-          <thead>
-            <tr><th>#</th><th>Nome</th></tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 && <tr><td colSpan={2} className="admin-empty">Nenhuma categoria encontrada.</td></tr>}
-            {filtered.map(c => (
-              <tr key={c.codCategoria}>
-                <td className="admin-id">{c.codCategoria}</td>
-                <td>{c.nomeCategoria}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Grid de 3 Colunas por Grupo */}
+      <div className="admin-categories-grid">
+        {/* Coluna 1: Vegetariano / Vegano */}
+        <div className="admin-category-col col-vegetariano">
+          <h3><i className="bi bi-flower1"></i> Vegetariano / Vegano</h3>
+          <div className="admin-category-list">
+            {vegCats.length === 0 ? (
+              <p className="admin-category-empty">Nenhuma categoria</p>
+            ) : (
+              vegCats.map(c => (
+                <div key={c.codCategoria} className="admin-category-card">
+                  <span className="admin-category-id">#{c.codCategoria}</span>
+                  <span className="admin-category-name">{c.nomeCategoria}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Coluna 2: Neutro */}
+        <div className="admin-category-col col-neutro">
+          <h3><i className="bi bi-circle"></i> Neutro</h3>
+          <div className="admin-category-list">
+            {neutroCats.length === 0 ? (
+              <p className="admin-category-empty">Nenhuma categoria</p>
+            ) : (
+              neutroCats.map(c => (
+                <div key={c.codCategoria} className="admin-category-card">
+                  <span className="admin-category-id">#{c.codCategoria}</span>
+                  <span className="admin-category-name">{c.nomeCategoria}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Coluna 3: Carnes */}
+        <div className="admin-category-col col-carnes">
+          <h3><i className="bi bi-egg-fried"></i> Carnes</h3>
+          <div className="admin-category-list">
+            {carnesCats.length === 0 ? (
+              <p className="admin-category-empty">Nenhuma categoria</p>
+            ) : (
+              carnesCats.map(c => (
+                <div key={c.codCategoria} className="admin-category-card">
+                  <span className="admin-category-id">#{c.codCategoria}</span>
+                  <span className="admin-category-name">{c.nomeCategoria}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

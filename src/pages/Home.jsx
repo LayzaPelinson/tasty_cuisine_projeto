@@ -60,7 +60,7 @@ function Home() {
                     navigate(`/recipes?categoria=${encodeURIComponent(cat)}`)
                 }}
             />
-            <RecipesSection limit={4} onGuestClick={() => setShowModal(true)} locked={!user} />
+            <RecipesSection limit={10} onGuestClick={() => setShowModal(true)} locked={!user} />
         </>
     )
 }

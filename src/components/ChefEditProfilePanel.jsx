@@ -50,10 +50,6 @@ function ChefEditProfilePanel({ editing, setEditing }) {
           Email
           <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
         </label>
-        <label>
-          Idade
-          <input type="number" min="14" max="100" value={form.age} onChange={e => setForm(f => ({ ...f, age: e.target.value }))} />
-        </label>
       </div>
       {error && <p className="login-error">{error}</p>}
       <button className="edit-save-btn" onClick={handleSave}>

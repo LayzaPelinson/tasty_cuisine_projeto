@@ -21,4 +21,8 @@ public class Categoria {
     @Column(name = "Nome_Categoria", length = 100, nullable = false)
     @NotBlank
     private String nomeCategoria;
+
+    @Column(name = "Grupo", length = 30,nullable = false)
+    @NotBlank
+    private String grupoCategoria;
 }

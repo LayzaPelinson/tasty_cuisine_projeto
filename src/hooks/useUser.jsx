@@ -325,10 +325,10 @@ export function UserProvider({ children }) {
   async function register(data) {
     try {
         console.log(data)
-      const payload = {
+        const payload = {
         nome_completo: data.name || data.email,
         nome_de_usuario: data.email ? data.email.split('@')[0] : 'user' + Date.now(),
-        idade: calculateAge(data.age),
+        idade: data.age,
         gmail: data.email,
         senha: data.password,
         funcao: data.funcao,
