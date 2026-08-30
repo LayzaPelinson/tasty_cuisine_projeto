@@ -118,7 +118,7 @@ function RecipeComments({ recipeId }) {
 
       {!isChef && !jaAvaliou && (
         <form className="comment-form" onSubmit={handleSubmit}>
-          <p className="comment-form-label">Sua avaliação</p>
+          <p className="comment-form-label">Deixe sua avaliação</p>
           <Stars value={nota} onChange={v => { setNota(v); setError('') }} />
 
           {error && <p className="comment-error">{error}</p>}

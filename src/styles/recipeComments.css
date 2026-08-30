@@ -3,34 +3,39 @@
   margin: 0 auto 40px;
   padding: 0 40px;
 }
+
 .recipe-comments h2 {
   font-size: 40px;
-  color: #f47f20;
-  font-family: "Cormorant Garamond", serif;
+  color: #C4703A;
+  font-family: inherit;
   margin-bottom: 24px;
 }
+
 /* FORMULÁRIO */
 .comment-form {
   background: white;
   border-radius: 24px;
   padding: 28px 32px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
   margin-bottom: 28px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
+
 .comment-form-label {
   font-weight: 600;
   color: #444;
   font-size: 16px;
   margin: 0;
 }
+
 /* ESTRELAS */
 .stars-input {
   display: flex;
   gap: 6px;
 }
+
 .stars-input .star,
 .stars-display .star {
   background: none;
@@ -42,10 +47,24 @@
   line-height: 1;
   transition: color 0.15s;
 }
-.stars-input .star.active { color: #f47c20; }
-.stars-display { display: inline-flex; gap: 3px; }
-.stars-display .star { font-size: 18px; cursor: default; }
-.stars-display .star.active { color: #f47c20; }
+
+.stars-input .star.active {
+  color: #f47c20;
+}
+
+.stars-display {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.stars-display .star {
+  font-size: 18px;
+  cursor: default;
+}
+
+.stars-display .star.active {
+  color: #f47c20;
+}
 
 .comment-form textarea {
   width: 100%;
@@ -58,9 +77,24 @@
   font-family: inherit;
   box-sizing: border-box;
 }
-.comment-form textarea:focus { border-color: #f47c20; }
-.comment-error { color: #c0392b; font-size: 14px; margin: 0; }
-.comment-success { color: #1f6b34; font-size: 14px; margin: 0; font-weight: 600; }
+
+.comment-form textarea:focus {
+  border-color: #f47c20;
+}
+
+.comment-error {
+  color: #c0392b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.comment-success {
+  color: #1f6b34;
+  font-size: 14px;
+  margin: 0;
+  font-weight: 600;
+}
+
 .comment-submit {
   align-self: flex-start;
   padding: 12px 28px;
@@ -73,25 +107,49 @@
   cursor: pointer;
   transition: .2s;
 }
-.comment-submit:hover { background: #18552a; }
-.comment-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.comment-submit:hover {
+  background: #18552a;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .05);
+}
+
+.comment-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* LISTA */
-.comments-list { display: flex; flex-direction: column; gap: 16px; }
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .no-comments {
   background: white;
   border-radius: 24px;
   padding: 40px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
 }
-.no-comments span { font-size: 40px; }
-.no-comments p { margin-top: 12px; color: #888; font-size: 16px; }
+
+.no-comments span {
+  font-size: 40px;
+}
+
+.no-comments p {
+  margin-top: 12px;
+  color: #888;
+  font-size: 16px;
+}
+
 .comment-card {
   background: white;
   border-radius: 20px;
   padding: 22px 28px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+
 .comment-header {
   display: flex;
   align-items: center;
@@ -99,26 +157,30 @@
   margin-bottom: 10px;
   flex-wrap: wrap;
 }
+
 .comment-author {
   font-weight: 700;
   color: #333;
   font-size: 15px;
 }
+
 .comment-date {
   color: #aaa;
   font-size: 13px;
   margin-left: auto;
 }
+
 .comment-text {
   color: #555;
   font-size: 15px;
   line-height: 1.6;
   margin: 0;
 }
+
 .already-comment {
   font-size: 25px;
   color: #000000;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
   margin-bottom: 24px;
   margin-left: 25px;
 }

@@ -7,26 +7,27 @@
 }
 
 .profile-tabs button {
-  border: 1px solid #F0C8A0;
-  background: #FFF0E8;
-  color: #C4703A;
-
-  padding: 12px 24px;
-  border-radius: 999px;
-
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-
-  transition: .3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ecb898; /* Cor base ajustada */
+  background-image: linear-gradient(to right,#ecb898, #ddaa8b); 
+  color: black;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 28px;
+  font-size: 20px;
+  cursor: grab;
+  transition: 0.2s;
 }
 
 .profile-tabs button:hover {
-  transform: translateY(-2px);
+  transform: scale(1.1);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .profile-tabs button.active {
-  background: #C4703A;
+  background-image: linear-gradient(to right, #C4703A, #994b1b); 
   color: white;
   border-color: #C4703A;
 }

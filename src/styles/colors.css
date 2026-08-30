@@ -1,0 +1,20 @@
+:root {
+  /* Cores Principais */
+  --c-bg: #F5EDE3;
+  --c-surface: #FFFFFF;
+  --c-hero: #C4703A;
+  --c-accent: #C4703A;
+  --c-accent-hover: #A95C2C;
+  --c-accent-soft: #FFF0E8;
+  --c-accent-border: #F0C8A0;
+
+  /* Textos */
+  --c-text-primary: #3D2010;
+  --c-text-sub: #8A5A35;
+  --c-text-muted: #B8906A;
+
+  /* Estados e Ícones */
+  --c-error: #D32F2F;
+  --c-favorite: #E53935;
+  --c-shadow: rgba(61, 32, 16, 0.08);
+}

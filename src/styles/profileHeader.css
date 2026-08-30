@@ -1,50 +1,62 @@
 /* =========================
-   PROFILE PAGE
-========================= */
-.profile-page {
-  min-height: 100vh;
-  background: #F5EDE3;
-  padding-bottom: 40px;
-}
-
-/* =========================
-   HERO
+   HERO / HEADER (Mobile Matching)
 ========================= */
 .profile-header {
-  background: #C4703A;
-  border-bottom-left-radius: 32px;
-  border-bottom-right-radius: 32px;
-  padding: 60px 40px 32px;
+  /* Gradiente idêntico ao mobile: #C4703A -> #A95C2C -> #7A3B1E */
+  background: linear-gradient(135deg, #C4703A 0%, #A95C2C 50%, #7A3B1E 100%);
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  padding: 50px 48px 40px;
   position: relative;
   overflow: hidden;
 
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 10px 30px rgba(122, 59, 30, 0.25);
 }
 
+/* Blob 1 (Canto Superior Direito) */
 .profile-header::before {
   content: "";
   position: absolute;
-  width: 220px;
-  height: 220px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  background: rgba(255,255,255,.07);
-  top: -70px;
-  right: -50px;
+  background: rgba(255, 255, 255, 0.08);
+  top: -50px;
+  right: -30px;
+  pointer-events: none;
 }
 
+/* Blob 2 (Canto Inferior Esquerdo) */
 .profile-header::after {
   content: "";
   position: absolute;
-  width: 150px;
-  height: 150px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
-  background: rgba(255,180,100,.10);
-  bottom: -40px;
-  left: -30px;
+  background: rgba(255, 255, 255, 0.05);
+  bottom: -30px;
+  left: -20px;
+  pointer-events: none;
 }
 
+/* Blob 3 (Meio Inferior / Direito) */
+.hero-blob-3 {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  bottom: 10px;
+  right: 250px;
+  pointer-events: none;
+}
+
+/* =========================
+   USER INFO & AVATAR
+========================= */
 .profile-user {
   display: flex;
   align-items: center;
@@ -52,18 +64,22 @@
   z-index: 2;
 }
 
-/* =========================
-   AVATAR
-========================= */
 .profile-avatar {
-  width: 110px;
-  height: 110px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
   position: relative;
-  border: 4px solid rgba(255,255,255,.5);
-  box-shadow: 0 8px 20px rgba(0,0,0,.18);
-  background: white;
+  border: 3.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  background: #FFFFFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-avatar.clickable {
+  cursor: pointer;
 }
 
 .profile-avatar-img {
@@ -72,71 +88,141 @@
   object-fit: cover;
 }
 
+.avatar-placeholder-icon {
+  font-size: 42px;
+  color: #B8906A;
+}
+
 .avatar-edit-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-
   height: 32px;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background: rgba(0,0,0,.45);
-  color: white;
-
+  background: rgba(0, 0, 0, 0.55);
+  color: #FFFFFF;
   opacity: 0;
-  transition: .3s;
+  transition: opacity 0.25s ease;
 }
 
 .profile-avatar:hover .avatar-edit-overlay {
   opacity: 1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* =========================
-   INFO
-========================= */
-.profile-user h1 {
-  font-size: 42px;
-  color: white;
-  margin-bottom: 6px;
-  font-family: "Cormorant Garamond", serif;
+.profile-info-text h1 {
+  font-size: 38px;
+  color: #FFFFFF;
+  margin: 0 0 4px 0;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
-.profile-user p {
-  color: rgba(255,230,200,.85);
+.profile-info-text p {
+  color: rgba(255, 235, 220, 0.9);
   font-size: 15px;
-}
-
-.profile-user .username {
-  color: rgba(255,230,200,.7);
-  font-size: 14px;
+  margin: 0;
 }
 
 /* =========================
-   BOTÃO EDITAR
+   BOTÃO EDITAR PERFIL
 ========================= */
 .edit-profile-btn {
-  background: rgba(255,255,255,.15);
-  backdrop-filter: blur(6px);
-
-  border: 1px solid rgba(255,255,255,.2);
-  color: white;
-
-  padding: 14px 22px;
-  border-radius: 14px;
-
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
-
   cursor: pointer;
-  transition: .3s;
+  transition: all 0.25s ease;
+  font-family: 'Poppins' !important;
 }
 
 .edit-profile-btn:hover {
-  background: rgba(255,255,255,.25);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================
+   MODAL DE EDITAÇÃO DA FOTO
+========================= */
+.edit-profile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-profile-photo {
+  background: #FFFFFF;
+  padding: 28px;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.edit-profile-h3 {
+  margin: 0 0 16px 0;
+  color: #3D2010;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.edit-profile-input {
+  width: 100%;
+  height: 48px;
+  background: #FFF0E8;
+  border: 1px solid #F0C8A0;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #3D2010;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.edit-profile-confirm {
+  background: #C4703A;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-profile-cancel {
+  background: transparent;
+  color: #B8906A;
+  border: 1px solid #F0C8A0;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }

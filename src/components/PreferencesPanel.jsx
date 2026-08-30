@@ -36,7 +36,7 @@ function PreferencesPanel() {
 
   return (
     <div className="preferences-page">
-      <div className="preferences-card">
+      {/* <div className="preferences-card">
         <h2>Preferências Alimentares</h2>
         <p>Selecione suas preferências para receber sugestões personalizadas.</p>
         <div className="diet-tags">
@@ -44,7 +44,7 @@ function PreferencesPanel() {
             <span key={pref} className="active">{pref}</span>
           ))}
         </div>
-      </div>
+      </div> */}
 
       <div className="account-card">
         <h2>Conta</h2>
@@ -69,10 +69,11 @@ function PreferencesPanel() {
             </div>
           </div>
         ) : (
-          <div className="account-actions">
-            <button onClick={() => setChangingPwd(true)}>Alterar Senha</button>
+          <div className="account-actions"><div className="account-actions">
+            <button className="change-pwd" onClick={() => setChangingPwd(true)}>Alterar Senha</button>
             <button className="deactivate" onClick={() => setConfirmDeactivate(true)}>Inativar Conta</button>
             <button className="logout" onClick={handleLogout}>Sair da Conta</button>
+          </div>
           </div>
         )}
       </div>

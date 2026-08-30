@@ -1,106 +1,141 @@
 .recipe-link {
   text-decoration: none;
+  color: inherit;
+  display: block;
 }
+
 .recipe-card {
-  width: 280px;
-  height: 346px;
-  background-color: white;
-  border-radius: 28px;
+  background-color: var(--c-surface);
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  transition: 0.3s;
+  box-shadow: 0 8px 20px var(--c-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid var(--c-accent-soft);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
-.recipe-card:has(.recipe-card-actions) {
-  height: auto;
-}
+
 .recipe-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(196, 112, 58, 0.18);
 }
+
+/* Imagem e Badges */
 .recipe-image {
   position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
 }
+
 .recipe-image img {
   width: 100%;
-  height: 190px;
+  height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
+
+.recipe-card:hover .recipe-image img {
+  transform: scale(1.05);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
+}
+
 .recipe-category {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  background-color: white;
-  padding: 8px 16px;
+  top: 12px;
+  left: 12px;
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  color: var(--c-accent);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
+  border: 1px solid var(--c-accent-border);
 }
+
+/* Botão Favorito */
 .favorite-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 42px;
-  height: 42px;
-  border: none;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(255, 255, 255, 0.92);
+  border: none;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  font-size: 18px;
-  color: #444;
+  color: var(--c-text-sub);
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-.favorite-btn:hover {
-  background-color: #Ff0000;
-  color: #ffffff;
-  transform: scale(1.08);
-}
+
 .favorite-btn.favorited {
-  background-color: #ff2222;
+  background-color: #C4703A;
   color: #ffffff;
 }
+
+.favorite-btn.favorited:hover{
+  color: #ffffff;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
+}
+
+.favorite-btn:hover {
+  transform: scale(1.2);
+  color: #C4703A;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
+}
+
+/* Conteúdo */
 .recipe-content {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  padding: 16px;
 }
-.recipe-content h3 {
-  font-size: 28px;
-  color: #f47c12;
-  margin-bottom: 10px;
-  line-height: 1.2;
-  white-space: nowrap;
+
+.recipe-title {
+  color: var(--c-accent);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
+
+/* Informações de Autor e Tempo em Linha */
 .recipe-info {
   display: flex;
+  align-items: center;
   gap: 16px;
-  color: #666;
-  margin-bottom: 12px;
-  font-size: 14px;
+  margin-top: auto;
 }
-.recipe-info span {
+
+.info-item {
   display: flex;
   align-items: center;
-  gap: 5px;
-}
-.difficulty {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 14px;
-  font-size: 13px;
+  gap: 6px;
+  color: var(--c-text-sub);
+  font-size: 0.85rem;
   font-weight: 500;
 }
-.difficulty--fácil {
-  background: #dcecdc;
-  color: #1f6b34;
+
+.info-icon {
+  color: var(--c-accent);
+  font-size: 0.95rem;
 }
-.difficulty--médio {
-  background: #fef3cd;
-  color: #856404;
-}
-.difficulty--difícil {
-  background: #fde0e0;
-  color: #a01010;
+
+.recipe-card-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--c-accent-soft);
 }

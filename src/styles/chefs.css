@@ -21,6 +21,7 @@
 }
 .chef-card:hover {
   transform: translateY(-8px);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 /* IMAGEM */
 .chef-card img {
@@ -113,7 +114,7 @@
 }
 
 .chefs-section-header h1 {
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
   font-size: 72px;
   line-height: 1.05;
   color: #2c1d18;
@@ -143,11 +144,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: inherit;
   letter-spacing: 0.3px;
 }
 
 .chefs-ver-mais-btn:hover {
   background: #c96010;
   transform: translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }

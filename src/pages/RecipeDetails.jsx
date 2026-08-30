@@ -98,7 +98,6 @@ const instructions = typeof rawModoPreparo === 'string'
 
           <div className="recipe-tags">
             <span className="tag">{categoriaSegura}</span>
-            <span className={`tag ${dificuldadeSegura.toLowerCase()}`}>{dificuldadeSegura}</span>
           </div>
 
           <div className="recipe-meta">
@@ -113,7 +112,7 @@ const instructions = typeof rawModoPreparo === 'string'
                 className={`save-btn${isFavorited ? ' saved' : ''}`}
                 onClick={() => toggleFavorito(idSeguro)}
               >
-                <FiHeart /> {isFavorited ? 'Receita Salva' : 'Salvar Receita'}
+                <FiHeart /> {isFavorited ? 'Favoritada' : 'Favoritar Receita'}
               </button>
               <button className="share-btn" onClick={handleShare}>
                 <FiShare2 /> Compartilhar

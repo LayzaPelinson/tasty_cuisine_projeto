@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react'
 import '../styles/recipeCard.css'
 import { Link } from 'react-router-dom'
 import { useUser } from '../hooks/useUser.jsx'
-import { FiHeart, FiUser } from 'react-icons/fi'
+import { FiClock, FiHeart, FiUser } from 'react-icons/fi'
 
-const PLACEHOLDER =
-  'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=75'
+const PLACEHOLDER = 'https://plus.unsplash.com/premium_vector-1753066875872-1ab399ac58c4?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 
 const API_BASE = 'http://localhost:8080'
 
@@ -23,13 +22,11 @@ function RecipeCard({ recipe, actions }) {
         setRecipeData(data)
       } catch (err) {
         console.error(err)
-        console.log(res)
       }
     }
 
     if (recipe?.id) {
       loadRecipe()
-      console.log(recipe)
     }
   }, [recipe.id])
 
@@ -55,7 +52,7 @@ function RecipeCard({ recipe, actions }) {
           />
 
           <span className="recipe-category">
-            {recipeData.categoria.length > 0
+            {recipeData.categoria && recipeData.categoria.length > 0
               ? recipeData.categoria[0].nomeCategoria
               : 'Sem Categoria'}
           </span>
@@ -64,8 +61,9 @@ function RecipeCard({ recipe, actions }) {
             <button
               className={`favorite-btn${isFavorited ? ' favorited' : ''}`}
               onClick={(e) => {
-                e.preventDefault()
-                toggleFavorito(recipeData.codReceitas)
+                e.preventDefault();
+                e.stopPropagation(); // 👈 Impede que o clique suba para o <Link>
+                toggleFavorito(recipeData.codReceitas);
               }}
               title={
                 isFavorited
@@ -79,11 +77,14 @@ function RecipeCard({ recipe, actions }) {
         </div>
 
         <div className="recipe-content">
-          <h3>{recipeData.nomeReceita}</h3>
+          <h3 className="recipe-title">{recipeData.nomeReceita}</h3>
 
           <div className="recipe-info">
-            <span>
-              <FiUser /> {recipeData.usuario.nome_de_usuario}
+            <span className="info-item">
+              <FiUser className="info-icon" /> {recipeData.usuario?.nome_completo || 'Anônimo'}
+            </span>
+            <span className="info-item">
+              <FiClock className="info-icon" /> {recipeData.tempoPreparo || 'N/A'}
             </span>
           </div>
 

@@ -106,6 +106,7 @@
 
 .primary-btn:hover {
   background: #A95E2F;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .secondary-btn {
@@ -122,6 +123,7 @@
 .secondary-btn:hover {
   background: #C4703A;
   color: white;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 /* INPUTS */

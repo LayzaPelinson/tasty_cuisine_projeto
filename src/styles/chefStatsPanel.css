@@ -17,7 +17,7 @@
   color: #f47b20;
   font-size: 2rem;
   margin-bottom: 20px;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
 }
 
 .chef-stats-cards {
@@ -42,7 +42,7 @@
   font-size: 2.8rem;
   font-weight: 700;
   color: #f47b20;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
 }
 
 .stat-label {

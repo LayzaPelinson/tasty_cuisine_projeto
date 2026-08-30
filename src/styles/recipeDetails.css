@@ -28,7 +28,9 @@
   gap: 40px;
   align-items: flex-start;
   margin-bottom: 50px;
+  color: #C4703A;
 }
+
 .recipe-header img {
   width: 540px;
   height: 380px;
@@ -47,8 +49,8 @@
   margin: 0;
   font-size: 48px;
   line-height: 1.1;
-  color: #f47f20;
-  font-family: "Cormorant Garamond", serif;
+  color: #c4703a;
+  font-family: inherit;
   font-weight: 600;
   text-align: left;
 }
@@ -62,9 +64,9 @@
   border-radius: 14px;
   font-size: 18px;
 }
-.recipe-tags span:last-child {
-  background: #dcecdc;
-  color: #1f6b34;
+.recipe-tags span:first-child {
+  background: #F0C8A0;
+  color: #020100;
 }
 .recipe-meta {
   display: flex;
@@ -94,18 +96,26 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #1f6b34;
-  color: white;
+  background: #ecb898; /* Cor base ajustada */
+  color: black;
   border: none;
   border-radius: 14px;
   padding: 16px 28px;
   font-size: 18px;
-  cursor: pointer;
+  cursor: grab;
   transition: 0.2s;
 }
-.save-btn.saved {
-  background: #ff2222;
+
+.save-btn.save-btn:hover{
+  transform: scale(1.1);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
+
+.save-btn.saved {
+  background: #A95C2C; /* Um tom um pouco mais escuro quando já estiver salvo */
+  color: white;
+}
+
 .share-btn {
   display: inline-flex;
   align-items: center;
@@ -117,6 +127,13 @@
   padding: 16px 28px;
   font-size: 18px;
   cursor: pointer;
+  transition: 0.2s;
+}
+
+.share-btn:hover{
+  background: #ecb898;
+  transform: scale(1.1);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 .recipe-details-content {
   display: grid;
@@ -135,9 +152,9 @@
 .instructions h2 {
   margin-top: 0;
   margin-bottom: 30px;
-  color: #f47f20;
+  color: #C4703A;
   font-size: 44px;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
 }
 .ingredients ul {
   list-style: none;
@@ -153,7 +170,7 @@
 }
 .ingredients li::before {
   content: "●";
-  color: #1f6b34;
+  color: #A95C2C;
 }
 .instructions ol {
   list-style: none;
@@ -174,7 +191,7 @@
   content: counter(step);
   min-width: 32px;
   height: 32px;
-  background: #1f6b34;
+  background: #A95C2C;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -194,7 +211,7 @@
 }
 .chef-tip h3 {
   margin-top: 0;
-  color: #1f6b34;
+  color: #A95C2C;
   display: flex;
   align-items: center;
   gap: 8px;

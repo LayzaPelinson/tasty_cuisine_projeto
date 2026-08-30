@@ -1,6 +1,8 @@
 import Header from './components/Header'
 import Footer from './components/Footer'
 
+import './styles/colors.css'
+
 import Home from './pages/Home'
 import Recipes from './pages/Recipes'
 import Chefs from './pages/Chefs'

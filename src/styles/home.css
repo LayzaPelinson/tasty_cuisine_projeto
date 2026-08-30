@@ -14,12 +14,13 @@
 
 .home {
   width: 100%;
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 80px;
-  padding: 80px 8%;
+  padding-right: 8%;
+  padding-top: 200px;
+  padding-bottom: 100px;
   background: var(--bg);
 }
 
@@ -77,6 +78,7 @@
 .primary-btn:hover {
   transform: translateY(-2px);
   background: #b86532;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .secondary-btn {
@@ -95,6 +97,7 @@
   transform: translateY(-2px);
   background: var(--primary);
   color: white;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .home-images {

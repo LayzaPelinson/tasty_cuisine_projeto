@@ -76,7 +76,6 @@ function ChefRecipesView() {
   return (
     <section className="chef-recipes-page">
       <div className="chef-recipes-header">
-        <span>Receitas Saudáveis</span>
         <h1>Receitas</h1>
         <p>Explore todas as receitas criadas pelos chefes da plataforma.</p>
 
@@ -92,10 +91,12 @@ function ChefRecipesView() {
         </div>
       </div>
 
-      <Categories
+      {/* 
+      {<Categories
         active={activeCategory}
         onSelect={(cat) => setActiveCategory(prev => prev === cat ? null : cat)}
-      />
+      />} 
+      */}
 
       {Object.keys(byChef).length === 0 ? (
         <p className="chef-recipes-empty">
@@ -107,13 +108,7 @@ function ChefRecipesView() {
             <h2>{chefName}</h2>
             <div className="recipes-grid">
               {chefRecipesList.map((recipe) => (
-                <div
-                  key={recipe.id_seguro}
-                  onClick={() => navigate(`/recipe/${recipe.id_seguro}`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <RecipeCard recipe={recipe} />
-                </div>
+                <RecipeCard key={recipe.id_seguro} recipe={recipe} />
               ))}
             </div>
           </section>

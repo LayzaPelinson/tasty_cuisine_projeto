@@ -99,8 +99,7 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
       <section className="chef-recipes-page" ref={sectionRef}>
         {showHeader && (
           <div className="chef-recipes-header">
-            <span>Receitas em Destaque</span>
-            <h1>As mais populares da nossa comunidade.</h1>
+            <h1>As receitas mais populares da nossa comunidade.</h1>
           </div>
         )}
         <p className="chef-recipes-empty">Carregando receitas...</p>
@@ -112,8 +111,7 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
     <section className="chef-recipes-page" ref={sectionRef}>
       {showHeader && (
         <div className="chef-recipes-header">
-          <span>Receitas em Destaque</span>
-          <h1>As mais populares da nossa comunidade.</h1>
+          <h1>As receitas mais populares da nossa comunidade.</h1>
         </div>
       )}
 
@@ -122,13 +120,7 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
       ) : (
         <div className="recipes-grid">
           {displayed.map((recipe) => (
-            <div
-              key={recipe.id_seguro}
-              onClick={() => locked ? onGuestClick?.() : navigate(`/recipe/${recipe.id_seguro}`)}
-              style={{ cursor: 'pointer' }}
-            >
-              <RecipeCard recipe={recipe} />
-            </div>
+            <RecipeCard key={recipe.id_seguro} recipe={recipe} />
           ))}
         </div>
       )}

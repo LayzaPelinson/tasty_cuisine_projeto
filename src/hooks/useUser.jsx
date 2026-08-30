@@ -225,29 +225,60 @@ export function UserProvider({ children }) {
   }
 
   async function loadFavoritos(userId) {
-    const res = await fetch(`${API_BASE}/favorito/findAll`)
-    const data = await res.json()
+  try {
+    const res = await fetch(`${API_BASE}/favorito/findAll`);
+    if (!res.ok) return;
+    const data = await res.json();
+    
     if (Array.isArray(data)) {
-      setFavoritos(data.filter(f => String(f.usuario?.codUser) === String(userId)))
+      // Filtra apenas os favoritos pertencentes ao usuário atual
+      const userFavs = data.filter(f => {
+        const idDoUsuario = f.usuario?.codUser || f.usuario?.id || f.codUser;
+        return String(idDoUsuario) === String(userId);
+      });
+      setFavoritos(userFavs);
     }
+  } catch (error) {
+    console.error("Erro ao carregar favoritos:", error);
   }
+}
 
   async function toggleFavorito(receitaId) {
-    if (!user) return
-    const jaExiste = favoritos.find(f => String(f.receita?.codReceitas) === String(receitaId))
+  if (!user) return;
+
+  // Busca se já está favoritado comparando os IDs da receita
+  const jaExiste = favoritos.find(f => {
+    const idDaReceita = f.receita?.codReceitas || f.receita?.id || f.codReceitas;
+    return String(idDaReceita) === String(receitaId);
+  });
+
+  try {
     if (jaExiste) {
-      await fetch(`${API_BASE}/favorito/${jaExiste.codFavoritos}`, { method: 'DELETE' })
-      setFavoritos(prev => prev.filter(f => f.codFavoritos !== jaExiste.codFavoritos))
+      const idFavorito = jaExiste.codFavoritos || jaExiste.id;
+      const res = await fetch(`${API_BASE}/favorito/${idFavorito}`, { method: 'DELETE' });
+      
+      if (res.ok) {
+        setFavoritos(prev => prev.filter(f => (f.codFavoritos || f.id) !== idFavorito));
+      }
     } else {
       const res = await fetch(`${API_BASE}/favorito`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario: { codUser: user.id }, receita: { codReceitas: receitaId } })
-      })
-      const saved = await res.json()
-      await loadFavoritos(String(user.id))
+        body: JSON.stringify({
+          usuario: { codUser: user.id },
+          receita: { codReceitas: receitaId }
+        })
+      });
+
+      if (res.ok) {
+        // Recarrega os favoritos atualizados do banco
+        await loadFavoritos(user.id);
+      }
     }
+  } catch (error) {
+    console.error("Erro ao alternar favorito:", error);
   }
+}
 
   async function loadRecipes() {
     try {

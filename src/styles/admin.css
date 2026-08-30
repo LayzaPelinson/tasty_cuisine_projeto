@@ -16,7 +16,7 @@
 }
 
 .admin-header-left h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: inherit;
   font-size: 32px;
   font-weight: 700;
   color: white;
@@ -66,6 +66,7 @@
 .admin-exit-btn:hover {
   background: #2c1d18;
   color: white;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 /* STATS */
@@ -93,6 +94,7 @@
 .admin-stat-card:hover {
   box-shadow: 0 8px 28px rgba(242,122,26,0.18);
   transform: translateY(-3px);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .admin-stat-card.selected {
@@ -130,7 +132,7 @@
 }
 
 .admin-stat-value {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: inherit;
   font-size: 34px;
   font-weight: 700;
   color: #2c1d18;
@@ -168,6 +170,7 @@
 .admin-tab-btn:hover {
   border-color: #F27A1A;
   color: #F27A1A;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .admin-tab-btn.active {
@@ -192,7 +195,7 @@
 }
 
 .admin-section-header h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: inherit;
   font-size: 36px;
   color: #2c1d18;
   font-weight: 700;
@@ -320,7 +323,7 @@
 }
 
 .admin-category-col h3 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: inherit;
   font-size: 22px;
   font-weight: 700;
   margin: 0 0 16px 0;
@@ -430,6 +433,7 @@
 
 .admin-table tbody tr:hover {
   background: #fdf8f3;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .admin-table td {
@@ -471,6 +475,7 @@
 .admin-link-btn:hover {
   color: #c96010;
   text-decoration: underline;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .comment-text-btn {
@@ -556,6 +561,7 @@
 
 .admin-toggle-deactivate:hover {
   background: #fca5a5;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .admin-toggle-activate {
@@ -565,6 +571,7 @@
 
 .admin-toggle-activate:hover {
   background: #bbf7d0;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 /* MODAL */
@@ -618,7 +625,7 @@
   flex: 1;
   color: white;
   margin: 0;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: inherit;
   font-size: 24px;
   font-weight: 700;
 }
@@ -640,6 +647,7 @@
 
 .admin-modal-close:hover {
   background: rgba(255,255,255,0.32);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .admin-modal-body {
@@ -709,6 +717,7 @@
 
 .admin-view-btn:hover {
   background: #c96010;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .admin-cancel-btn {
@@ -725,6 +734,7 @@
 
 .admin-cancel-btn:hover {
   background: #e8e0d4;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 /* RESPONSIVE */

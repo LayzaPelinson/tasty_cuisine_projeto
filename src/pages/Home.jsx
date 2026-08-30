@@ -54,12 +54,14 @@ function Home() {
                     </div>
                 </div>
             </section>
+            {/* 
             <Categories
                 onSelect={(cat) => {
                     if (!user) { setShowModal(true); return }
                     navigate(`/recipes?categoria=${encodeURIComponent(cat)}`)
                 }}
-            />
+            /> 
+            */}
             <RecipesSection limit={10} onGuestClick={() => setShowModal(true)} locked={!user} />
         </>
     )

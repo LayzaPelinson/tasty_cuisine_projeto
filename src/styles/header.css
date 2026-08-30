@@ -1,10 +1,11 @@
-.header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    background-color: #F27A1A;
-    color: white;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 48px;
+  /* Mesmo gradiente do banner */
+  background: linear-gradient(135deg, #C4703A 0%, #A95C2C 50%, #7A3B1E 100%); 
+  color: #FFFFFF;
 }
 .logo{
     font-size: 24px;
@@ -19,9 +20,10 @@
     text-decoration: none;
     color: #ffffff;
     font-weight: 500;
+    transition: 0.1s;
 }
 .nav a:hover{
-    color: #ddd;
+    transform: scale(1.1);
 }
 .nav-logout {
     background: transparent;
@@ -37,4 +39,5 @@
 .nav-logout:hover {
     background: #fff;
     color: #F27A1A;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }

@@ -58,9 +58,9 @@
 /* TÍTULO */
 .login-card h1 {
   margin: 0;
-  color: #f47c20;
+  color: #954e26;
   font-size: 38px;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
   font-weight: 600;
 }
 /* TEXTO */
@@ -100,16 +100,19 @@
   height: 46px;
   border: none;
   border-radius: 16px;
-  background: #1f6b34;
+  background: #e07a3e;
   color: white;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
   margin-top: 4px;
-  transition: .3s;
+  transition: .3s ease;
 }
 .login-btn:hover {
-  background: #18552a;
+  background: #954e26;
+  background-image: linear-gradient(to bottom , #e07a3e, #954e26); 
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
+  transform: scale(1.1);
 }
 /* LINK */
 .register-link {
@@ -154,9 +157,9 @@
 }
 .reactivate-modal h3 {
   margin: 0;
-  color: #f47c20;
+  color: #954e26;
   font-size: 22px;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
 }
 .reactivate-modal p {
   color: #555;
@@ -203,7 +206,7 @@
   gap: 8px;
   padding: 10px 20px;
   background: #1a1a2e;
-  color: #f47c20;
+  color: #954e26;
   border: 1.5px solid rgba(244,124,32,0.3);
   border-radius: 12px;
   font-size: 14px;
@@ -222,6 +225,7 @@
   border-color: #f47c20;
   box-shadow: 0 4px 16px rgba(244,124,32,0.35);
   transform: translateY(-1px);
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 /* PREFERÊNCIAS */.preferences-grid {

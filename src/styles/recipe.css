@@ -2,13 +2,15 @@
   width: 100%;
   min-height: 100vh;
   background: #f3efe6;
-  padding: 60px 8%;
+  padding-bottom: 200px;
+  padding-right: 8%;
+  margin-bottom: 100px;
 }
 
 .chef-recipes-header {
   text-align: center;
   max-width: 800px;
-  margin: 0 auto 70px;
+  margin-bottom: 250px;
 }
 
 .chef-recipes-header span {
@@ -18,11 +20,11 @@
 }
 
 .chef-recipes-header h1 {
-  font-family: "Cormorant Garamond", serif;
+  font-family: 'Poppins';
   font-size: 72px;
   line-height: 1.05;
   color: #2c1d18;
-  margin: 16px 0 24px;
+  margin: 50px 0 24px;
 }
 
 .chef-recipes-header p {
@@ -56,7 +58,7 @@
 }
 
 .chef-recipes-section h2 {
-  font-family: "Cormorant Garamond", serif;
+  font-family: 'Poppins';
   font-size: 42px;
   color: #f47c12;
   margin-bottom: 28px;
@@ -86,7 +88,7 @@
   outline: none;
   font-size: 16px;
   color: #3D2010;
-  font-family: inherit;
+  font-family: 'Poppins';
 }
 
 .search-input::placeholder {

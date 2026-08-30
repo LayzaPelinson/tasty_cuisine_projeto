@@ -8,14 +8,16 @@
   background:#fff;
   border-radius:24px;
   padding:28px;
+  margin-left: 100px;
+  margin-right: 100px;
   box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 .preferences-card h2,
 .account-card h2{
-  color:#f47b20;
+  color:#A95C2C;
   font-size:2rem;
   margin-bottom:10px;
-  font-family:"Cormorant Garamond", serif;
+  font-family: inherit;
 }
 .preferences-card p{
   font-size:1rem;
@@ -60,14 +62,23 @@
   color:#000000;
   cursor:pointer;
 }
-.logout{
-  color:#ff4d4d;
-  border:1px solid #ff4d4d;
+.account-actions button.change-pwd {
+  background: #f58220;
+  color: #ffffff;
+  border: none;
 }
-.deactivate {
-  color: #b45309;
-  border: 1px solid #b45309;
+
+.account-actions button.deactivate {
+  background: #c96010;
+  color: #ffffff;
 }
+
+.account-actions button.logout {
+  background: #b45309;
+  color: #ffffff;
+  border: none;
+}
+
 .deactivate-confirm p {
   font-size: 14px;
   color: #555;

@@ -14,7 +14,7 @@
 }
 
 .all-chefs-hero-content h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Poppins';
   font-size: 72px;
   line-height: 1.05;
   color: #2c1d18;
@@ -85,6 +85,7 @@
 
 .back-to-chefs-btn:hover {
   background: #e0d8ce;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .no-chefs-msg {

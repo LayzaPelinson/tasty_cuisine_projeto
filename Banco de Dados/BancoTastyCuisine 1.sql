@@ -102,6 +102,7 @@ INSERT INTO Categorias (Nome_Categoria, Grupo) VALUES
 
 insert into Usuario(Nome_completo,Idade,Gmail,Senha,Restricoes_alimentares,funcao)
 VALUES('eu','2000/08/20','gmail@gmail.com','123456','[]','Usuario')
+
 INSERT INTO receitas (
     Nome_receita, 
     Descricao, 
@@ -186,6 +187,82 @@ INSERT INTO receitas (
  '["Misture o arroz cozido com o requeijão e o milho", "Em um refratário, alterne camadas de arroz, presunto e queijo", "Cubra a última camada com queijo e polvilhe orégano", "Leve ao forno a 200°C por 15 minutos até gratinar"]', 
  '[{"nome": "Arroz cozido", "quantidade": "3", "unidade": "xícaras"}, {"nome": "Requeijão Cremoso", "quantidade": "200", "unidade": "gramas"}, {"nome": "Milho verde", "quantidade": "1/2", "unidade": "lata"}, {"nome": "Queijo Muçarela", "quantidade": "150", "unidade": "gramas"}]', 
  1, NULL, 15, 'ATIVO', 'Mediano');
+
+-- Atualização das URLs das fotos de cada receita no SQL Server
+
+  -- Bolo de Cenoura
+UPDATE Receitas SET Foto_receita = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb4toMJH3wDa2QU6jxj-ZTTxWabCZAdMfZprJQmS3jnA&s=10' WHERE Cod_receitas = 1;
+
+  -- Panqueca de Banana
+UPDATE Receitas SET Foto_receita = 'https://static.itdg.com.br/images/640-400/53e47bf452300d58b8e741ae370eae4f/365870-original.jpg' WHERE Cod_receitas = 2;
+
+  -- Omelete de Queijo e Tomate
+UPDATE Receitas SET Foto_receita = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjJZgy2aEqiAs_6xv4M6vc5QjsUVW8MIjHP2SaKhK-Jg&s=10' WHERE Cod_receitas = 3;
+
+  -- Salada Caesar
+UPDATE Receitas SET Foto_receita = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRBQcdJEg-uG0JnZAYtNXwIVZUMNczPBQZgy7SqYBXSg&s' WHERE Cod_receitas = 4;
+
+  -- Sopa de Legumes
+UPDATE Receitas SET Foto_receita = 'https://www.receitasnestle.com.br/sites/default/files/srh_recipes/855ad695b82075e4031b92cedc43a12d.jpg' WHERE Cod_receitas = 5;
+
+  -- Vitamina de Morango
+UPDATE Receitas SET Foto_receita = 'https://guiadacozinha.com.br/wp-content/uploads/2024/07/Vitamina-de-morango.jpg' WHERE Cod_receitas = 6;
+
+  -- Escondidinho
+UPDATE Receitas SET Foto_receita = 'https://www.receitasja.com.br/wp-content/uploads/2025/06/Escondidinho-de-carne-moida-com-mandioca-500x500.jpg' WHERE Cod_receitas = 7;
+
+  -- Macarrão ao Alho e Óleo
+UPDATE Receitas SET Foto_receita = 'https://static.itdg.com.br/images/1200-630/b738131b402ba33d58befa56415ba106/324571-original.jpg' WHERE Cod_receitas = 8;
+
+  -- Crepioca de Frango
+UPDATE Receitas SET Foto_receita = 'https://www.sadia.com.br/assets/images/_/recipes/6eccc5f88058bf142bab64f34639e3d63af6e3e5.webp' WHERE Cod_receitas = 9;
+
+ -- Mousse de Maracujá
+UPDATE Receitas SET Foto_receita = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbRq24boqSmWDlEh9TDV4UCnZ5rfUKe34FetE3nLbhtC6CQS2xM2Nks53H&s=10' WHERE Cod_receitas = 10;
+
+ -- Guacamole Tradicional
+UPDATE Receitas SET Foto_receita = 'https://i.panelinha.com.br/i1/bk-6619-guacamole.webp' WHERE Cod_receitas = 11;
+
+ -- Misto Quente
+UPDATE Receitas SET Foto_receita = 'https://guiadacozinha.com.br/wp-content/uploads/2015/01/misto-quente-gratinado.jpg' WHERE Cod_receitas = 12;
+
+ -- Batata Sauté
+UPDATE Receitas SET Foto_receita = 'https://msabores.com/wp-content/uploads/2025/09/Batata-Saute-Dourada.webp' WHERE Cod_receitas = 13;
+
+ -- Smoothie de Banana e Cacau
+UPDATE Receitas SET Foto_receita = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnpj3BpHP-rICRh9Am19FZH2hbYci3cAc9G1fpMySNyreclj9AQdAg8kwm&s=10' WHERE Cod_receitas = 14;
+
+ -- Arroz de Forno Cremoso
+UPDATE Receitas SET Foto_receita = 'https://sabores-new.s3.amazonaws.com/public/2025/02/arroz-de-forno-cremoso.jpg' WHERE Cod_receitas = 15;
+
+ -- Associação das Receitas com suas Categoria(s) correspondentes
+INSERT INTO Receitas_Categorias (Cod_Receita, Cod_Categoria) VALUES 
+  (1, 2),  -- Bolo de Cenoura -> Sobremesas
+  (1, 13), -- Bolo de Cenoura -> Pães e Bolos
+  (2, 12), -- Panqueca de Banana -> Café da Manhã
+  (2, 14), -- Panqueca de Banana -> Fitness e Saudável
+  (3, 12), -- Omelete de Queijo e Tomate -> Café da Manhã
+  (3, 14), -- Omelete de Queijo e Tomate -> Fitness e Saudável
+  (4, 5),  -- Salada Ceasar Simples -> Saladas
+  (4, 7),  -- Salada Ceasar Simples -> Aves
+  (5, 4),  -- Sopa de Legumes -> Sopas e Caldos
+  (5, 9),  -- Sopa de Legumes -> Vegetariana
+  (6, 11), -- Vitamina de Morango -> Bebidas e Drinks
+  (6, 12), -- Vitamina de Morango -> Café da Manhã
+  (7, 6),  -- Escondidinho de Carne Moída -> Carnes
+  (8, 1),  -- Macarrão ao Alho e Óleo -> Massas
+  (9, 14), -- Crepioca de Frango -> Fitness e Saudável
+  (9, 12), -- Crepioca de Frango -> Café da Manhã
+  (10, 2), -- Mousse de Maracujá -> Sobremesas
+  (11, 3), -- Guacamole Tradicional -> Lanches e Petiscos
+  (11, 15),-- Guacamole Tradicional -> Molhos e Acompanhamentos
+  (11, 10),-- Guacamole Tradicional -> Vegana
+  (12, 3), -- Misto Quente de Frigideira -> Lanches e Petiscos
+  (13, 15),-- Batata Sauté -> Molhos e Acompanhamentos
+  (13, 9), -- Batata Sauté -> Vegetariana
+  (14, 11),-- Smoothie de Banana e Cacau -> Bebidas e Drinks
+  (14, 14),-- Smoothie de Banana e Cacau -> Fitness e Saudável
+  (15, 1); -- Arroz de Forno Cremoso -> Massas
 
 insert into livros(Nome_Livro,Cod_User)
 values('edurado',1)

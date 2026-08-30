@@ -65,6 +65,7 @@
   border: none;
   outline: none;
   background: transparent;
+  font-family: 'Poppins';
   font-size: 17px;
   color: #333;
 }
@@ -100,7 +101,7 @@
 }
 
 .recipes-app-notice h2 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: inherit;
   font-size: 42px;
   font-weight: 700;
   line-height: 1.05;
@@ -145,8 +146,10 @@
   background: #F27A1A;
   border-color: #F27A1A;
   color: white;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
 .recipes-app-notice-badges span:hover i {
   color: white;
+  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
