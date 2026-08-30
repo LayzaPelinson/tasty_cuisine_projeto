@@ -42,7 +42,6 @@ public class Comentario {
     private Receita receita; 
     
     @Column(name = "Nota", nullable = false)
-    @NotBlank
     private Double nota;
 
     @Builder.Default

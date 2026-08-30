@@ -95,25 +95,25 @@ public class UsuarioService {
     // login de usuario
     public Usuario login(String gmail, String senha) {
         Usuario usuario = usuarioRepository.findByGmail(gmail)
-                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+                .orElseThrow(() -> new RuntimeException("Email Incorreto"));
 
         if (!passwordEncoder.matches(senha, usuario.getSenha())) {
-            throw new RuntimeException("EMAIL_OU_SENHA_INCORRETOS");
+            throw new RuntimeException("Senha Incorreta");
         }
 
         if ("INATIVO".equals(usuario.getStatus_Usuario())) {
             throw new RuntimeException("CONTA_INATIVA");
         }
-        return usuario;
+        return usuario; 
     }
 
     // reativar conta com senha
     public Usuario reativar(String gmail, String senha) {
         Usuario usuario = usuarioRepository.findByGmail(gmail)
-                .orElseThrow(() -> new RuntimeException("EMAIL_OU_SENHA_INCORRETOS"));
+                .orElseThrow(() -> new RuntimeException("Email Incorreto"));
 
         if (!passwordEncoder.matches(senha, usuario.getSenha())) {
-            throw new RuntimeException("EMAIL_OU_SENHA_INCORRETOS");
+            throw new RuntimeException("Senha Incorreta");
         }
 
         usuario.setStatus_Usuario("ATIVO"); // faltava isso!

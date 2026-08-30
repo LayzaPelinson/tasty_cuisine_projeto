@@ -127,8 +127,8 @@ function Login() {
           setInactiveEmail(form.email)
           setReactivatePwd('')
           setReactivateError('')
-        } else {
-          setError('⚠️ **Credenciais incorretas:** O e-mail ou a senha informados não conferem. Verifique se há erros de digitação.')
+        } else if(result === 'Incorrect') {
+          setError('O e-mail ou a senha informados não conferem. Verifique se há erros de digitação.')
         }
       })
     }

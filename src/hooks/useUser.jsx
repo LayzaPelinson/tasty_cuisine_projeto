@@ -306,7 +306,7 @@ export function UserProvider({ children }) {
         body: JSON.stringify({ email, senha: password })
       })
 
-      if (res.status === 401) return 'blocked'
+      if (res.status === 401) return 'Incorrect'
       if (res.status === 403) return 'inactive'
       if (!res.ok) return false
 

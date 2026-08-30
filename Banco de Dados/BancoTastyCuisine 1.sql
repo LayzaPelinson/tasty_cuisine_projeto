@@ -45,8 +45,9 @@ CREATE TABLE Favoritos (
     Cod_user INT NOT NULL,
     Cod_receitas INT NOT NULL,
     FOREIGN KEY (Cod_user) REFERENCES Usuario(Cod_user),
-    FOREIGN KEY (Cod_receitas) REFERENCES Receitas(Cod_receitas)
-);
+    FOREIGN KEY (Cod_receitas) REFERENCES Receitas(Cod_receitas),
+    CONSTRAINT unique_usuario_receita UNIQUE (Cod_user,Cod_receitas)
+)
 
 CREATE TABLE Comentarios (
     Cod_comentarios BIGINT IDENTITY(1,1) PRIMARY KEY,
