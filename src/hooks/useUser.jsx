@@ -419,6 +419,7 @@ export function UserProvider({ children }) {
         idade: Number(updated.age ?? user.age) || user.age,
         gmail: updated.email || user.email,
         senha: updated.password ?? null,
+        foto_perfil: updated.photo,
         restricoesAlimentares: updated.preferences ? updated.preferences.join(',') : user.preferences?.join(',') ?? null,
       }
       const res = await fetch(`${API_BASE}/usuario/${user.id}`, {
@@ -531,10 +532,23 @@ export function UserProvider({ children }) {
     }
   }
 
-  function editRecipe(id, updated) {
-    setChefRecipes(prev => prev.map(r => r.id === id ? { ...r, ...updated } : r))
-  }
+  async function editRecipe(id, updatedData) {
+  try {
+    const res = await fetch(`http://localhost:8080/receita/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedData)
+    })
 
+    if (!res.ok) {
+      console.error('Erro na resposta do servidor:', res.status)
+    }
+  } catch (err) {
+    console.error('Erro de rede ao editar receita:', err)
+  }
+}
   function trackFavorite(recipeId, added) {
     setRecipeStats(prev => {
       const cur = prev[recipeId] || { favorites: 0, views: 0 }

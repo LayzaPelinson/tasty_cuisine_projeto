@@ -36,10 +36,10 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario não encontrado com o código " + codUser));
     }
 
-    public Usuario atualizarFoto(Long codUser, String base64) {
+    public Usuario atualizarFoto(Long codUser, String link) {
         Usuario usuario = usuarioRepository.findById(codUser)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + codUser));
-        usuario.setFoto_perfil(base64);
+        usuario.setFotoPerfil(link);
         return usuarioRepository.save(usuario);
     }
 
@@ -66,6 +66,11 @@ public class UsuarioService {
         if (usuario.getRestricoesAlimentares() != null) {
             usuarioExistente.setRestricoesAlimentares(usuario.getRestricoesAlimentares());
         }
+
+        if(usuario.getFotoPerfil() != null){
+            usuarioExistente.setFotoPerfil(usuario.getFotoPerfil());
+        }
+        System.out.println("do negocio la: "+usuario.getFotoPerfil());
         return usuarioRepository.save(usuarioExistente);
     }
 

@@ -5,6 +5,7 @@ import '../styles/favoriteRecipes.css'
 import '../styles/publishRecipe.css'
 import '../styles/recipesSection.css'
 import '../styles/login.css'
+import { uploadImage } from '../services/supabase'
 
 function EditModal({ recipe, onSave, onClose }) {
   // Função interna para realizar o parse seguro de strings JSON vindas do Spring Boot
@@ -22,12 +23,17 @@ function EditModal({ recipe, onSave, onClose }) {
   const [loadingRecipe, setLoadingRecipe] = useState(true)
 
   const [selectedCategories, setSelectedCategories] = useState([])
-  const [form, setForm] = useState({ title: '', description: '', difficulty: 'Fácil', image: '' })
+  const [form, setForm] = useState({ title: '', description: '', tempoPreparo: '', image: '' })
   const [ingredients, setIngredients] = useState([])
   const [ingInput, setIngInput] = useState({ quantidade: '', unidade: 'gramas', nome: '' })
   const [steps, setSteps] = useState([])
   const [stepInput, setStepInput] = useState('')
   const [error, setError] = useState(null)
+
+  //Foto
+  const [linkFoto, setLinkFoto] = useState('')
+  const [imageFile, setImageFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState('')
 
   // ── 1. Busca a receita CRUA direto da API, não a versão normalizada ──────
   useEffect(() => {
@@ -38,16 +44,18 @@ function EditModal({ recipe, onSave, onClose }) {
         if (!res.ok) throw new Error('Falha ao buscar receita')
         const data = await res.json()
         setRawRecipe(data)
-
+        
+        console.log(data)
+        setLinkFoto(data.fotoReceita)
+        setPreviewUrl(data.fotoReceita)
         // Categorias selecionadas (array de objetos {codCategoria, nomeCategoria})
         const cats = Array.isArray(data.categoria) ? data.categoria : []
         setSelectedCategories(cats.map(c => c.codCategoria).filter(Boolean))
-        console.log('data.categoria:', data.categoria)
         // Campos de texto e imagem
         setForm({
           title: data.nomeReceita || '',
           description: data.descricao || '',
-          difficulty: data.dificuldade || 'Fácil',
+          tempoPreparo: data.tempoPreparo || 'Faaaaácil',
           image: data.fotoReceita || '',
         })
 
@@ -125,27 +133,42 @@ function EditModal({ recipe, onSave, onClose }) {
     setSteps(prev => prev.filter((_, idx) => idx !== i))
   }
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    setError(null)
+  async function handleSubmit(e) {
+  e.preventDefault()
+  setError(null)
 
-    if (ingredients.length === 0) return setError('Adicione ao menos um ingrediente.')
-    if (steps.length === 0) return setError('Adicione ao menos um passo no modo de preparo.')
-    if (selectedCategories.length === 0) return setError('Selecione ao menos uma categoria.')
+  if (ingredients.length === 0) return setError('Adicione ao menos um ingrediente.')
+  if (steps.length === 0) return setError('Adicione ao menos um passo no modo de preparo.')
+  if (selectedCategories.length === 0) return setError('Selecione ao menos uma categoria.')
 
+  try {
+    let novaUrlFoto = linkFoto
+
+    // 1. Faz upload se o usuário selecionou um arquivo novo
+    if (imageFile) {
+      novaUrlFoto = await uploadImage(imageFile, 'receitas')
+      setLinkFoto(novaUrlFoto)
+    }
+
+    // 2. Monta o objeto final com a variável local 'novaUrlFoto'
     const updatedRecipe = {
       ...rawRecipe,
       nomeReceita: form.title,
       descricao: form.description,
-      dificuldade: form.difficulty,
-      fotoReceita: form.image,
+      tempoPreparo: form.tempoPreparo,
+      fotoReceita: novaUrlFoto,
       ingredientes: JSON.stringify(ingredients),
       modo_preparo: JSON.stringify(steps),
       categoria: selectedCategories.map(id => ({ codCategoria: id })),
     }
 
     onSave(updatedRecipe)
+    loadChefRecipes(user.id)
+  } catch (err) {
+    console.error('Erro ao salvar:', err)
+    setError('Falha ao atualizar a imagem ou receita.')
   }
+}
 
   if (loadingRecipe) {
     return (
@@ -173,17 +196,34 @@ function EditModal({ recipe, onSave, onClose }) {
           </div>
 
           <div>
-            <label>Dificuldade</label>
-            <select name="difficulty" value={form.difficulty} onChange={handleChange}>
-              <option>Fácil</option>
-              <option>Médio</option>
-              <option>Difícil</option>
+            <label>Tempo de Preparo</label>
+            <select name="tempoPreparo" value={form.tempoPreparo} onChange={handleChange}>
+              <option>Rápido</option>
+              <option>Mediano</option>
+              <option>Demorado</option>
             </select>
           </div>
 
           <div>
-            <label>Foto (URL)</label>
-            <input name="image" value={form.image} onChange={handleChange} placeholder="https://exemplo.com/foto.jpg" />
+            <label>Foto</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0]
+                if (file) {
+                  setImageFile(file)
+                  setPreviewUrl(URL.createObjectURL(file)) // Gera preview local imediato
+                }
+              }}
+            />
+            {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Pré-visualização"
+                  style={{ width: '150px', height: '100px', objectFit: 'cover', marginTop: '10px', borderRadius: '8px' }}
+                />
+              )}
           </div>
 
           <h3>Categorias</h3>
@@ -313,14 +353,26 @@ function ChefMyRecipes() {
         </div>
       )}
 
-      {editing && (
-        <EditModal
-          recipe={editing}
-          // Ajustado para passar o codReceitas correto no salvamento
-          onSave={(updated) => { editRecipe(editing.codReceitas, updated); setEditing(null) }}
-          onClose={() => setEditing(null)}
-        />
-      )}
+     {editing && (
+  <EditModal
+    recipe={editing}
+    onSave={async (updated) => {
+      // 1. Garante que pega o ID correto para a URL do backend
+      const recipeId = editing.codReceita || editing.codReceitas || editing.id
+
+      // 2. Chama a função de edição do seu hook
+      await editRecipe(recipeId, updated)
+
+      // 3. Força a atualização da lista de receitas na tela
+      if (user?.id) {
+        await loadChefRecipes(user.id)
+      }
+
+      setEditing(null)
+    }}
+    onClose={() => setEditing(null)}
+  />
+)}
 
       {confirmDelete && (
         <div className="reactivate-overlay">

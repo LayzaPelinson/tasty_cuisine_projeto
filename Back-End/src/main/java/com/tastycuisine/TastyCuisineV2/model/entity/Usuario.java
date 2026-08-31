@@ -56,7 +56,7 @@ public class Usuario {
     private String restricoesAlimentares;
 
     @Column(name = "foto_perfil", nullable = true, columnDefinition = "NVARCHAR(MAX)")
-    private String foto_perfil;
+    private String fotoPerfil;
 
     @Column(name = "funcao", nullable = true, columnDefinition = "NVARCHAR(MAX)")
     private String funcao;

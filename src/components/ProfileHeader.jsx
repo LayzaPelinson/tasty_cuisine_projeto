@@ -2,22 +2,35 @@ import { useState } from 'react'
 import { useUser } from '../hooks/useUser'
 import { FiUser, FiCamera, FiEdit2 } from 'react-icons/fi'
 import '../styles/profileHeader.css'
+import { uploadImage } from '../services/supabase'
+
 
 function ProfileHeader({ setActiveTab, isChefe }) {
   const { user, setUser } = useUser()
   const [aberto, setAberto] = useState(false)
-  const [linkFoto, setLinkFoto] = useState('')
+  const [imageFile, setImageFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState('')
 
   if (!user) return null
 
   async function handleConfirmarFoto() {
-    await fetch(`http://localhost:8080/chefe/${user.id}`, {
-      method: 'PUT',
+        let Link = ''
+        if (imageFile) {
+          Link = await uploadImage(imageFile, 'receitas')
+        }
+        
+      const payload = {
+        fotoPerfil: Link,
+      }
+
+    await fetch(`http://localhost:8080/usuario/${user.id}/foto`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...user, fotoPerfil: linkFoto })
+      body: JSON.stringify(payload)
     })
-    setUser(u => ({ ...u, photo: linkFoto, fotoPerfil: linkFoto }))
+    setUser(u => ({ ...u, photo: Link, fotoPerfil: Link }))
     setAberto(false)
+    setPreviewUrl('')
   }
 
   return (
@@ -58,12 +71,23 @@ function ProfileHeader({ setActiveTab, isChefe }) {
           <div className="edit-profile-photo">
             <h3 className="edit-profile-h3">Troque sua foto</h3>
             <input
-              type="url"
-              className="edit-profile-input"
-              placeholder="https://exemplo.com/foto.jpg"
-              value={linkFoto}
-              onChange={e => setLinkFoto(e.target.value)}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0]
+                if (file) {
+                  setImageFile(file)
+                  setPreviewUrl(URL.createObjectURL(file)) // Gera preview local imediato
+                }
+              }}
             />
+            {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Pré-visualização"
+                  style={{ width: '150px', height: '100px', objectFit: 'cover', marginTop: '10px', borderRadius: '8px' }}
+                />
+              )}
             <div className="button-group">
               <button className="edit-profile-confirm" onClick={handleConfirmarFoto}>
                 Confirmar

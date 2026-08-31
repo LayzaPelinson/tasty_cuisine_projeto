@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import { CustomSelect } from '../components/CustomSelect'
+import { uploadImage } from '../services/supabase'
 
 const UNITS = ['unidades', 'gramas', 'kg', 'ml', 'litros', 'xícaras', 'colheres', 'fatias', 'dentes', 'pitadas', 'a gosto']
 const PREP_TIMES = ['Rápido', 'Mediano', 'Demorado']
@@ -29,6 +30,10 @@ function PublishRecipe() {
   const [stepInput, setStepInput] = useState('')
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+
+  //Images
+  const [imageFile, setImageFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState('')
 
   useEffect(() => {
     async function loadCategories() {
@@ -117,13 +122,17 @@ function PublishRecipe() {
     if (selectedCategories.length === 0) return setError('Selecione ao menos uma categoria.')
 
     const categoryIds = selectedCategories.map(c => c.codCategoria || c.id)
-
+    
+    let fotoUrl = ''
+    if (imageFile) {
+      fotoUrl = await uploadImage(imageFile, 'receitas')
+    }
     const result = await publishRecipe({
       title: form.title,
       description: form.description,
       difficulty: form.difficulty,
       prepTime: form.prepTime,
-      image: form.image,
+      image: fotoUrl,
       ingredients,
       instructions: steps,
       categorias: categoryIds,
@@ -267,9 +276,9 @@ function PublishRecipe() {
                 onChange={e => setIngInput(f => ({ ...f, quantidade: e.target.value }))}
                 style={{ width: '180px', flexShrink: 0 }}
               />
-              <CustomSelect 
-                value={ingInput.unidade} 
-                onChange={val => setIngInput(f => ({ ...f, unidade: val }))} 
+              <CustomSelect
+                value={ingInput.unidade}
+                onChange={val => setIngInput(f => ({ ...f, unidade: val }))}
                 options={UNITS}
               />
               <input
@@ -332,8 +341,26 @@ function PublishRecipe() {
 
             <h3>Foto da Receita</h3>
             <div>
-              <label>URL da imagem</label>
-              <input className="form-url" name="image" value={form.image} onChange={handleChange} placeholder="https://exemplo.com/foto.jpg" />
+              <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0]
+                if (file) {
+                  setImageFile(file)
+                  setPreviewUrl(URL.createObjectURL(file)) // Gera preview local imediato
+                }
+              }}
+            />
+
+              {/* Preview simples da foto escolhida antes do envio */}
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Pré-visualização"
+                  style={{ width: '150px', height: '100px', objectFit: 'cover', marginTop: '10px', borderRadius: '8px' }}
+                />
+              )}
             </div>
 
             {error && <p className="error-text">{error}</p>}

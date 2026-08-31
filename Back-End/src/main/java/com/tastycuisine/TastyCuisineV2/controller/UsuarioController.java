@@ -113,33 +113,31 @@ public class UsuarioController {
         }
     }
 
-    // ── NOVO: atualiza somente a foto de perfil ─────────────────────────────
-    // PATCH /usuario/:id/foto
-    // Body: { "fotoPerfil": "data:image/jpeg;base64,/9j/4AAQ..." }
     @PatchMapping("/{codUser}/foto")
-    public ResponseEntity<Object> atualizarFoto(
-            @PathVariable Long codUser,
-            @RequestBody Map<String, String> body) {
+    public ResponseEntity<Object> atualizarFoto(@PathVariable Long codUser, @RequestBody Map<String, String> body) {
         try {
-            String base64 = body.get("fotoPerfil");
-            if (base64 == null || base64.isBlank()) {
+            String fotoUrl = body.get("fotoPerfil");
+            
+            if (fotoUrl == null || fotoUrl.isBlank()) {
                 return ResponseEntity.badRequest().body(
                     Map.of("status", 400,
-                           "error", "bad_request",
-                           "message", "Campo fotoPerfil é obrigatório")
+                        "error", "bad_request",
+                        "message", "Campo fotoPerfil é obrigatório")
                 );
             }
-            Usuario atualizado = usuarioService.atualizarFoto(codUser, base64);
+            
+            // Repassa a URL para o service atualizar o campo no banco
+            Usuario atualizado = usuarioService.atualizarFoto(codUser, fotoUrl);
             return ResponseEntity.ok(atualizado);
+            
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(
                 Map.of("status", 404,
-                       "error", "not found",
-                       "message", "usuario não encontrado com o id: " + codUser)
+                    "error", "not found",
+                    "message", "Usuário não encontrado com o id: " + codUser)
             );
         }
     }
-    // ────────────────────────────────────────────────────────────────────────
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> body) {
