@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUser } from '../hooks/useUser'
 import { FiUser, FiCamera, FiEdit2 } from 'react-icons/fi'
 import '../styles/profileHeader.css'
@@ -10,6 +10,7 @@ function ProfileHeader({ setActiveTab, isChefe }) {
   const [aberto, setAberto] = useState(false)
   const [imageFile, setImageFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
+const API_BASE = 'http://localhost:8080'
 
   if (!user) return null
 
@@ -32,6 +33,24 @@ function ProfileHeader({ setActiveTab, isChefe }) {
     setAberto(false)
     setPreviewUrl('')
   }
+
+  useEffect(() => {
+      async function loadUser() {
+        try {
+          console.log(user)
+          const res = await fetch(`${API_BASE}/usuario/${user.id}`)
+          if (res.ok) {
+            const data = await res.json()
+            let Link = data.fotoPerfil
+            setUser(u => ({ ...u, photo: Link, fotoPerfil: Link }))
+          }
+        } catch (err) {
+          console.error("Erro ao imagem do banco:", err)
+        }
+      }
+      loadUser()
+    }, [])
+  
 
   return (
     <>

@@ -7,7 +7,6 @@ const TABS = [
   { key: 'users', label: 'Usuários', icon: 'bi-people-fill' },
   { key: 'chefs', label: 'Chefes', icon: 'bi-person-badge-fill' },
   { key: 'recipes', label: 'Receitas', icon: 'bi-journal-richtext' },
-  { key: 'comments', label: 'Comentários', icon: 'bi-chat-dots-fill' },
   { key: 'categorias', label: 'Categorias', icon: 'bi-tags-fill' },
 ]
 
@@ -174,58 +173,6 @@ function AdminRecipes({ data, onView, onToggle }) {
   )
 }
 
-function AdminComments({ data, onView, onToggle }) {
-  const [search, setSearch] = useState('')
-  const filtered = data.filter(c =>
-    c.text.toLowerCase().includes(search.toLowerCase()) ||
-    c.user.toLowerCase().includes(search.toLowerCase()) ||
-    c.recipe.toLowerCase().includes(search.toLowerCase())
-  )
-  return (
-    <div>
-      <div className="admin-section-header">
-        <h2><i className="bi bi-chat-dots-fill"></i> Comentários</h2>
-        <SearchBar placeholder="Buscar por usuário, receita ou texto..." value={search} onChange={setSearch} />
-      </div>
-      <div className="admin-table-wrapper">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Comentário</th><th>Usuário</th><th>Receita</th><th>Nota</th><th>Status</th><th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 && <tr><td colSpan={7} className="admin-empty">Nenhum comentário encontrado.</td></tr>}
-            {filtered.map(c => (
-              <tr key={c.id}>
-                <td className="admin-id">{c.id}</td>
-                <td>
-                  <button className="admin-link-btn comment-text-btn" onClick={() => onView(c)}>
-                    <i className="bi bi-chat-quote"></i>
-                    <span className="admin-comment-preview">{c.text}</span>
-                  </button>
-                </td>
-                <td>{c.user}</td>
-                <td>{c.recipe}</td>
-                <td>
-                  <span className="admin-rating">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <i key={i} className={`bi ${i < c.rating ? 'bi-star-fill' : 'bi-star'}`}></i>
-                    ))}
-                  </span>
-                </td>
-                <td><StatusBadge active={c.active} /></td>
-                <td>
-                  <ToggleBtn active={c.active} onToggle={() => onToggle(c)} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
 
 function AdminCategorias({ categorias, onCreate }) {
   const [nome, setNome] = useState('')
@@ -240,9 +187,9 @@ function AdminCategorias({ categorias, onCreate }) {
   )
 
   // Separa as categorias nos 3 grupos solicitados
-  const vegCats = filtered.filter(c => (c.grupo || c.Grupo || '').toLowerCase() === 'vegetariano' || (c.grupo || c.Grupo || '').toLowerCase() === 'vegano')
-  const neutroCats = filtered.filter(c => (c.grupo || c.Grupo || '').toLowerCase() === 'neutro' || !(c.grupo || c.Grupo))
-  const carnesCats = filtered.filter(c => (c.grupo || c.Grupo || '').toLowerCase() === 'carnes')
+  const vegCats = filtered.filter(c => (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'vegetariano' || (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'vegano')
+  const neutroCats = filtered.filter(c => (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'neutro' || !(c.grupoCategoria || c.grupoCategoria))
+  const carnesCats = filtered.filter(c => (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'carnes')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -357,7 +304,6 @@ function DetailModal({ item, type, onClose, navigate }) {
   function goTo() {
     if (type === 'recipe') navigate(`/recipe/${item.id}`)
     else if (type === 'chef') navigate(`/chef/${item.id}`)
-    else if (type === 'comment') navigate(`/recipe/${item.recipeId}`)
     else if (type === 'user') navigate('/profile')
     onClose()
   }
@@ -386,19 +332,6 @@ function DetailModal({ item, type, onClose, navigate }) {
             <div className="admin-detail-row"><span>Receitas</span><strong>{item.recipes}</strong></div>
             <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
           </>}
-          {type === 'comment' && <>
-            <div className="admin-detail-row"><span>Usuário</span><strong>{item.user}</strong></div>
-            <div className="admin-detail-row"><span>Receita</span><strong>{item.recipe}</strong></div>
-            <div className="admin-detail-row"><span>Nota</span>
-              <span className="admin-rating">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <i key={i} className={`bi ${i < item.rating ? 'bi-star-fill' : 'bi-star'}`}></i>
-                ))}
-              </span>
-            </div>
-            <div className="admin-detail-row comment-full"><span>Texto</span><p>{item.text}</p></div>
-            <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
-          </>}
           {type === 'user' && <>
             <div className="admin-detail-row"><span>Nome</span><strong>{item.name}</strong></div>
             <div className="admin-detail-row"><span>E-mail</span><strong>{item.email}</strong></div>
@@ -425,15 +358,12 @@ function AdminDashboard() {
     loadCategorias,
     createCategoria,
     loadAllUsers,
-    loadAllComments, 
     toggleRecipeStatus,
-    toggleCommentStatus,
     logout, loadRecipes, toggleUserBlock
   } = useUser()
 
   const [activeTab, setActiveTab] = useState('users')
   const [rawUsers, setRawUsers] = useState([])
-  const [rawComments, setRawComments] = useState([])
   const [modal, setModal] = useState(null)
   const [loadingData, setLoadingData] = useState(true)
 
@@ -441,9 +371,7 @@ function AdminDashboard() {
     async function carregarTudo() {
       setLoadingData(true)
       const [usersData] = await Promise.all([loadAllUsers(), loadCategorias()])
-      const commentsData = await loadAllComments()
       setRawUsers(Array.isArray(usersData) ? usersData : [])
-      setRawComments(Array.isArray(commentsData) ? commentsData : [])
       setLoadingData(false)
     }
     carregarTudo()
@@ -487,22 +415,11 @@ const chefs = rawUsers
     active: r.active ?? false
   }))
 
-  const comments = rawComments.map(c => ({
-    id: c.cod_comentarios,
-    text: c.texto,
-    user: c.usuario?.nome_completo || 'Usuário',
-    userId: c.usuario?.codUser,
-    recipe: c.receita?.nomeReceita || c.receita?.nome_receita || 'Receita',
-    recipeId: c.receita?.codReceitas,
-    rating: Number(c.nota) || 0,
-    active: c.status_Comentario ? c.status_Comentario === 'ATIVO' : true,
-  }))
 
   const stats = [
     { label: 'Usuários', value: users.length, active: users.filter(u => u.active).length, icon: 'bi-people-fill', tab: 'users' },
     { label: 'Chefes', value: chefs.length, active: chefs.filter(c => c.active).length, icon: 'bi-person-badge-fill', tab: 'chefs' },
     { label: 'Receitas', value: recipesNormalized.length, active: recipesNormalized.filter(r => r.active).length, icon: 'bi-journal-richtext', tab: 'recipes' },
-    { label: 'Comentários', value: comments.length, active: comments.filter(c => c.active).length, icon: 'bi-chat-dots-fill', tab: 'comments' },
   ]
 
   // ── toggles ───────────────────────────────────────────────────────────────
@@ -534,25 +451,28 @@ async function handleToggleUser(u) {
     await loadRecipes()
   }
 
-  async function handleToggleComment(c) {
-    const result = await toggleCommentStatus(c.id, c.active)
-    if (result.ok) {
-      setRawComments(prev => prev.map(x => x.cod_comentarios === c.id
-        ? { ...x, status_Comentario: c.active ? 'INATIVO' : 'ATIVO' }
-        : x))
-    }
+
+  async function handleCreateCategoria(nome, grupo) {
+    return await createCategoria(nome, grupo)
   }
 
-  async function handleCreateCategoria(nome) {
-    return await createCategoria(nome)
-  }
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.ctrlKey && e.key === 'R') {
+        logout()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [navigate])
 
   return (
     <div className="admin-page">
       <header className="admin-header">
         <div className="admin-header-left">
           <h1>Painel Administrativo</h1>
-          <p>Gerencie usuários, chefes, receitas, comentários e categorias</p>
+          <p>Gerencie usuários, chefes, receitas e categorias</p>
         </div>
         <div className="admin-header-right">
           <div className="admin-header-badge">
@@ -597,7 +517,6 @@ async function handleToggleUser(u) {
             {activeTab === 'users' && <AdminUsers data={users} onView={u => setModal({ item: u, type: 'user' })} onToggle={handleToggleUser} />}
             {activeTab === 'chefs' && <AdminChefs data={chefs} onView={c => setModal({ item: c, type: 'chef' })} onToggle={handleToggleUser} />}
             {activeTab === 'recipes' && <AdminRecipes data={recipesNormalized} onView={r => setModal({ item: r, type: 'recipe' })} onToggle={handleToggleRecipe} />}
-            {activeTab === 'comments' && <AdminComments data={comments} onView={c => setModal({ item: c, type: 'comment' })} onToggle={handleToggleComment} />}
             {activeTab === 'categorias' && <AdminCategorias categorias={categorias} onCreate={handleCreateCategoria} />}
           </>
         )}

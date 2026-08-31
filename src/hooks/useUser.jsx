@@ -205,12 +205,12 @@ export function UserProvider({ children }) {
     }
   }
 
-  async function createCategoria(nome) {
+  async function createCategoria(nome, grupo) {
     try {
       const res = await fetch(`${API_BASE}/categoria`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nomeCategoria: nome })
+        body: JSON.stringify({ nomeCategoria: nome, grupoCategoria: grupo })
       })
       if (!res.ok) {
         const errText = await res.text()

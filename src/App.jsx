@@ -34,6 +34,7 @@ function ProtectedRoute({ children, chefOnly = false, chefRedirect = false,Admin
   if (!user && !loading) return <Navigate to="/login" replace />
   if (chefOnly && user?.funcao !== 'Chefe') return <Navigate to="/" replace />
   if(user?.funcao !== "ADMIN" && AdminOnly) return <Navigate to="/" replace />
+  if(!AdminOnly && user?.funcao === "ADMIN") return <Navigate to="/login" replace />
   if (!user) return null
   if (chefRedirect && user.funcao === 'Chefe') return <Navigate to="/recipes" replace />
   return children
@@ -42,7 +43,7 @@ function ProtectedRoute({ children, chefOnly = false, chefRedirect = false,Admin
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>}/>
       <Route path="/login" element={<Login />} />
       <Route path="/recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
       <Route path="/chefs" element={<ProtectedRoute chefRedirect><Chefs /></ProtectedRoute>} />

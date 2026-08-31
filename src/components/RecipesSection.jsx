@@ -58,7 +58,6 @@ function RecipesSection({ showHeader = true, category, limit, search, locked = f
       return r.activeUser === "ATIVO";
     })
     .filter((r) => {
-      console.log(r)
       return r.blockedUser === 0;
     })
     // 💡 PRIMEIRO FILTRO: Segurança e Status da Receita/Dono
