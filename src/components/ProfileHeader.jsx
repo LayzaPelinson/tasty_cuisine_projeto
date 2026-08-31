@@ -60,19 +60,19 @@ const API_BASE = 'http://localhost:8080'
 
         <div className="profile-user">
           <div 
-            className={`profile-avatar ${isChefe ? 'clickable' : ''}`} 
-            onClick={isChefe ? () => setAberto(true) : undefined}
+            className={`profile-avatar`} 
+            onClick={isChefe || !isChefe ? () => setAberto(true) : undefined} // bem humano AKAKKAKAKAKAKAKA
           >
             {user.photo || user.fotoPerfil ? (
               <img src={user.photo || user.fotoPerfil} alt="avatar" className="profile-avatar-img" />
             ) : (
               <FiUser className="avatar-placeholder-icon" />
             )}
-            {isChefe && (
+            
               <span className="avatar-edit-overlay">
                 <FiCamera />
               </span>
-            )}
+            
           </div>
           <div className="profile-info-text">
             <h1>{user.name ?? user.fullName ?? user.nomeCompleto}</h1>
