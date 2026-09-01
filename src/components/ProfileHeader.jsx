@@ -17,7 +17,7 @@ const API_BASE = 'http://localhost:8080'
   async function handleConfirmarFoto() {
         let Link = ''
         if (imageFile) {
-          Link = await uploadImage(imageFile, 'receitas')
+          Link = await uploadImage(imageFile, user.id, false)
         }
         
       const payload = {
@@ -37,7 +37,6 @@ const API_BASE = 'http://localhost:8080'
   useEffect(() => {
       async function loadUser() {
         try {
-          console.log(user)
           const res = await fetch(`${API_BASE}/usuario/${user.id}`)
           if (res.ok) {
             const data = await res.json()
@@ -60,20 +59,19 @@ const API_BASE = 'http://localhost:8080'
 
         <div className="profile-user">
           <div 
-            className={`profile-avatar ${isChefe ? 'clickable' : ''}`} 
-            onClick={isChefe ? () => setAberto(true) : undefined}
-          >
-            {user.photo || user.fotoPerfil ? (
-              <img src={user.photo || user.fotoPerfil} alt="avatar" className="profile-avatar-img" />
-            ) : (
-              <FiUser className="avatar-placeholder-icon" />
-            )}
-            {isChefe && (
-              <span className="avatar-edit-overlay">
-                <FiCamera />
-              </span>
-            )}
-          </div>
+  className={`profile-avatar clickable ${user.photo || user.fotoPerfil ? 'has-photo' : ''}`} 
+  onClick={() => setAberto(true)}
+>
+  {user.photo || user.fotoPerfil ? (
+    <img src={user.photo || user.fotoPerfil} alt="avatar" className="profile-avatar-img" />
+  ) : (
+    <FiUser className="avatar-placeholder-icon" />
+  )}
+  
+  <span className="avatar-edit-overlay">
+    <FiCamera />
+  </span>
+</div>
           <div className="profile-info-text">
             <h1>{user.name ?? user.fullName ?? user.nomeCompleto}</h1>
             <p>{user.email ?? user.gmail}</p>
@@ -86,38 +84,51 @@ const API_BASE = 'http://localhost:8080'
       </section>
 
       {aberto && (
-        <div className="edit-profile-modal-overlay">
-          <div className="edit-profile-photo">
-            <h3 className="edit-profile-h3">Troque sua foto</h3>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0]
-                if (file) {
-                  setImageFile(file)
-                  setPreviewUrl(URL.createObjectURL(file)) // Gera preview local imediato
-                }
-              }}
-            />
-            {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Pré-visualização"
-                  style={{ width: '150px', height: '100px', objectFit: 'cover', marginTop: '10px', borderRadius: '8px' }}
-                />
-              )}
-            <div className="button-group">
-              <button className="edit-profile-confirm" onClick={handleConfirmarFoto}>
-                Confirmar
-              </button>
-              <button className="edit-profile-cancel" onClick={() => setAberto(false)}>
-                Cancelar
-              </button>
-            </div>
+  <div className="edit-profile-modal-overlay">
+    <div className="edit-profile-photo">
+      <h3 className="edit-profile-h3">Troque sua foto de perfil</h3>
+      
+      <div className="profile-upload-wrapper">
+        {/* Label estilisada atuando como botão de upload */}
+        <label htmlFor="modal-avatar-upload" className="profile-file-btn">
+          <FiCamera size={18} /> Escolher Foto
+        </label>
+        
+        <input
+          id="modal-avatar-upload"
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files[0]
+            if (file) {
+              setImageFile(file)
+              setPreviewUrl(URL.createObjectURL(file))
+            }
+          }}
+        />
+
+        {/* Pré-visualização da imagem redonda */}
+        {previewUrl && (
+          <div className="profile-preview-box">
+            <img src={previewUrl} alt="Pré-visualização" />
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <div className="button-group">
+        <button className="edit-profile-confirm" onClick={handleConfirmarFoto}>
+          Confirmar
+        </button>
+        <button className="edit-profile-cancel" onClick={() => {
+          setAberto(false)
+          setPreviewUrl('')
+        }}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
   )
 }

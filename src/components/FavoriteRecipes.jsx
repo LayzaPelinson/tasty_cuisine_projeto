@@ -7,7 +7,7 @@ function FavoriteRecipes() {
   
   // ── Exemplo de encadeamento direto ─────────────────────────────────────────
 const favorited = (recipes || [])
-  .filter(r => favoritos.some(f => String(f.receita?.codReceitas) === String(r.id)),console.log(recipes))
+  .filter(r => favoritos.some(f => String(f.receita?.codReceitas) === String(r.id)))
   .filter(r => r.active)
   .filter(r => r.activeUser === "ATIVO")
   .filter(r => r.blockedUser === 0)

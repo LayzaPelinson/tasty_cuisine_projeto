@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-
+import { deleteImage } from '../services/supabase'
 const UserContext = createContext()
 
 const DIET_OPTIONS = ['Vegetariano', 'Vegano', 'Sem Glúten', 'Low Carb', 'Proteína Alta']
@@ -30,10 +30,14 @@ function parseJsonOrLines(value) {
     if (Array.isArray(parsed)) {
       return parsed.map(item => {
         if (typeof item === 'object' && item !== null) {
-          return item.nomeIngredient || item.nome || Object.values(item)[0];
+          // Se for um objeto com detalhes, mantemos o objeto completo!
+          if (item.nome || item.nomeIngredient) {
+            return item
+          }
+          return Object.values(item)[0]
         }
-        return item;
-      });
+        return item
+      })
     }
     return [parsed]
   } catch {
@@ -43,7 +47,6 @@ function parseJsonOrLines(value) {
       .filter(Boolean)
   }
 }
-
 function normalizeApiRecipe(recipe) {
   return {
     id: recipe.id ?? recipe.codReceitas,
@@ -286,6 +289,8 @@ export function UserProvider({ children }) {
       if (!res.ok) throw new Error('Falha ao carregar receitas')
       const data = await res.json()
       const normalized = Array.isArray(data) ? data.map(normalizeApiRecipe) : []
+      console.log(normalized)
+
       setRecipes(normalized)
       setRecipesLoaded(true)
       return normalized
@@ -483,8 +488,8 @@ export function UserProvider({ children }) {
 
       const saved = await res.json()
       const idReceitaSalva = saved.codReceitas || saved.id;
-
       const normalized = normalizeApiRecipe(saved);
+      console.log(normalized)
       normalized.usuario = {
         ...normalized.usuario,
         codUser: user?.codUser
@@ -521,16 +526,34 @@ export function UserProvider({ children }) {
   }
 
   async function deleteRecipe(id) {
-    try {
-      const res = await fetch(`${API_BASE}/receita/${id}`, { method: 'DELETE' })
-      if (!res.ok) return { ok: false }
-      setChefRecipes(prev => prev.filter(r => r.id !== id))
-      setRecipes(prev => prev.filter(r => r.id !== id))
-      return { ok: true }
-    } catch {
-      return { ok: false }
+  try {
+    // 1. Busca os dados da receita para pegar o link da foto
+    const recipeRes = await fetch(`${API_BASE}/receita/${id}`)
+    
+    if (recipeRes.ok) {
+      const recipeData = await recipeRes.json()
+      const fotoParaDeletar = recipeData.fotoReceita || recipeData.image
+      console.log("aq oia: "+fotoParaDeletar)
+      // 2. Se houver link de foto, apaga do Supabase Storage
+      if (fotoParaDeletar) {
+        await deleteImage(fotoParaDeletar)
+      }
     }
+
+    // 3. Executa a deleção no backend Spring Boot
+    const res = await fetch(`${API_BASE}/receita/${id}`, { method: 'DELETE' })
+    if (!res.ok) return { ok: false }
+
+    // 4. Atualiza os estados locais removendo a receita
+    setChefRecipes(prev => prev.filter(r => r.id !== id))
+    setRecipes(prev => prev.filter(r => r.id !== id))
+
+    return { ok: true }
+  } catch (err) {
+    console.error('Erro ao deletar receita:', err)
+    return { ok: false }
   }
+}
 
   async function editRecipe(id, updatedData) {
   try {

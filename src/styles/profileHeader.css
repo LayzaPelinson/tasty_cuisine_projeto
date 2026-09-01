@@ -70,14 +70,26 @@
   border-radius: 50%;
   overflow: hidden;
   position: relative;
-  border: 3.5px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-  background: #FFFFFF;
+  border: none;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.452); /* Fundo sutil transparente caso queira, ou troque por transparent */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* Aplicado SOMENTE quando o usuário tiver foto */
+.profile-avatar.has-photo {
+  background: #FFFFFF;
+  border: 3.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+/* Cor do ícone padrão quando não tem foto */
+.avatar-placeholder-icon {
+  font-size: 42px;
+  color: rgba(255, 255, 255, 0.7);
+}
 .profile-avatar.clickable {
   cursor: pointer;
 }
@@ -225,4 +237,61 @@
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* =========================
+   ESTILIZAÇÃO DO INPUT DE FOTO NO MODAL
+========================= */
+.profile-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Esconde o input nativo */
+.profile-upload-wrapper input[type="file"] {
+  display: none;
+}
+
+/* Botão customizado */
+.profile-file-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  background: #FFF8F0;
+  border: 2px dashed #C4703A;
+  border-radius: 14px;
+  color: #C4703A;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.profile-file-btn:hover {
+  background: #FFF0E8;
+  border-color: #A95C2C;
+  transform: translateY(-1px);
+}
+
+/* Container de pré-visualização redonda (formato do perfil) */
+.profile-preview-box {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #C4703A;
+  box-shadow: 0 4px 12px rgba(196, 112, 58, 0.2);
+}
+
+.profile-preview-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

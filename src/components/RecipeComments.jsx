@@ -53,9 +53,8 @@ function RecipeComments({ recipeId }) {
       .then(data => {
         if (Array.isArray(data)) {
           // 💡 Filtra para manter apenas os comentários com status_comentarios "ATIVO"
-          const ativos = data.filter(c => c.status_comentarios === 'ATIVO')
+          const ativos = data.filter(c => c.statusComentarios === 'ATIVO')
           setComments(ativos)
-          console.log(ativos)
         } else {
           setComments([])
         }

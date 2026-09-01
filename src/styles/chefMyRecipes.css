@@ -1,0 +1,373 @@
+/* ==========================================================================
+   CHEF MY RECIPES & EDIT MODAL - STYLES
+   ========================================================================== */
+
+/* Layout e Grid da Página Principal */
+.favorite-recipes {
+  width: 85%;
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.favorite-recipes h2 {
+  font-family: inherit;
+  font-size: 48px;
+  color: #A95C2C;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.recipes-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.no-favorites {
+  color: #6b401b;
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+/* Modal Overlay e Container */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: min(800px, 92%);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+  color: #A95C2C;
+  font-size: 32px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.modal-content h3 {
+  color: #3D2010;
+  font-size: 18px;
+  margin: 24px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #F0C8A0;
+}
+
+/* Formulário e Entradas Gerais */
+.modal-content form > div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.modal-content label {
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.modal-content input[type="text"],
+.modal-content textarea,
+.modal-content select {
+  width: 100%;
+  padding: 12px 14px;
+  background: #FBF5EF;
+  border: 1px solid #F0C8A0;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #3D2010;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+  border-color: #C4703A;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(196, 112, 58, 0.15);
+}
+
+/* Input File Estilizado Customizado */
+.file-upload-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-upload-wrapper input[type="file"] {
+  display: none; /* Esconde o botão padrão feio */
+}
+
+.custom-file-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #FBF5EF;
+  border: 2px dashed #C4703A;
+  border-radius: 14px;
+  color: #C4703A;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.custom-file-btn:hover {
+  background: #FFF3EB;
+  border-color: #A95E2F;
+  transform: translateY(-1px);
+}
+
+.image-preview-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.image-preview-container img {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #F0C8A0;
+}
+
+/* Categorias Checkboxes */
+.categories-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.category-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #FFF3EB;
+  border: 1px solid #FDBA74;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #F27A1A;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.category-checkbox:hover {
+  background: #FDBA74;
+  color: #ffffff;
+}
+
+.category-checkbox input[type="checkbox"] {
+  accent-color: #C4703A;
+}
+
+/* Ingredientes & Passos */
+.ingredient-inputs {
+  display: grid;
+  grid-template-columns: 100px 140px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.step-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-inputs button,
+.ingredient-inputs button {
+  height: 44px;
+  padding: 0 16px;
+  background: #C4703A;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.step-inputs button:hover,
+.ingredient-inputs button:hover {
+  background: #A95E2F;
+}
+
+/* Listas de Itens Adicionados */
+.items-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.items-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F9F5EF;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #EDE0D4;
+}
+
+.items-list li button {
+  background: #E53E3E;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.items-list li button:hover {
+  transform: scale(1.1);
+}
+
+/* Botões do Modal */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.modal-actions button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.modal-actions button[type="button"] {
+  background: #E2E8F0;
+  color: #4A5568;
+}
+
+.modal-actions button[type="button"]:hover {
+  background: #CBD5E0;
+}
+
+.modal-actions button[type="submit"] {
+  background: #C4703A;
+  color: white;
+}
+
+.modal-actions button[type="submit"]:hover {
+  background: #A95E2F;
+  box-shadow: 0 4px 12px rgba(196, 112, 58, 0.25);
+}
+
+.error-text {
+  color: #E53E3E;
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .ingredient-inputs {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   BOTÕES DE AÇÃO DOS CARDS (EDITAR E EXCLUIR)
+   ========================================================================== */
+
+/* Container de ações no card */
+.recipe-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+/* Estilo Base para os dois botões */
+.btn-edit,
+.btn-delete {
+  flex: 1;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Botão Editar (Tom Laranja do Projeto) */
+.btn-edit {
+  background-color: #FFF3EB;
+  color: #C4703A;
+  border: 1px solid #F0C8A0;
+}
+
+.btn-edit:hover {
+  background-color: #C4703A;
+  color: #FFFFFF;
+  border-color: #C4703A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(196, 112, 58, 0.2);
+}
+
+/* Botão Excluir (Tom Vermelho Suave) */
+.btn-delete {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+}
+
+.btn-delete:hover {
+  background-color: #DC2626;
+  color: #FFFFFF;
+  border-color: #DC2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
+}

@@ -7,6 +7,20 @@ import { uploadImage } from '../services/supabase'
 
 const UNITS = ['unidades', 'gramas', 'kg', 'ml', 'litros', 'xícaras', 'colheres', 'fatias', 'dentes', 'pitadas', 'a gosto']
 const PREP_TIMES = ['Rápido', 'Mediano', 'Demorado']
+const PREP_TIME_INFO = {
+  'Rápido': {
+    tempo: 'Até 30 minutos',
+    descricao: 'Receitas práticas e velozes para o dia a dia. Ideal para lanches, saladas, omeletes, massas simples e pratos com poucos ingredientes.'
+  },
+  'Mediano': {
+    tempo: 'De 30 a 60 minutos',
+    descricao: 'Receitas de complexidade intermediária que exigem um pouco mais de preparo. Enquadra assados rápidos, refogados completos, bolos simples e sobremesas rápidas.'
+  },
+  'Demorado': {
+    tempo: 'Mais de 60 minutos',
+    descricao: 'Pratos elaborados ou que necessitam de longo tempo de cozimento, forno ou descanso. Ideal para feijoadas, assados grandes, pães artesanais e sobremesas estruturadas.'
+  }
+}
 const API_BASE = 'http://localhost:8080'
 
 function PublishRecipe() {
@@ -122,10 +136,10 @@ function PublishRecipe() {
     if (selectedCategories.length === 0) return setError('Selecione ao menos uma categoria.')
 
     const categoryIds = selectedCategories.map(c => c.codCategoria || c.id)
-    
+
     let fotoUrl = ''
     if (imageFile) {
-      fotoUrl = await uploadImage(imageFile, 'receitas')
+      fotoUrl = await uploadImage(imageFile)
     }
     const result = await publishRecipe({
       title: form.title,
@@ -331,35 +345,60 @@ function PublishRecipe() {
             )}
 
             <h3>Tempo de Preparo</h3>
-            <div style={{ maxWidth: '280px', marginBottom: '20px' }}>
-              <CustomSelect
-                value={form.prepTime}
-                onChange={val => setForm(f => ({ ...f, prepTime: val }))}
-                options={PREP_TIMES}
-              />
+            <div className="prep-time-container">
+              {/* Opções em formato de mini tabela/cards */}
+              <div className="prep-time-options">
+                {PREP_TIMES.map((time) => {
+                  const isSelected = form.prepTime === time
+                  return (
+                    <button
+                      key={time}
+                      type="button"
+                      className={`prep-time-card ${isSelected ? 'selected' : ''}`}
+                      onClick={() => setForm(f => ({ ...f, prepTime: time }))}
+                    >
+                      <span className="prep-time-radio">
+                        <span className="inner-circle" />
+                      </span>
+                      <span className="prep-time-label">{time}</span>
+                    </button>
+                  ) 
+                })}
+              </div>
+
+              {/* Caixa Explicativa Dinâmica */}
+              <div className="prep-time-info-box">
+                <h4>💡 O que é {form.prepTime}?</h4>
+                <p><strong>Duração estimada:</strong> {PREP_TIME_INFO[form.prepTime]?.tempo}</p>
+                <p>{PREP_TIME_INFO[form.prepTime]?.descricao}</p>
+              </div>
             </div>
 
             <h3>Foto da Receita</h3>
-            <div>
+            <div className="file-upload-wrapper">
+              <label htmlFor="file-input-publish" className="custom-file-btn">
+                📷 Escolher foto da receita
+              </label>
               <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0]
-                if (file) {
-                  setImageFile(file)
-                  setPreviewUrl(URL.createObjectURL(file)) // Gera preview local imediato
-                }
-              }}
-            />
+                id="file-input-publish"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0]
+                  if (file) {
+                    setImageFile(file)
+                    setPreviewUrl(URL.createObjectURL(file))
+                  }
+                }}
+              />
 
-              {/* Preview simples da foto escolhida antes do envio */}
               {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Pré-visualização"
-                  style={{ width: '150px', height: '100px', objectFit: 'cover', marginTop: '10px', borderRadius: '8px' }}
-                />
+                <div className="image-preview-container">
+                  <img
+                    src={previewUrl}
+                    alt="Pré-visualização"
+                  />
+                </div>
               )}
             </div>
 

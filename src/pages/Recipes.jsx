@@ -105,7 +105,7 @@ function ChefRecipesView() {
       ) : (
         Object.entries(byChef).map(([chefName, chefRecipesList]) => (
           <section key={chefName} className="chef-recipes-section">
-            <h2>{chefName}</h2>
+            <h2>{"Chef "+chefName}</h2>
             <div className="recipes-grid">
               {chefRecipesList.map((recipe) => (
                 <RecipeCard key={recipe.id_seguro} recipe={recipe} />

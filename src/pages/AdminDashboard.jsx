@@ -41,7 +41,7 @@ function SearchBar({ placeholder, value, onChange }) {
   )
 }
 
-function AdminUsers({ data, onView, onToggle }) {
+function AdminUsers({ data, onView, onToggle, onOpenImage }) {
   const [search, setSearch] = useState('')
   const filtered = data.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -57,21 +57,26 @@ function AdminUsers({ data, onView, onToggle }) {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th><th>Nome</th><th>E-mail</th><th>Idade</th><th>Status</th><th>Ações</th>
+              <th>#</th><th>Foto</th><th>Nome</th><th>E-mail</th><th>Data de Nascimento</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && <tr><td colSpan={6} className="admin-empty">Nenhum usuário encontrado.</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={7} className="admin-empty">Nenhum usuário encontrado.</td></tr>}
             {filtered.map(u => (
               <tr key={u.id}>
                 <td className="admin-id">{u.id}</td>
                 <td>
+                  <div className="admin-thumb-circle" onClick={() => u.photo && onOpenImage(u.photo)}>
+                    {u.photo ? <img src={u.photo} alt={u.name} /> : <i className="bi bi-person"></i>}
+                  </div>
+                </td>
+                <td>
                   <button className="admin-link-btn" onClick={() => onView(u)}>
-                    <i className="bi bi-person-circle"></i> {u.name}
+                    {u.name}
                   </button>
                 </td>
                 <td>{u.email}</td>
-                <td>{u.age} anos</td>
+                <td>{u.birthDate}</td>
                 <td><StatusBadge active={u.active} /></td>
                 <td>
                   <ToggleBtn active={u.active} onToggle={() => onToggle(u)} />
@@ -85,7 +90,7 @@ function AdminUsers({ data, onView, onToggle }) {
   )
 }
 
-function AdminChefs({ data, onView, onToggle }) {
+function AdminChefs({ data, onView, onToggle, onOpenImage }) {
   const [search, setSearch] = useState('')
   const filtered = data.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -101,17 +106,22 @@ function AdminChefs({ data, onView, onToggle }) {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th><th>Nome</th><th>E-mail</th><th>Receitas</th><th>Status</th><th>Ações</th>
+              <th>#</th><th>Foto</th><th>Nome</th><th>E-mail</th><th>Receitas</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && <tr><td colSpan={6} className="admin-empty">Nenhum chefe encontrado.</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={7} className="admin-empty">Nenhum chefe encontrado.</td></tr>}
             {filtered.map(c => (
               <tr key={c.id}>
                 <td className="admin-id">{c.id}</td>
                 <td>
+                  <div className="admin-thumb-circle" onClick={() => c.photo && onOpenImage(c.photo)}>
+                    {c.photo ? <img src={c.photo} alt={c.name} /> : <i className="bi bi-person-badge"></i>}
+                  </div>
+                </td>
+                <td>
                   <button className="admin-link-btn" onClick={() => onView(c)}>
-                    <i className="bi bi-person-badge"></i> {c.name}
+                    {c.name}
                   </button>
                 </td>
                 <td>{c.email}</td>
@@ -129,12 +139,13 @@ function AdminChefs({ data, onView, onToggle }) {
   )
 }
 
-function AdminRecipes({ data, onView, onToggle }) {
+function AdminRecipes({ data, onView, onToggle, onOpenImage }) {
   const [search, setSearch] = useState('')
   const filtered = data.filter(r =>
-    r.title.toLowerCase().includes(search.toLowerCase()) ||
-    r.chef.toLowerCase().includes(search.toLowerCase())
+    (r.title || '').toLowerCase().includes(search.toLowerCase()) ||
+    (r.chef || '').toLowerCase().includes(search.toLowerCase())
   )
+
   return (
     <div>
       <div className="admin-section-header">
@@ -145,21 +156,30 @@ function AdminRecipes({ data, onView, onToggle }) {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>#</th><th>Título</th><th>Chefe</th><th>Categoria</th><th>Status</th><th>Ações</th>
+              <th>#</th><th>Foto</th><th>Título</th><th>Chefe</th><th>Categoria</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && <tr><td colSpan={6} className="admin-empty">Nenhuma receita encontrada.</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={7} className="admin-empty">Nenhuma receita encontrada.</td></tr>}
             {filtered.map(r => (
               <tr key={r.id}>
                 <td className="admin-id">{r.id}</td>
                 <td>
+                  <div className="admin-thumb-circle" onClick={() => r.photo && onOpenImage(r.photo)}>
+                    {r.photo ? <img src={r.photo} alt={r.title} /> : <i className="bi bi-journal-text"></i>}
+                  </div>
+                </td>
+                <td>
                   <button className="admin-link-btn" onClick={() => onView(r)}>
-                    <i className="bi bi-book"></i> {r.title}
+                    {r.title}
                   </button>
                 </td>
                 <td>{r.chef}</td>
-                <td><span className="admin-category">{r.category}</span></td>
+                <td>
+                  <span className="admin-category">
+                    {r.categoryName}
+                  </span>
+                </td>
                 <td><StatusBadge active={r.active} /></td>
                 <td>
                   <ToggleBtn active={r.active} onToggle={() => onToggle(r)} />
@@ -173,8 +193,7 @@ function AdminRecipes({ data, onView, onToggle }) {
   )
 }
 
-
-function AdminCategorias({ categorias, onCreate }) {
+function AdminCategorias({ categorias = [], onCreate }) {
   const [nome, setNome] = useState('')
   const [grupo, setGrupo] = useState('neutro')
   const [search, setSearch] = useState('')
@@ -182,14 +201,14 @@ function AdminCategorias({ categorias, onCreate }) {
   const [success, setSuccess] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  const filtered = categorias.filter(c =>
+  const catList = Array.isArray(categorias) ? categorias : []
+  const filtered = catList.filter(c =>
     (c.nomeCategoria || '').toLowerCase().includes(search.toLowerCase())
   )
 
-  // Separa as categorias nos 3 grupos solicitados
-  const vegCats = filtered.filter(c => (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'vegetariano' || (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'vegano')
-  const neutroCats = filtered.filter(c => (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'neutro' || !(c.grupoCategoria || c.grupoCategoria))
-  const carnesCats = filtered.filter(c => (c.grupoCategoria || c.grupoCategoria || '').toLowerCase() === 'carnes')
+  const vegCats = filtered.filter(c => (c.grupoCategoria || '').toLowerCase() === 'vegetariano' || (c.grupoCategoria || '').toLowerCase() === 'vegano')
+  const neutroCats = filtered.filter(c => (c.grupoCategoria || '').toLowerCase() === 'neutro' || !c.grupoCategoria)
+  const carnesCats = filtered.filter(c => (c.grupoCategoria || '').toLowerCase() === 'carnes')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -199,11 +218,10 @@ function AdminCategorias({ categorias, onCreate }) {
     if (!nomeTrim) return setError('Digite um nome para a categoria.')
 
     setSaving(true)
-    // Passa o nome e o grupo para a função de criação
     const result = await onCreate(nomeTrim, grupo)
     setSaving(false)
 
-    if (!result.ok) return setError(result.error || 'Falha ao criar categoria.')
+    if (!result?.ok) return setError(result?.error || 'Falha ao criar categoria.')
     setNome('')
     setGrupo('neutro')
     setSuccess(true)
@@ -241,9 +259,7 @@ function AdminCategorias({ categorias, onCreate }) {
       {error && <p className="admin-error-text">{error}</p>}
       {success && <p className="admin-success-text">✓ Categoria adicionada com sucesso!</p>}
 
-      {/* Grid de 3 Colunas por Grupo */}
       <div className="admin-categories-grid">
-        {/* Coluna 1: Vegetariano / Vegano */}
         <div className="admin-category-col col-vegetariano">
           <h3><i className="bi bi-flower1"></i> Vegetariano / Vegano</h3>
           <div className="admin-category-list">
@@ -251,8 +267,8 @@ function AdminCategorias({ categorias, onCreate }) {
               <p className="admin-category-empty">Nenhuma categoria</p>
             ) : (
               vegCats.map(c => (
-                <div key={c.codCategoria} className="admin-category-card">
-                  <span className="admin-category-id">#{c.codCategoria}</span>
+                <div key={c.codCategoria || c.id} className="admin-category-card">
+                  <span className="admin-category-id">#{c.codCategoria || c.id}</span>
                   <span className="admin-category-name">{c.nomeCategoria}</span>
                 </div>
               ))
@@ -260,7 +276,6 @@ function AdminCategorias({ categorias, onCreate }) {
           </div>
         </div>
 
-        {/* Coluna 2: Neutro */}
         <div className="admin-category-col col-neutro">
           <h3><i className="bi bi-circle"></i> Neutro</h3>
           <div className="admin-category-list">
@@ -268,8 +283,8 @@ function AdminCategorias({ categorias, onCreate }) {
               <p className="admin-category-empty">Nenhuma categoria</p>
             ) : (
               neutroCats.map(c => (
-                <div key={c.codCategoria} className="admin-category-card">
-                  <span className="admin-category-id">#{c.codCategoria}</span>
+                <div key={c.codCategoria || c.id} className="admin-category-card">
+                  <span className="admin-category-id">#{c.codCategoria || c.id}</span>
                   <span className="admin-category-name">{c.nomeCategoria}</span>
                 </div>
               ))
@@ -277,7 +292,6 @@ function AdminCategorias({ categorias, onCreate }) {
           </div>
         </div>
 
-        {/* Coluna 3: Carnes */}
         <div className="admin-category-col col-carnes">
           <h3><i className="bi bi-egg-fried"></i> Carnes</h3>
           <div className="admin-category-list">
@@ -285,8 +299,8 @@ function AdminCategorias({ categorias, onCreate }) {
               <p className="admin-category-empty">Nenhuma categoria</p>
             ) : (
               carnesCats.map(c => (
-                <div key={c.codCategoria} className="admin-category-card">
-                  <span className="admin-category-id">#{c.codCategoria}</span>
+                <div key={c.codCategoria || c.id} className="admin-category-card">
+                  <span className="admin-category-id">#{c.codCategoria || c.id}</span>
                   <span className="admin-category-name">{c.nomeCategoria}</span>
                 </div>
               ))
@@ -298,52 +312,136 @@ function AdminCategorias({ categorias, onCreate }) {
   )
 }
 
+function ImageZoomModal({ imageSrc, onClose }) {
+  if (!imageSrc) return null
+  return (
+    <div className="admin-modal-overlay" onClick={onClose}>
+      <div className="admin-image-zoom-card" onClick={e => e.stopPropagation()}>
+        <button className="admin-zoom-close-btn" onClick={onClose}>
+          <i className="bi bi-x-lg"></i>
+        </button>
+        <img src={imageSrc} alt="Zoom" className="admin-zoom-img" />
+      </div>
+    </div>
+  )
+}
+
+function parseRecipeList(value) {
+  if (!value) return []
+  if (Array.isArray(value)) return value
+  try { return JSON.parse(value) } catch { return [] }
+}
+
 function DetailModal({ item, type, onClose, navigate }) {
   if (!item) return null
-
   function goTo() {
-    if (type === 'recipe') navigate(`/recipe/${item.id}`)
-    else if (type === 'chef') navigate(`/chef/${item.id}`)
+    if (type === 'chef') navigate(`/chef/${item.id}`)
     else if (type === 'user') navigate('/profile')
     onClose()
   }
 
-  const titles = { recipe: 'Receita', chef: 'Chefe', comment: 'Comentário', user: 'Usuário' }
-  const icons = { recipe: 'bi-book', chef: 'bi-person-badge-fill', comment: 'bi-chat-quote-fill', user: 'bi-person-circle' }
+  const PLACEHOLDER = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=75'
+  const fotoReceita = item.photo || item.foto || item.fotoReceita || PLACEHOLDER
+  const descricao = item.descricao || item.description || 'Sem descrição cadastrada.'
+  
+  const rawIngredientes = item.ingredients || item.itens || []
+  const listaIngredientes = typeof rawIngredientes === 'string'
+    ? parseRecipeList(rawIngredientes)
+    : (Array.isArray(rawIngredientes) ? rawIngredientes : [])
+
+  const rawModoPreparo = item.modo_preparo || item.modoPreparo || item.instructions || ''
+  const listaModoPreparo = typeof rawModoPreparo === 'string'
+    ? parseRecipeList(rawModoPreparo)
+    : (Array.isArray(rawModoPreparo) ? rawModoPreparo : [])
+
+  const titles = { recipe: 'Detalhes da Receita', chef: 'Chefe', user: 'Usuário' }
+  const icons = { recipe: 'bi-journal-richtext', chef: 'bi-person-badge-fill', user: 'bi-person-circle' }
 
   return (
     <div className="admin-modal-overlay" onClick={onClose}>
-      <div className="admin-modal" onClick={e => e.stopPropagation()}>
+      <div className={`admin-modal ${type === 'recipe' ? 'admin-modal-large' : ''}`} onClick={e => e.stopPropagation()}>
         <div className="admin-modal-header">
           <span className="admin-modal-icon"><i className={`bi ${icons[type]}`}></i></span>
           <h3>{titles[type]}</h3>
           <button className="admin-modal-close" onClick={onClose}><i className="bi bi-x-lg"></i></button>
         </div>
+
         <div className="admin-modal-body">
-          {type === 'recipe' && <>
-            <div className="admin-detail-row"><span>Título</span><strong>{item.title}</strong></div>
-            <div className="admin-detail-row"><span>Chefe</span><strong>{item.chef}</strong></div>
-            <div className="admin-detail-row"><span>Categoria</span><strong>{item.category}</strong></div>
-            <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
-          </>}
-          {type === 'chef' && <>
-            <div className="admin-detail-row"><span>Nome</span><strong>{item.name}</strong></div>
-            <div className="admin-detail-row"><span>E-mail</span><strong>{item.email}</strong></div>
-            <div className="admin-detail-row"><span>Receitas</span><strong>{item.recipes}</strong></div>
-            <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
-          </>}
-          {type === 'user' && <>
-            <div className="admin-detail-row"><span>Nome</span><strong>{item.name}</strong></div>
-            <div className="admin-detail-row"><span>E-mail</span><strong>{item.email}</strong></div>
-            <div className="admin-detail-row"><span>Idade</span><strong>{item.age} anos</strong></div>
-            <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
-          </>}
+          {type === 'recipe' && (
+            <div className="admin-recipe-preview">
+              <div className="admin-recipe-header">
+                <img src={fotoReceita} alt={item.title} className="admin-recipe-img" />
+                <div className="admin-recipe-header-info">
+                  <h2>{item.title}</h2>
+                  <div className="admin-recipe-tags">
+                    <span className="admin-category">{item.categoryName}</span>
+                    <StatusBadge active={item.active} />
+                  </div>
+                  <p className="admin-recipe-chef"><i className="bi bi-person"></i> Por: <strong>{item.chef}</strong></p>
+                  <p className="admin-recipe-desc">{descricao}</p>
+                </div>
+              </div>
+
+              <div className="admin-recipe-grid">
+                <div className="admin-recipe-box">
+                  <h4><i className="bi bi-basket-fill"></i> Ingredientes</h4>
+                  {listaIngredientes.length === 0 ? (
+                    <p className="admin-empty-text">Nenhum ingrediente informado.</p>
+                  ) : (
+                    <ul>
+                      {listaIngredientes.map((ing, idx) => (
+                        <li key={idx}>
+                          {typeof ing === 'object' && ing !== null
+                            ? `${ing.quantidade ?? ing.qtdIngrediente ?? ''} ${ing.unidade ?? ing.uniMedida ?? ''} — ${ing.nome ?? ing.nomeIngrediente ?? ''}`
+                            : ing}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className="admin-recipe-box">
+                  <h4><i className="bi bi-list-ol"></i> Modo de Preparo</h4>
+                  {listaModoPreparo.length === 0 ? (
+                    <p className="admin-empty-text">Nenhum passo a passo informado.</p>
+                  ) : (
+                    <ol>
+                      {listaModoPreparo.map((step, idx) => (
+                        <li key={idx}>{step}</li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {type === 'chef' && (
+            <>
+              <div className="admin-detail-row"><span>Nome</span><strong>{item.name}</strong></div>
+              <div className="admin-detail-row"><span>E-mail</span><strong>{item.email}</strong></div>
+              <div className="admin-detail-row"><span>Receitas</span><strong>{item.recipes}</strong></div>
+              <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
+            </>
+          )}
+
+          {type === 'user' && (
+            <>
+              <div className="admin-detail-row"><span>Nome</span><strong>{item.name}</strong></div>
+              <div className="admin-detail-row"><span>E-mail</span><strong>{item.email}</strong></div>
+              <div className="admin-detail-row"><span>Nascimento</span><strong>{item.birthDate}</strong></div>
+              <div className="admin-detail-row"><span>Status</span><StatusBadge active={item.active} /></div>
+            </>
+          )}
         </div>
+
         <div className="admin-modal-footer">
           <button className="admin-cancel-btn" onClick={onClose}>Fechar</button>
-          <button className="admin-view-btn" onClick={goTo}>
-            <i className="bi bi-box-arrow-up-right"></i> Ver no site
-          </button>
+          {type !== 'recipe' && (
+            <button className="admin-view-btn" onClick={goTo}>
+              <i className="bi bi-box-arrow-up-right"></i> Ver no site
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -359,9 +457,12 @@ function AdminDashboard() {
     createCategoria,
     loadAllUsers,
     toggleRecipeStatus,
-    logout, loadRecipes, toggleUserBlock
+    logout,
+    loadRecipes,
+    toggleUserBlock
   } = useUser()
 
+  const [zoomImage, setZoomImage] = useState(null)
   const [activeTab, setActiveTab] = useState('users')
   const [rawUsers, setRawUsers] = useState([])
   const [modal, setModal] = useState(null)
@@ -379,42 +480,60 @@ function AdminDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── normalização para o formato que os componentes esperam ──────────────
-  // ── normalização corrigida baseada no status_Usuario ──────────────
-  // ── normalização corrigida baseada no campo 'bloqueado' (0 ou 1) ──
-const users = rawUsers
-  .filter(u => u.funcao !== 'Chefe')
-  .filter(u => u.funcao !== 'ADMIN')
-  .map(u => ({
-    id: u.codUser,
-    name: u.nome_completo,
-    email: u.gmail,
-    age: u.idade,
-    // Se bloqueado for 0 (falsy), active é true. Se for 1 (truthy), active é false.
-    active: u.bloqueado === 0, 
-  }))
+  function formatDate(dateString) {
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString
+    return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+  }
 
-const chefs = rawUsers
-  .filter(u => u.funcao === 'Chefe')
-  .filter(u => u.funcao !== 'ADMIN')
-  .map(u => ({
-    id: u.codUser,
-    name: u.nome_completo,
-    email: u.gmail,
-    recipes: recipes.filter(r => r.chefId === u.codUser).length,
-    active: u.bloqueado === 0, // Mesmo critério para os chefes
-  }))
-  const recipesNormalized = recipes.map(r => ({
-    id: r.id,
-    title: r.title,
-    chef: r.chef,
-    chefId: r.chefId,
-    category: Array.isArray(recipes.categorias)
-      ? recipes.categorias.map(c => c.nomeCategoria).join(', ')
-      : (recipes.category ?? 'Geral'),
-    active: r.active ?? false
-  }))
+  const users = rawUsers
+    .filter(u => u.funcao !== 'Chefe')
+    .filter(u => u.funcao !== 'ADMIN')
+    .map(u => ({
+      id: u.codUser,
+      name: u.nome_completo,
+      email: u.gmail,
+      birthDate: formatDate(u.data_nascimento || u.nascimento || u.dataNascimento),
+      photo: u.fotoPerfil || u.photo || u.foto,
+      active: u.bloqueado === 0,
+    }))
 
+  const chefs = rawUsers
+    .filter(u => u.funcao === 'Chefe')
+    .filter(u => u.funcao !== 'ADMIN')
+    .map(u => ({
+      id: u.codUser,
+      name: u.nome_completo,
+      email: u.gmail,
+      recipes: recipes.filter(r => r.chefId === u.codUser).length,
+      photo: u.fotoPerfil || u.photo || u.foto,
+      active: u.bloqueado === 0,
+    }))
+
+  const recipesNormalized = recipes.map(r => {
+    let catName = 'Não especificado'
+    const rawCat = r.category || r.categorias || r.categoria
+    if (Array.isArray(rawCat) && rawCat.length > 0) {
+      catName = rawCat[0]?.nomeCategoria || 'Não especificado'
+    } else if (typeof rawCat === 'object' && rawCat !== null) {
+      catName = rawCat.nomeCategoria || 'Não especificado'
+    } else if (typeof rawCat === 'string' && rawCat) {
+      catName = rawCat
+    }
+
+    return {
+      ...r,
+      id: r.codReceitas || r.id,
+      title: r.nomeReceita || r.title || 'Sem título',
+      chef: r.usuario?.nome_completo || r.chef || 'Anônimo',
+      chefId: r.usuario?.codUser || r.chefId,
+      photo: r.fotoReceita || r.foto || r.image || r.photo,
+      ingredientes: r.ingredientes || r.ingredientes_receita || r.itens || [],
+      categoryName: catName,
+      active: r.active ?? true
+    }
+  })
 
   const stats = [
     { label: 'Usuários', value: users.length, active: users.filter(u => u.active).length, icon: 'bi-people-fill', tab: 'users' },
@@ -422,40 +541,32 @@ const chefs = rawUsers
     { label: 'Receitas', value: recipesNormalized.length, active: recipesNormalized.filter(r => r.active).length, icon: 'bi-journal-richtext', tab: 'recipes' },
   ]
 
-  // ── toggles ───────────────────────────────────────────────────────────────
-  // ── Novo controle de bloqueio de usuários ─────────────────────────
- // ── Novo controle de bloqueio de usuários alterando o BIT ─────────
-async function handleToggleUser(u) {
-  // Envia para o back-end que faz o toggle usando o ID
-  const result = await toggleUserBlock(u.id)
-  
-  if (result.ok) {
-    // Atualiza o estado na hora alterando a propriedade 'bloqueado'
-    setRawUsers(prev => prev.map(x => {
-      if (x.codUser === u.id) {
-        return { 
-          ...x, 
-          // Se o usuário na tela está ativo (u.active === true), significa que ele não estava bloqueado (0). 
-          // Logo, após o clique, ele deve ser bloqueado (1). Caso contrário, vira (0).
-          bloqueado: u.active ? 1 : 0 
-        }
-      }
-      return x
-    }))
-  }
-}
+  async function handleToggleUser(u) {
+    const result = await toggleUserBlock(u.id)
 
+    if (result?.ok) {
+      setRawUsers(prev => prev.map(x => {
+        if (x.codUser === u.id) {
+          return {
+            ...x,
+            bloqueado: u.active ? 1 : 0
+          }
+        }
+        return x
+      }))
+    }
+  }
 
   async function handleToggleRecipe(r) {
     await toggleRecipeStatus(r.id, r.active)
     await loadRecipes()
   }
 
-
   async function handleCreateCategoria(nome, grupo) {
-    return await createCategoria(nome, grupo)
+    const res = await createCategoria(nome, grupo)
+    await loadCategorias()
+    return res
   }
-
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -514,10 +625,39 @@ async function handleToggleUser(u) {
           <p className="admin-empty">Carregando dados...</p>
         ) : (
           <>
-            {activeTab === 'users' && <AdminUsers data={users} onView={u => setModal({ item: u, type: 'user' })} onToggle={handleToggleUser} />}
-            {activeTab === 'chefs' && <AdminChefs data={chefs} onView={c => setModal({ item: c, type: 'chef' })} onToggle={handleToggleUser} />}
-            {activeTab === 'recipes' && <AdminRecipes data={recipesNormalized} onView={r => setModal({ item: r, type: 'recipe' })} onToggle={handleToggleRecipe} />}
-            {activeTab === 'categorias' && <AdminCategorias categorias={categorias} onCreate={handleCreateCategoria} />}
+            {activeTab === 'users' && (
+              <AdminUsers
+                data={users}
+                onView={u => setModal({ item: u, type: 'user' })}
+                onToggle={handleToggleUser}
+                onOpenImage={setZoomImage}
+              />
+            )}
+
+            {activeTab === 'chefs' && (
+              <AdminChefs
+                data={chefs}
+                onView={c => setModal({ item: c, type: 'chef' })}
+                onToggle={handleToggleUser}
+                onOpenImage={setZoomImage}
+              />
+            )}
+
+            {activeTab === 'recipes' && (
+              <AdminRecipes
+                data={recipesNormalized}
+                onView={r => setModal({ item: r, type: 'recipe' })}
+                onToggle={handleToggleRecipe}
+                onOpenImage={setZoomImage}
+              />
+            )}
+
+            {activeTab === 'categorias' && (
+              <AdminCategorias
+                categorias={categorias}
+                onCreate={handleCreateCategoria}
+              />
+            )}
           </>
         )}
       </div>
@@ -525,6 +665,7 @@ async function handleToggleUser(u) {
       {modal && (
         <DetailModal item={modal.item} type={modal.type} onClose={() => setModal(null)} navigate={navigate} />
       )}
+      <ImageZoomModal imageSrc={zoomImage} onClose={() => setZoomImage(null)} />
     </div>
   )
 }

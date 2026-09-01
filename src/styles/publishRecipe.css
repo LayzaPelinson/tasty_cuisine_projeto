@@ -242,10 +242,10 @@
 }
 
 .ingredient-inputs {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-top: 12px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100%;
 }
 
 .step-inputs {
@@ -263,16 +263,21 @@
 
 /* CHECKBOX CATEGORIAS */
 .category-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: #FFF3EB;
-  border: 1px solid #FDBA74;
-  border-radius: 10px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 18px !important;
+  border-radius: 20px !important;
   cursor: pointer;
   user-select: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.category-checkbox input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .category-checkbox:hover:not(.disabled) {
@@ -445,5 +450,181 @@ ol.items-list li::before {
 
   .recipe-form-card {
     padding: 24px;
+  }
+}
+
+/* INPUT FILE CUSTOMIZADO E PREVIEW */
+.file-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.file-upload-wrapper input[type="file"] {
+  display: none; /* Esconde o input file nativo do navegador */
+}
+
+.custom-file-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: #FBF5EF;
+  border: 2px dashed #C4703A;
+  border-radius: 14px;
+  color: #C4703A;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+  width: fit-content;
+}
+
+.custom-file-btn:hover {
+  background: #FFF3EB;
+  border-color: #A95E2F;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(196, 112, 58, 0.15);
+}
+
+.image-preview-container {
+  margin-top: 6px;
+}
+
+.image-preview-container img {
+  width: 160px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid #F0C8A0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* CONTAINER GERAL */
+.prep-time-container {
+  display: flex !important;
+  gap: 20px !important;
+  align-items: stretch !important; /* Mantém a mesma altura nos dois lados */
+  margin-bottom: 24px !important;
+}
+
+/* COLUNA DAS OPÇÕES (TABELINHA) */
+.prep-time-options {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  width: 180px;
+  flex-shrink: 0;
+}
+
+/* CARDS DE SELEÇÃO */
+.prep-time-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #FBF5EF;
+  border: 1.5px solid #F0C8A0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.prep-time-card:hover {
+  background: #FFF8F0;
+  border-color: #C4703A;
+  transform: translateX(3px);
+}
+
+/* ESTADO SELECIONADO */
+.prep-time-card.selected {
+  background: #FFF3EB;
+  border-color: #C4703A;
+  box-shadow: 0 4px 10px rgba(196, 112, 58, 0.15);
+}
+
+/* CÍRCULO INDICADOR DE RADIO */
+.prep-time-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #C4703A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.prep-time-radio .inner-circle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #C4703A;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s ease;
+}
+
+.prep-time-card.selected .prep-time-radio .inner-circle {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* TEXTO DA OPÇÃO */
+.prep-time-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3D2010;
+}
+
+.prep-time-card.selected .prep-time-label {
+  color: #C4703A;
+}
+
+/* CAIXA EXPLICATIVA */
+.prep-time-info-box {
+  flex: 1;
+  max-width: 850px;
+  background: #FFF8F0 !important;
+  border: 1px solid #F0C8A0 !important;
+  border-left: 5px solid #C4703A !important;
+  border-radius: 14px !important;
+  padding: 14px 18px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.prep-time-info-box h4 {
+  margin: 0 0 6px 0 !important;
+  color: #C4703A !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.prep-time-info-box p {
+  margin: 3px 0 !important;
+  font-size: 13.5px !important;
+  color: #666 !important;
+  line-height: 1.45 !important;
+}
+
+.prep-time-info-box p strong {
+  color: #3D2010 !important;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 640px) {
+  .prep-time-container {
+    flex-direction: column !important;
+  }
+  .prep-time-options {
+    width: 100%;
   }
 }

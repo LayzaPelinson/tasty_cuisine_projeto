@@ -32,7 +32,6 @@ const API_BASE = 'http://localhost:8080'
           if(res.ok){
             const data = await res.json()
             const Filtered = data.filter(fav => fav.receita.usuario.codUser === user.id)
-            console.log(Filtered)
             setFav(Filtered.length)
           }
         } catch (err){
