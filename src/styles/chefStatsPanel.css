@@ -1,40 +1,154 @@
-.chef-stats-page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+/* Estilos da Tabela de Desempenho */
+.chef-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 10px;
 }
 
-.chef-stats-overview,
-.chef-settings-card {
-  background: #fff;
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.05);
+.chef-recipes-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
 }
 
-.chef-stats-overview h2,
-.chef-settings-card h2 {
+.chef-recipes-table th {
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #666;
+  border-bottom: 2px solid #f0e4d0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chef-recipes-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0e4d0;
+  vertical-align: middle;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.chef-recipes-table tbody tr:hover {
+  background-color: #fdf6ee;
+}
+
+.table-recipe-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.table-recipe-name {
+  font-weight: 600;
+  color: #222;
+}
+
+.rating-badge {
+  background: #fff3eb;
   color: #f47b20;
-  font-size: 2rem;
-  margin-bottom: 20px;
-  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.88rem;
+  display: inline-block;
+}
+/* Indicador de cursor na imagem da tabela */
+.clickable-img {
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.clickable-img:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* Modal Overlay */
+.img-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Caixa do Modal fixada com min e max de 300px */
+.img-modal-content {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  min-width: 300px;
+  max-width: 300px;
+  min-height: 300px;
+  max-height: 300px;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Imagem ajustada para cobrir os 300x300 */
+.img-modal-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Botão de Fechar */
+.img-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.img-modal-close:hover {
+  background: rgba(244, 123, 32, 0.9);
 }
 
 .chef-stats-cards {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .chef-stat-card {
   flex: 1;
-  min-width: 160px;
+  min-width: 180px;
+  min-height: 140px;
   background: #fdf6ee;
   border-radius: 16px;
-  padding: 24px 20px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
   border: 1px solid #f0e4d0;
 }
 
@@ -43,6 +157,8 @@
   font-weight: 700;
   color: #f47b20;
   font-family: inherit;
+  line-height: 1;
+  margin-bottom: 6px;
 }
 
 .stat-label {
@@ -52,27 +168,7 @@
 }
 
 .stat-sub {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: #888;
-}
-
-.chef-settings-card .account-actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-}
-
-.chef-settings-card .account-actions button {
-  padding: 12px 22px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  background: white;
-  color: #000;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.chef-settings-card .account-actions .logout {
-  color: #ff4d4d;
-  border-color: #ff4d4d;
+  margin-top: 2px;
 }

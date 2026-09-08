@@ -472,6 +472,7 @@ function AdminDashboard() {
     async function carregarTudo() {
       setLoadingData(true)
       const [usersData] = await Promise.all([loadAllUsers(), loadCategorias()])
+      console.log(usersData)
       setRawUsers(Array.isArray(usersData) ? usersData : [])
       setLoadingData(false)
     }
@@ -487,30 +488,7 @@ function AdminDashboard() {
     return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
   }
 
-  const users = rawUsers
-    .filter(u => u.funcao !== 'Chefe')
-    .filter(u => u.funcao !== 'ADMIN')
-    .map(u => ({
-      id: u.codUser,
-      name: u.nome_completo,
-      email: u.gmail,
-      birthDate: formatDate(u.data_nascimento || u.nascimento || u.dataNascimento),
-      photo: u.fotoPerfil || u.photo || u.foto,
-      active: u.bloqueado === 0,
-    }))
-
-  const chefs = rawUsers
-    .filter(u => u.funcao === 'Chefe')
-    .filter(u => u.funcao !== 'ADMIN')
-    .map(u => ({
-      id: u.codUser,
-      name: u.nome_completo,
-      email: u.gmail,
-      recipes: recipes.filter(r => r.chefId === u.codUser).length,
-      photo: u.fotoPerfil || u.photo || u.foto,
-      active: u.bloqueado === 0,
-    }))
-
+  // 1. Padroniza a lista de receitas extraindo e comparando corretamente os IDs do chefe
   const recipesNormalized = recipes.map(r => {
     let catName = 'Não especificado'
     const rawCat = r.category || r.categorias || r.categoria
@@ -521,19 +499,53 @@ function AdminDashboard() {
     } else if (typeof rawCat === 'string' && rawCat) {
       catName = rawCat
     }
+    console.log(recipes)
+    // Extrai o ID do chefe do objeto usuario ou do atributo chefId
+    const resolvedChefId = r.usuario?.codUser || r.usuario?.id || r.chefId || r.codUser
 
     return {
       ...r,
       id: r.codReceitas || r.id,
       title: r.nomeReceita || r.title || 'Sem título',
       chef: r.usuario?.nome_completo || r.chef || 'Anônimo',
-      chefId: r.usuario?.codUser || r.chefId,
+      chefId: resolvedChefId,
       photo: r.fotoReceita || r.foto || r.image || r.photo,
       ingredientes: r.ingredientes || r.ingredientes_receita || r.itens || [],
       categoryName: catName,
       active: r.active ?? true
     }
   })
+
+  const users = rawUsers
+    .filter(u => u.funcao !== 'Chefe')
+    .filter(u => u.funcao !== 'ADMIN')
+    .map(u => ({
+      id: u.codUser,
+      name: u.nome_completo,
+      email: u.gmail,
+    birthDate: formatDate(u.idade || u.data_nascimento || u.nascimento || u.dataNascimento), // Adicionado u.idade      photo: u.fotoPerfil || u.photo || u.foto,
+      active: u.bloqueado === 0,
+    }))
+
+  // 2. Filtra as receitas vinculadas comparando como String os IDs
+  const chefs = rawUsers
+    .filter(u => u.funcao === 'Chefe')
+    .filter(u => u.funcao !== 'ADMIN')
+    .map(u => {
+      // Conta quantas receitas pertencem a este chefe comparando como String
+      const totalReceitas = recipesNormalized.filter(r => 
+        String(r.chefId) === String(u.codUser)
+      ).length
+      console.log(recipesNormalized)
+      return {
+        id: u.codUser,
+        name: u.nome_completo,
+        email: u.gmail,
+        recipes: totalReceitas, // Recebe a contagem exata
+        photo: u.fotoPerfil || u.photo || u.foto,
+        active: u.bloqueado === 0,
+      }
+    })
 
   const stats = [
     { label: 'Usuários', value: users.length, active: users.filter(u => u.active).length, icon: 'bi-people-fill', tab: 'users' },

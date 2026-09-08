@@ -53,13 +53,10 @@ function normalizeApiRecipe(recipe) {
     title: recipe.title ?? recipe.nomeReceita,
     description: recipe.description ?? recipe.descricao,
     category: recipe.category ?? recipe.categoria ?? 'Geral',
-    difficulty: recipe.difficulty ?? recipe.dificuldade ?? 'Médio',
-    time: recipe.time ?? recipe.tempo ?? recipe.tempoPreparo ?? '',
     chef: recipe.chef ?? recipe.chefName ?? recipe.usuario?.nome_completo ?? recipe.usuario?.nome_de_usuario ?? recipe.chefe?.nomeCompleto ?? recipe.chefe?.nomeUsuario ?? 'Desconhecido',
-    chefId: recipe.chefId ?? recipe.chefe?.codChefe,
+    chefId: recipe.usuario?.codUser ?? recipe.chefe?.codChefe,
     ingredients: parseJsonOrLines(recipe.ingredients ?? recipe.ingredientes),
     instructions: parseJsonOrLines(recipe.instructions ?? recipe.modo_preparo ?? recipe.manual2),
-    chefTip: recipe.chefTip ?? recipe.dica ?? '',
     image: recipe.fotoReceita ?? null,
     active: recipe.status_receita === 'ATIVO',
     blockedUser: recipe.usuario?.bloqueado,
@@ -174,7 +171,54 @@ export function UserProvider({ children }) {
       return { ok: false }
     }
   }
+  
+  async function getRecipeFavoritesCount(recipeId) {
+  try {
+    const res = await fetch(`${API_BASE}/favorito/findAll`);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      // Filtra os favoritos que pertencem a essa receita especificamente
+      const favs = data.filter(f => {
+        const idDaReceita = f.receita?.codReceitas || f.receita?.id || f.codReceitas;
+        return String(idDaReceita) === String(recipeId);
+      });
+      return favs.length;
+    }
+    return 0;
+  } catch (error) {
+    console.error("Erro ao carregar contagem de favoritos da receita:", error);
+    return 0;
+  }
+}
 
+async function getRecipeRatingStats(recipeId) {
+  try {
+    const res = await fetch(`${API_BASE}/comentario/findAll`);
+    if (!res.ok) return { total: 0, media: '0.0' };
+    const data = await res.json();
+    
+    if (Array.isArray(data)) {
+      // Filtra comentários pertinentes a essa receita
+      const comentariosDaReceita = data.filter(c => {
+        const idDaReceita = c.receita?.codReceitas || c.receita?.id || c.codReceitas;
+        return String(idDaReceita) === String(recipeId);
+      });
+
+      const total = comentariosDaReceita.length;
+      if (total === 0) return { total: 0, media: '0.0' };
+
+      const somaNotas = comentariosDaReceita.reduce((acc, c) => acc + Number(c.nota || c.avaliacao || 0), 0);
+      const media = (somaNotas / total).toFixed(1);
+
+      return { total, media };
+    }
+    return { total: 0, media: '0.0' };
+  } catch (error) {
+    console.error("Erro ao buscar avaliações da receita:", error);
+    return { total: 0, media: '0.0' };
+  }
+}
   async function loadAllUsers() {
     try {
       const res = await fetch(`${API_BASE}/usuario/findAll`)
@@ -290,7 +334,6 @@ export function UserProvider({ children }) {
       const data = await res.json()
       const normalized = Array.isArray(data) ? data.map(normalizeApiRecipe) : []
       console.log(normalized)
-
       setRecipes(normalized)
       setRecipesLoaded(true)
       return normalized
@@ -599,7 +642,8 @@ export function UserProvider({ children }) {
       toggleUserStatus, toggleRecipeStatus, toggleCommentStatus,
       loadAllUsers, loadAllComments,
       categorias, loadCategorias, createCategoria,
-      loadRecipes, loadChefRecipes, toggleUserBlock
+      loadRecipes, loadChefRecipes, toggleUserBlock,
+      getRecipeFavoritesCount, getRecipeRatingStats,
     }}>
       {children}
     </UserContext.Provider>

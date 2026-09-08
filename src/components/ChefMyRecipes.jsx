@@ -3,7 +3,6 @@ import { useUser } from '../hooks/useUser'
 import RecipeCard from './RecipeCard'
 import '../styles/chefMyRecipes.css'
 import { uploadImage } from '../services/supabase'
-import { data } from 'react-router-dom'
 
 function EditModal({ recipe, onSave, onClose }) {
   // Função interna para realizar o parse seguro de strings JSON vindas do Spring Boot
@@ -21,6 +20,7 @@ function EditModal({ recipe, onSave, onClose }) {
   const [loadingRecipe, setLoadingRecipe] = useState(true)
 
   const [selectedCategories, setSelectedCategories] = useState([])
+  const [categorySearch, setCategorySearch] = useState('')
   const [form, setForm] = useState({ title: '', description: '', tempoPreparo: '', image: '' })
   const [ingredients, setIngredients] = useState([])
   const [ingInput, setIngInput] = useState({ quantidade: '', unidade: 'gramas', nome: '' })
@@ -33,56 +33,7 @@ function EditModal({ recipe, onSave, onClose }) {
   const [imageFile, setImageFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
 
-  // ── 1. Busca a receita CRUA direto da API, não a versão normalizada ──────
-  useEffect(() => {
-    async function loadRawRecipe() {
-      setLoadingRecipe(true)
-      try {
-        const res = await fetch(`${API_BASE}/receita/${recipe.id}`)
-        if (!res.ok) throw new Error('Falha ao buscar receita')
-        const data = await res.json()
-        setRawRecipe(data)
-
-        console.log(data)
-        setLinkFoto(data.fotoReceita)
-        setPreviewUrl(data.fotoReceita)
-        // Categorias selecionadas (array de objetos {codCategoria, nomeCategoria})
-        const cats = Array.isArray(data.categoria) ? data.categoria : []
-        setSelectedCategories(cats.map(c => c.codCategoria).filter(Boolean))
-        // Campos de texto e imagem
-        setForm({
-          title: data.nomeReceita || '',
-          description: data.descricao || '',
-          tempoPreparo: data.tempoPreparo || 'Faaaaácil',
-          image: data.fotoReceita || '',
-        })
-
-        // Ingredientes — vem como string JSON: '[{"quantidade":"123","unidade":"gramas","nome":"3"}, ...]'
-        const parsedIngredients = parseList(data.ingredientes)
-        setIngredients(
-          Array.isArray(parsedIngredients)
-            ? parsedIngredients.map(ing => ({
-              quantidade: ing.quantidade ?? '',
-              unidade: ing.unidade ?? 'gramas',
-              nome: ing.nome ?? '',
-            }))
-            : []
-        )
-
-        // Modo de preparo — vem como string JSON: '["passo 1", "passo 2"]'
-        const parsedSteps = parseList(data.modo_preparo)
-        setSteps(Array.isArray(parsedSteps) ? parsedSteps : [])
-      } catch (err) {
-        console.error('Erro ao carregar receita para edição:', err)
-        setError('Não foi possível carregar os dados da receita.')
-      } finally {
-        setLoadingRecipe(false)
-      }
-    }
-    loadRawRecipe()
-  }, [recipe.id])
-
-  // ── 2. Carrega as categorias disponíveis do banco ────────────────────────
+  // ── 1. Carrega as categorias disponíveis do banco ────────────────────────
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -98,17 +49,111 @@ function EditModal({ recipe, onSave, onClose }) {
     loadCategories()
   }, [])
 
-  // ── 3. Controladores de eventos ───────────────────────────────────────────
-  function handleChange(e) {
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+  // ── 2. Busca a receita CRUA direto da API e mapeia as categorias com os objetos completos ──
+  useEffect(() => {
+    async function loadRawRecipe() {
+      setLoadingRecipe(true)
+      try {
+        const res = await fetch(`${API_BASE}/receita/${recipe.id}`)
+        if (!res.ok) throw new Error('Falha ao buscar receita')
+        const data = await res.json()
+        setRawRecipe(data)
+
+        setLinkFoto(data.fotoReceita)
+        setPreviewUrl(data.fotoReceita)
+
+        // Mapeia os objetos de categorias da receita
+        const rawCats = Array.isArray(data.categoria) ? data.categoria : []
+        
+        // Se as categorias do banco já foram carregadas, pegamos os objetos completos delas
+        if (categoriesFromDb.length > 0) {
+          const matchedCats = rawCats.map(rc => {
+            const rcId = rc.codCategoria || rc.id
+            return categoriesFromDb.find(c => (c.codCategoria || c.id) === rcId) || rc
+          }).filter(Boolean)
+          setSelectedCategories(matchedCats)
+        } else {
+          setSelectedCategories(rawCats)
+        }
+
+        // Campos de texto e imagem
+        setForm({
+          title: data.nomeReceita || '',
+          description: data.descricao || '',
+          tempoPreparo: data.tempoPreparo || 'Faaaaácil',
+          image: data.fotoReceita || '',
+        })
+
+        // Ingredientes
+        const parsedIngredients = parseList(data.ingredientes)
+        setIngredients(
+          Array.isArray(parsedIngredients)
+            ? parsedIngredients.map(ing => ({
+              quantidade: ing.quantidade ?? '',
+              unidade: ing.unidade ?? 'gramas',
+              nome: ing.nome ?? '',
+            }))
+            : []
+        )
+
+        // Modo de preparo
+        const parsedSteps = parseList(data.modo_preparo)
+        setSteps(Array.isArray(parsedSteps) ? parsedSteps : [])
+      } catch (err) {
+        console.error('Erro ao carregar receita para edição:', err)
+        setError('Não foi possível carregar os dados da receita.')
+      } finally {
+        setLoadingRecipe(false)
+      }
+    }
+
+    loadRawRecipe()
+  }, [recipe.id, categoriesFromDb.length])
+
+  // ── 3. Regras de negócios de Categorias (Incompatibilidade e Seleção) ────
+  function getCategoryGroup(categoria) {
+    return (categoria.grupoCategoria || 'neutro').toString().toLowerCase()
   }
 
-  function handleCategoryChange(idCategoria) {
-    setSelectedCategories(prev =>
-      prev.includes(idCategoria)
-        ? prev.filter(id => id !== idCategoria)
-        : [...prev, idCategoria]
-    )
+  function isCategoryDisabled(categoria) {
+    const grupoCat = getCategoryGroup(categoria)
+    if (grupoCat === 'neutro') return false
+
+    const temCarne = selectedCategories.some(c => getCategoryGroup(c) === 'carnes')
+    const temVeg = selectedCategories.some(c => {
+      const g = getCategoryGroup(c)
+      return g === 'vegetariano' || g === 'vegano'
+    })
+
+    if (grupoCat === 'carnes' && temVeg) return true
+    if ((grupoCat === 'vegetariano' || grupoCat === 'vegano') && temCarne) return true
+
+    return false
+  }
+
+  function handleCategoryChange(categoria) {
+    setError(null)
+    const idCat = categoria.codCategoria || categoria.id
+    const isAlreadySelected = selectedCategories.some(c => (c.codCategoria || c.id) === idCat)
+
+    if (isAlreadySelected) {
+      setSelectedCategories(prev => prev.filter(c => (c.codCategoria || c.id) !== idCat))
+      return
+    }
+
+    if (isCategoryDisabled(categoria)) return
+
+    if (selectedCategories.length >= 5) {
+      setError('Você pode selecionar no máximo 5 categorias por receita.')
+      return
+    }
+
+    setSelectedCategories(prev => [...prev, categoria])
+  }
+
+  // ── 4. Controladores de eventos ───────────────────────────────────────────
+  function handleChange(e) {
+    setForm(f => ({ ...f, [e.target.name]: e.target.value }))
   }
 
   function addIngredient() {
@@ -142,12 +187,9 @@ function EditModal({ recipe, onSave, onClose }) {
     try {
       let novaUrlFoto = linkFoto
 
-      // 1. Faz o upload se o usuário selecionou um arquivo novo
       if (imageFile) {
-        // Passa o arquivo novo, id null, true (é receita) e o link da foto antiga (linkFoto)
         novaUrlFoto = await uploadImage(imageFile, null, true, linkFoto)
 
-        // Se falhar o upload, avisa o usuário e interrompe o envio ao backend
         if (!novaUrlFoto) {
           return setError('Erro ao enviar a nova imagem. Tente novamente.')
         }
@@ -155,7 +197,6 @@ function EditModal({ recipe, onSave, onClose }) {
         setLinkFoto(novaUrlFoto)
       }
 
-      // 2. Monta o objeto com 'novaUrlFoto'
       const updatedRecipe = {
         ...rawRecipe,
         nomeReceita: form.title,
@@ -164,10 +205,9 @@ function EditModal({ recipe, onSave, onClose }) {
         fotoReceita: novaUrlFoto,
         ingredientes: JSON.stringify(ingredients),
         modo_preparo: JSON.stringify(steps),
-        categoria: selectedCategories.map(id => ({ codCategoria: id })),
+        categoria: selectedCategories.map(c => ({ codCategoria: c.codCategoria || c.id })),
       }
 
-      // 3. Executa o salvamento no componente pai (o pai se encarrega de atualizar as receitas)
       await onSave(updatedRecipe)
     } catch (err) {
       console.error('Erro ao salvar:', err)
@@ -184,6 +224,20 @@ function EditModal({ recipe, onSave, onClose }) {
       </div>
     )
   }
+
+  // Filtros de busca de categorias
+  const unselectedCategories = categoriesFromDb.filter(c => {
+    const idCat = c.codCategoria || c.id
+    return !selectedCategories.some(sel => (sel.codCategoria || sel.id) === idCat)
+  })
+
+  const filteredUnselected = unselectedCategories.filter(c =>
+    (c.nomeCategoria || c.nome || '').toLowerCase().includes(categorySearch.toLowerCase())
+  )
+
+  const displayedUnselected = categorySearch.trim() === ''
+    ? filteredUnselected.slice(0, 9)
+    : filteredUnselected
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -235,18 +289,79 @@ function EditModal({ recipe, onSave, onClose }) {
             </div>
           </div>
 
-          <h3>Categorias</h3>
-          <div className="categories-checkboxes">
-            {categoriesFromDb.map(cat => (
-              <label key={cat.codCategoria} className="category-checkbox">
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes(cat.codCategoria)}
-                  onChange={() => handleCategoryChange(cat.codCategoria)}
-                />
-                {cat.nomeCategoria}
-              </label>
-            ))}
+          <h3>Categorias <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(Máximo 5 categorias)</span></h3>
+
+          {selectedCategories.length > 0 && (
+            <div style={{ marginBottom: '15px' }}>
+              <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#F27A1A', marginBottom: '8px' }}>
+                Selecionadas ({selectedCategories.length}/5):
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {selectedCategories.map(c => {
+                  const idCat = c.codCategoria || c.id
+                  const nomeCat = c.nomeCategoria || c.nome
+                  return (
+                    <span
+                      key={idCat}
+                      className="category-tag"
+                      onClick={() => handleCategoryChange(c)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {nomeCat} ✕
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          <div style={{ marginBottom: '12px' }}>
+            <input
+              type="text"
+              placeholder="Pesquisar categoria..."
+              value={categorySearch}
+              onChange={e => setCategorySearch(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '10px',
+                border: '1px solid #FDBA74',
+                background: '#FFF3EB',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+
+          <div className="categories-checkbox-grid">
+            {categoriesFromDb.length === 0 ? (
+              <p style={{ fontSize: '14px', color: '#888' }}>Carregando categorias...</p>
+            ) : displayedUnselected.length === 0 ? (
+              <p style={{ fontSize: '14px', color: '#888', gridColumn: '1 / -1' }}>Nenhuma categoria disponível encontrada.</p>
+            ) : (
+              displayedUnselected.map(c => {
+                const idCat = c.codCategoria || c.id
+                const nomeCat = c.nomeCategoria || c.nome
+                const disabled = isCategoryDisabled(c)
+
+                return (
+                  <label
+                    key={idCat}
+                    className={`category-checkbox ${disabled ? 'disabled' : ''}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={false}
+                      disabled={disabled}
+                      onChange={() => handleCategoryChange(c)}
+                      style={{ cursor: disabled ? 'not-allowed' : 'pointer', accentColor: '#F27A1A' }}
+                    />
+                    <span className="checkbox-text">
+                      {nomeCat} {disabled && <small style={{ fontSize: '10px', fontStyle: 'italic', display: 'block', color: '#DC2626' }}>(Incompatível)</small>}
+                    </span>
+                  </label>
+                )
+              })
+            )}
           </div>
 
           <h3>Ingredientes</h3>
@@ -310,16 +425,13 @@ function EditModal({ recipe, onSave, onClose }) {
   )
 }
 
-
 function ChefMyRecipes() {
-  // 2. Pegamos a nova função que criamos no hook
-  const { user, chefRecipes, deleteRecipe, editRecipe, loadChefRecipes, toggleRecipeStatus } = useUser()
+  const { user, chefRecipes, deleteRecipe, editRecipe, loadChefRecipes } = useUser()
 
   const [editing, setEditing] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [deleteError, setDeleteError] = useState('')
 
-  // 3. Disparamos a busca automaticamente quando o componente inicia ou o usuário muda
   useEffect(() => {
     if (user?.id) {
       loadChefRecipes(user.id);
@@ -329,13 +441,10 @@ function ChefMyRecipes() {
   async function handleDelete() {
     setDeleteError('')
 
-    // Como o card usa os dados normalizados, passamos confirmDelete.id
-    // E passamos 'true' para o segundo parâmetro (currentlyActive), pois se estamos deletando, ela está ativa e queremos INATIVAR.
     const res = await deleteRecipe(confirmDelete.id)
 
     if (res.ok) {
       setConfirmDelete(null)
-      // Recarrega a lista do banco. Como a receita agora está INATIVA, o filtro do back/front vai ignorá-la e ela some da tela!
       loadChefRecipes(user.id);
     } else {
       setDeleteError('Falha ao excluir a receita. Tente novamente.')
@@ -351,7 +460,7 @@ function ChefMyRecipes() {
         <div className="recipes-grid">
           {chefRecipes.map(recipe => (
             <RecipeCard
-              key={recipe.id} // Usando a chave correta da API
+              key={recipe.id}
               recipe={recipe}
               actions={<>
                 <button className="btn-edit" onClick={() => setEditing(recipe)}>Editar</button>
@@ -366,13 +475,10 @@ function ChefMyRecipes() {
         <EditModal
           recipe={editing}
           onSave={async (updated) => {
-            // 1. Garante que pega o ID correto para a URL do backend
             const recipeId = editing.codReceita || editing.codReceitas || editing.id
 
-            // 2. Chama a função de edição do seu hook
             await editRecipe(recipeId, updated)
 
-            // 3. Força a atualização da lista de receitas na tela
             if (user?.id) {
               await loadChefRecipes(user.id)
             }
