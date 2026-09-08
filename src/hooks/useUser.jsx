@@ -76,6 +76,7 @@ export function UserProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [notificacoesRaw, setNotificacoesRaw] = useState([])
 
+
   useEffect(() => {
     loadRecipes()
   }, [])
@@ -109,11 +110,13 @@ export function UserProvider({ children }) {
       const dadosBrutos = await resposta.json();
 
       if (Array.isArray(dadosBrutos)) {
-        const receitasDoChef = dadosBrutos.filter((receita) => {
+          const receitasDoChef = dadosBrutos.filter((receita) => {
           const donoDaReceitaId = receita.usuario?.codUser || receita.codUser;
           const ehAtiva = receita.status_receita === 'ATIVO';
-
-          return ehAtiva && String(donoDaReceitaId) === String(userId);
+          const DonoBloqueado = receita.usuario?.bloqueado === 0;
+          const DonoAtivo = receita.usuario?.status_Usuario === 'ATIVO'
+            
+          return ehAtiva && DonoAtivo && DonoBloqueado && String(donoDaReceitaId) === String(userId);
         });
 
         const receitasNormalizadas = receitasDoChef.map(normalizeApiRecipe);
@@ -377,39 +380,59 @@ async function getRecipeRatingStats(recipeId) {
     }
   }
 
-  async function login(email, password, funcao) {
+ async function login(email, password, funcao) {
+  try {
+    const res = await fetch(`${API_BASE}/usuario/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha: password })
+    })
+
+    // Tenta capturar o corpo da resposta (caso o backend envie JSON com o ID/dados mesmo em erros)
+    let body = {}
     try {
-      const res = await fetch(`${API_BASE}/usuario/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha: password })
-      })
-
-      if (res.status === 401) return 'Incorrect'
-      if (res.status === 403) return 'inactive'
-      if (!res.ok) return false
-
-      const body = await res.json()
-
-      if (body.bloqueado === 1) return 'blocked'
-      if (body.status_Usuario === 'INATIVO') return 'inactive'
-
-      const normalized = normalizeUser(body, funcao)
-      setUser(normalized)
-
-      localStorage.setItem('userId', String(normalized.id))
-      localStorage.setItem('userFuncao', normalized.funcao)
-
-      if (typeof loadFavoritos === 'function') {
-        await loadFavoritos(normalized.id)
-      }
-
-      return true
+      body = await res.json()
     } catch {
-      return false
+      // Caso a resposta não tenha um corpo JSON válido
     }
-  }
 
+    // Extrai o ID do usuário de qualquer variação possível (codUser, id, etc.)
+    const codUser = body.codUser || body.id || null
+
+    if (res.status === 401) {
+      return { success: false, status: 'incorrect', codUser, message: 'E-mail ou senha incorretos.' }
+    }
+    if (res.status === 403) {
+      return { success: false, status: 'inactive', codUser, message: 'Conta inativa.' }
+    }
+    if (!res.ok) {
+      return { success: false, status: 'error', codUser, message: 'Falha na requisição de login.' }
+    }
+
+    if (body.bloqueado === 1) {
+      return { success: false, status: 'blocked', codUser, message: 'Acesso bloqueado pelo administrador.' }
+    }
+    if (body.status_Usuario === 'INATIVO') {
+      return { success: false, status: 'inactive', codUser, message: 'Conta inativa.' }
+    }
+
+    // Login bem-sucedido
+    const normalized = normalizeUser(body, funcao)
+    setUser(normalized)
+
+    localStorage.setItem('userId', String(normalized.id))
+    localStorage.setItem('userFuncao', normalized.funcao)
+
+    if (typeof loadFavoritos === 'function') {
+      await loadFavoritos(normalized.id)
+    }
+
+    return { success: true, status: 'success', codUser: normalized.id, user: normalized }
+  } catch (err) {
+    console.error('Erro no login:', err)
+    return { success: false, status: 'exception', codUser: null, message: 'Erro de conexão com o servidor.' }
+  }
+}
   async function reactivateAccount(email, password, funcao) {
     try {
       const endpoint = `${API_BASE}/usuario/reativar`

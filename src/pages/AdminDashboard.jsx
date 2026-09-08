@@ -171,6 +171,7 @@ function ModalBloqueio({ item, type, onClose, onConfirm }) {
     </div>
   )
 }
+
 function ModalDetalhesNotificacao({ notificacao, onClose, onDesbloquear }) {
   const [submitting, setSubmitting] = useState(false)
   if (!notificacao) return null
@@ -249,6 +250,7 @@ function ModalDetalhesNotificacao({ notificacao, onClose, onDesbloquear }) {
     </div>
   )
 }
+
 function AdminNotificacoes({ notificacoes = [], onSelectNotificacao }) {
   const [search, setSearch] = useState('')
   const [filtroResposta, setFiltroResposta] = useState('todas')

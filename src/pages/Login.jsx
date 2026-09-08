@@ -13,7 +13,9 @@ function Login() {
   const [blockedMessage, setBlockedMessage] = useState(false)
   const [reactivatePwd, setReactivatePwd] = useState('')
   const [reactivateError, setReactivateError] = useState('')
-  const { login, register, reactivateAccount } = useUser()
+  const { login, register, reactivateAccount, enviarContestacao } = useUser()
+  const [dadosBloqueio, setDadosBloqueio] = useState(null)
+  const [respostaContestacao, setRespostaContestacao] = useState('')
   const navigate = useNavigate()
 
   function handleChange(e) {
@@ -118,21 +120,42 @@ function Login() {
 
       
     } else {
-      login(form.email, form.password, activeTab).then(result => {
-        if (result === true) {
+      login(form.email, form.password, activeTab).then(async result => {
+        if (result.success) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
-        } else if (result === 'blocked') {
+        } else if (result.status === 'blocked') {
+          // O objeto já traz o codUser se a API enviou!
+          
+          try {
+            // Busca a notificação correspondente para pegar o motivo detalhado
+            const resNotif = await fetch(`http://localhost:8080/notificacoes/findAll`)
+            const notifs = await resNotif.json()
+            const listaNotifs = Array.isArray(notifs) ? notifs : (notifs?.content || notifs?.data || [])
+            console.log(listaNotifs)
+
+            const minhaNotif = listaNotifs.find(n => 
+              n.usuario?.codUser === result.codUser
+            )
+
+
+            setDadosBloqueio(minhaNotif || null)
+          } catch (err) {
+            console.error('Erro ao buscar notificação:', err)
+            setDadosBloqueio(null)
+          }
+
           setBlockedMessage(true)
-        } else if (result === 'inactive') {
+        } else if (result.status === 'inactive') {
           setInactiveEmail(form.email)
           setReactivatePwd('')
           setReactivateError('')
-        } else if(result === 'Incorrect') {
+        } else if (result.status === 'incorrect') {
           setError('O e-mail ou a senha informados não conferem. Verifique se há erros de digitação.')
+        } else {
+          setError(result.message || 'Ocorreu um erro ao tentar fazer login.')
         }
       })
-    }
-  }
+    }}
 
   async function handleReactivate(e) {
     e.preventDefault()
@@ -226,25 +249,76 @@ function Login() {
       </div>
 
       {blockedMessage && (
-        <div className="reactivate-overlay">
-          <div className="reactivate-modal" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '40px', marginBottom: '10px' }}>⚠️</div>
-            <h3>Acesso Bloqueado</h3>
-            <p style={{ margin: '15px 0', color: '#666', lineHeight: '1.5' }}>
-              Esta conta foi suspensa temporariamente por um administrador do sistema por violar os termos de uso.
-            </p>
-            <div className="reactivate-actions" style={{ justifyContent: 'center' }}>
-              <button
-                type="button"
-                className="confirm-btn"
-                onClick={() => setBlockedMessage(false)}
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
+  <div className="reactivate-overlay">
+    <div className="reactivate-modal" style={{ textAlign: 'left', maxWidth: '450px' }}>
+      <div style={{ textAlign: 'center', fontSize: '35px', marginBottom: '5px' }}>🚫</div>
+      <h3 style={{ textAlign: 'center', color: '#c62828', marginBottom: '10px' }}>Acesso Bloqueado</h3>
+      
+      <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.4', marginBottom: '15px', textAlign: 'center' }}>
+        Sua conta foi suspensa por um administrador.
+      </p>
+
+      {/* Exibe o motivo vindo da notificação */}
+      <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+        <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+          Motivo da Suspensão:
         </div>
-      )}
+        <div style={{ color: '#1e293b', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+          {dadosBloqueio?.motivo || dadosBloqueio?.Motivo || 'Violação dos termos de uso'}
+        </div>
+
+        <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+          Observação do Administrador:
+        </div>
+        <div style={{ color: '#334155', fontSize: '13px' }}>
+          {dadosBloqueio?.descricao || dadosBloqueio?.Descricao || 'Nenhuma descrição detalhada informada.'}
+        </div>
+      </div>
+
+      {/* Campo para o usuário enviar contestação */}
+      <div style={{ marginBottom: '15px' }}>
+        <label style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#334155' }}>
+          Deseja contestar este bloqueio? Escreva sua mensagem:
+        </label>
+        <textarea
+          rows={3}
+          placeholder="Explique o ocorrido para o administrador..."
+          value={respostaContestacao}
+          onChange={(e) => setRespostaContestacao(e.target.value)}
+          style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box', resize: 'vertical' }}
+        />
+      </div>
+
+      <div className="reactivate-actions" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+        <button
+          type="button"
+          onClick={() => setBlockedMessage(false)}
+          style={{ padding: '8px 14px', background: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', color: '#475569' }}
+        >
+          Fechar
+        </button>
+        <button
+          type="button"
+          className="confirm-btn"
+          onClick={async () => {
+            if (!respostaContestacao.trim()) {
+              alert('Escreva uma mensagem antes de enviar.')
+              return
+            }
+            // Chama a função para atualizar a notificação com a resposta do usuário
+            await enviarContestacao(dadosBloqueio.codNotificacao || dadosBloqueio.id, respostaContestacao)
+            alert('Sua contestação foi enviada com sucesso para a análise do administrador!')
+            setBlockedMessage(false)
+            setRespostaContestacao('')
+          }}
+          style={{ padding: '8px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+        >
+          Enviar Contestação
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {inactiveEmail && (
         <div className="reactivate-overlay">

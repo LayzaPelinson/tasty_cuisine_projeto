@@ -56,6 +56,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+.notification-btn:hover{    
+    transform: rotate(-10deg) scale(1.2);
 }
 
 .notification-badge {
@@ -159,18 +165,6 @@
 /* Notificações no Header */
 .notification-container {
   position: relative;
-}
-
-.notification-btn {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  position: relative;
-  padding: 4px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .notification-badge {
@@ -398,56 +392,4 @@
 
 .close-modal-btn:hover {
   background-color: #A95C2C;
-}
-
-.response-section {
-  margin-top: 10px;
-  border-top: 1px solid #EEEEEE;
-  padding-top: 12px;
-}
-
-.response-textarea {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #CCCCCC;
-  font-family: inherit;
-  font-size: 13px;
-  resize: vertical;
-  margin-top: 6px;
-  box-sizing: border-box;
-}
-
-.response-textarea:focus {
-  outline: none;
-  border-color: #C4703A;
-}
-
-.user-response-text {
-  background-color: #F0F8FF;
-  padding: 10px;
-  border-radius: 8px;
-  border-left: 4px solid #3498DB;
-  font-style: italic;
-}
-
-.send-response-btn {
-  background-color: #27AE60;
-  color: #FFFFFF;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  margin-right: 8px;
-  transition: background 0.2s;
-}
-
-.send-response-btn:hover:not(:disabled) {
-  background-color: #219150;
-}
-
-.send-response-btn:disabled {
-  background-color: #CCCCCC;
-  cursor: not-allowed;
 }

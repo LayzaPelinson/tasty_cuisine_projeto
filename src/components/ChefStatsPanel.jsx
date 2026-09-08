@@ -33,7 +33,8 @@ function ChefStatsPanel() {
         const res = await fetch(`${API_BASE}/receita/usuario/${user.id}`)
         if (res.ok) {
           const data = await res.json()
-          setReceipe(data.length)
+          const filtered = data.filter(r => r.status_receita === 'ATIVO')
+          setReceipe(filtered.length)
         }
       } catch (err) {
         console.error("Erro ao carregar quantidade de receitas:", err)

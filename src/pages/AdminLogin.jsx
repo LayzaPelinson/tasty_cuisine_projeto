@@ -44,8 +44,7 @@ function AdminLogin() {
 
     // Realiza o login informando o e-mail, senha e especificando o tipo/perfil 'ADMIN'
     const result = await login(form.email, form.password, 'ADMIN')
-
-    if (result === true) {
+    if (result.success === true) {
       navigate('/adminPanel') // Redireciona para o painel administrativo
     } else {
       setError('E-mail ou senha do administrador inválidos.')
