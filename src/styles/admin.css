@@ -963,3 +963,15 @@
   font-style: italic;
   margin: 0;
 }
+
+/* Balão da resposta do usuário no Painel Admin */
+.admin-user-response-bubble {
+  background-color: #EBF5FB;
+  color: #1B4F72;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid #3498DB;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  display: inline-block;
+}

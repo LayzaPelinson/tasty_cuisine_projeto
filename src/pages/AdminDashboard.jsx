@@ -8,6 +8,15 @@ const TABS = [
   { key: 'chefs', label: 'Chefes', icon: 'bi-person-badge-fill' },
   { key: 'recipes', label: 'Receitas', icon: 'bi-journal-richtext' },
   { key: 'categorias', label: 'Categorias', icon: 'bi-tags-fill' },
+  { key: 'notificacoes', label: 'Notificações & Respostas', icon: 'bi-bell-fill' },
+]
+
+const OPCOES_MOTIVOS = [
+  'Conteúdo impróprio ou ofensivo',
+  'Violação dos Termos de Uso',
+  'Spam ou comportamento suspeito',
+  'Informações falsas ou enganosas',
+  'Outro'
 ]
 
 function StatusBadge({ active }) {
@@ -37,6 +46,295 @@ function SearchBar({ placeholder, value, onChange }) {
     <div className="admin-search">
       <i className="bi bi-search"></i>
       <input placeholder={placeholder} value={value} onChange={e => onChange(e.target.value)} />
+    </div>
+  )
+}
+
+function ModalBloqueio({ item, type, onClose, onConfirm }) {
+  const [motivoSelecionado, setMotivoSelecionado] = useState(OPCOES_MOTIVOS[0])
+  const [outroMotivo, setOutroMotivo] = useState('')
+  const [descricao, setDescricao] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+
+  const nomeExibicao = type === 'recipe' ? item.title : item.name
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setError(null)
+
+    const motivoFinal = motivoSelecionado === 'Outro' ? outroMotivo.trim() : motivoSelecionado
+
+    if (motivoSelecionado === 'Outro' && !motivoFinal) {
+      return setError('Por favor, especifique o motivo.')
+    }
+
+    if (!descricao.trim()) {
+      return setError('A descrição do bloqueio é obrigatória.')
+    }
+
+    setSubmitting(true)
+
+    const payload = {
+      targetId: item.id,
+      tipoEntidade: type === 'recipe' ? 'RECEITA' : (type === 'chef' ? 'CHEFE' : 'USUARIO'),
+      motivo: motivoFinal,
+      descricao: descricao.trim()
+    }
+
+    const res = await onConfirm(payload)
+    setSubmitting(false)
+
+    if (res?.ok) {
+      onClose()
+    } else {
+      setError(res?.error || 'Erro ao registrar bloqueio.')
+    }
+  }
+
+  return (
+    <div className="admin-modal-overlay" onClick={onClose}>
+      <div className="admin-modal" onClick={e => e.stopPropagation()}>
+        <div className="admin-modal-header" style={{ borderBottom: '1px solid #fee2e2' }}>
+          <span className="admin-modal-icon" style={{ color: '#dc2626' }}>
+            <i className="bi bi-shield-slash-fill"></i>
+          </span>
+          <div>
+            <h3 style={{ margin: 0, color: '#991b1b' }}>Confirmar Bloqueio</h3>
+            <small style={{ color: '#4b5563', fontSize: '0.9rem' }}>
+              Alvo: <strong>{nomeExibicao}</strong> (#{item.id})
+            </small>
+          </div>
+          <button className="admin-modal-close" onClick={onClose}>
+            <i className="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="admin-modal-body">
+          {error && <p className="admin-error-text" style={{ marginBottom: '1rem' }}>{error}</p>}
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+              Motivo do Bloqueio:
+            </label>
+            <select
+              value={motivoSelecionado}
+              onChange={e => setMotivoSelecionado(e.target.value)}
+              style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #ccc' }}
+            >
+              {OPCOES_MOTIVOS.map((m, idx) => (
+                <option key={idx} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+
+          {motivoSelecionado === 'Outro' && (
+            <div style={{ marginBottom: '1rem' }}>
+              <input
+                type="text"
+                placeholder="Especifique o motivo..."
+                value={outroMotivo}
+                onChange={e => setOutroMotivo(e.target.value)}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #ccc' }}
+              />
+            </div>
+          )}
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+              Descrição Detalhada:
+            </label>
+            <textarea
+              rows={4}
+              placeholder="Explique o motivo para que o usuário entenda o que aconteceu..."
+              value={descricao}
+              onChange={e => setDescricao(e.target.value)}
+              style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #ccc', resize: 'vertical' }}
+            />
+          </div>
+
+          <div className="admin-modal-footer">
+            <button type="button" className="admin-cancel-btn" onClick={onClose} disabled={submitting}>
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              className="admin-toggle-btn admin-toggle-deactivate" 
+              disabled={submitting}
+              style={{ padding: '0.6rem 1.2rem', cursor: 'pointer' }}
+            >
+              {submitting ? 'Bloqueando...' : 'Confirmar Bloqueio'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+function ModalDetalhesNotificacao({ notificacao, onClose, onDesbloquear }) {
+  const [submitting, setSubmitting] = useState(false)
+  if (!notificacao) return null
+
+  const idNotificacao = notificacao.codNotificacao || notificacao.id_notificacao || notificacao.id
+  const usuario = notificacao.usuario || {}
+  const nomeUsuario = usuario.nome_completo || usuario.nome || usuario.gmail || 'Usuário'
+  const idUsuario = usuario.codUser || usuario.id
+  const motivo = notificacao.motivo || notificacao.Motivo || 'Não informado'
+  const descricao = notificacao.descricao || notificacao.Descricao || 'Sem descrição'
+  const resposta = notificacao.respostaUsuario || notificacao.resposta || notificacao.resposta_usuario
+  const data = notificacao.dataEnvio || notificacao.data_envio || notificacao.createdAt
+
+  async function handleAcaoDesbloquear() {
+    setSubmitting(true)
+    await onDesbloquear(idUsuario, idNotificacao)
+    setSubmitting(false)
+    onClose()
+  }
+
+  return (
+    <div className="admin-modal-overlay" onClick={onClose}>
+      <div className="admin-modal" onClick={e => e.stopPropagation()}>
+        <div className="admin-modal-header" style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <span className="admin-modal-icon" style={{ color: '#0284c7' }}>
+            <i className="bi bi-bell-fill"></i>
+          </span>
+          <div>
+            <h3 style={{ margin: 0 }}>Detalhes da Contestação</h3>
+            <small style={{ color: '#6b7280' }}>Notificação #{idNotificacao}</small>
+          </div>
+          <button className="admin-modal-close" onClick={onClose}>
+            <i className="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div className="admin-modal-body">
+          <div className="admin-detail-row"><span>Usuário:</span><strong>{nomeUsuario} (#{idUsuario || 'N/A'})</strong></div>
+          <div className="admin-detail-row"><span>Data do Envio:</span><strong>{data ? new Date(data).toLocaleDateString('pt-BR') : '-'}</strong></div>
+          <div className="admin-detail-row"><span>Motivo do Bloqueio:</span><span className="admin-badge admin-badge-inactive">{motivo}</span></div>
+          
+          <div style={{ marginTop: '1rem' }}>
+            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.3rem' }}>Descrição do Bloqueio (Admin):</label>
+            <div style={{ background: '#f9fafb', padding: '0.8rem', borderRadius: '6px', border: '1px solid #e5e7eb', fontSize: '0.9rem' }}>
+              {descricao}
+            </div>
+          </div>
+
+          <div style={{ marginTop: '1rem' }}>
+            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.3rem' }}>Resposta / Contestação do Usuário:</label>
+            {resposta ? (
+              <div className="admin-user-response-bubble" style={{ width: '100%', display: 'block', boxSizing: 'border-box' }}>
+                <i className="bi bi-chat-left-text-fill"></i> {resposta}
+              </div>
+            ) : (
+              <span style={{ color: '#999', italic: 'true' }}>O usuário ainda não respondeu a esta notificação.</span>
+            )}
+          </div>
+        </div>
+
+        <div className="admin-modal-footer">
+          <button className="admin-cancel-btn" onClick={onClose} disabled={submitting}>
+            Fechar
+          </button>
+          <button 
+            type="button" 
+            className="admin-view-btn" 
+            onClick={handleAcaoDesbloquear} 
+            disabled={submitting || !idUsuario}
+            style={{ backgroundColor: '#16a34a', color: '#fff', border: 'none' }}
+          >
+            <i className="bi bi-check-circle-fill"></i> {submitting ? 'Processando...' : 'Desbloquear Usuário & Deletar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+function AdminNotificacoes({ notificacoes = [], onSelectNotificacao }) {
+  const [search, setSearch] = useState('')
+  const [filtroResposta, setFiltroResposta] = useState('todas')
+
+  const filtered = notificacoes.filter(n => {
+    const usuarioNome = n.usuario?.nome_completo || n.usuario?.nome || n.usuario?.gmail || ''
+    const motivo = n.motivo || n.Motivo || ''
+    const matchSearch = usuarioNome.toLowerCase().includes(search.toLowerCase()) || 
+                        motivo.toLowerCase().includes(search.toLowerCase())
+
+    const resposta = n.respostaUsuario || n.resposta || n.resposta_usuario
+    if (filtroResposta === 'com_resposta') return matchSearch && Boolean(resposta)
+    if (filtroResposta === 'sem_resposta') return matchSearch && !resposta
+    return matchSearch
+  })
+
+  return (
+    <div>
+      <div className="admin-section-header">
+        <h2><i className="bi bi-bell-fill"></i> Central de Contestações</h2>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <select 
+            value={filtroResposta} 
+            onChange={e => setFiltroResposta(e.target.value)}
+            style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #ccc' }}
+          >
+            <option value="todas">Todas</option>
+            <option value="com_resposta">Com Resposta do Usuário</option>
+            <option value="sem_resposta">Pendente de Resposta</option>
+          </select>
+          <SearchBar placeholder="Buscar por usuário ou motivo..." value={search} onChange={setSearch} />
+        </div>
+      </div>
+
+      <div className="admin-table-wrapper">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Usuário</th>
+              <th>Motivo do Bloqueio</th>
+              <th>Descrição (Admin)</th>
+              <th>Resposta / Contestação</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={6} className="admin-empty">Nenhuma notificação encontrada.</td></tr>
+            ) : (
+              filtered.map(n => {
+                const id = n.codNotificacao || n.id_notificacao || n.id
+                const usuario = n.usuario?.nome_completo || n.usuario?.nome || n.usuario?.gmail || 'Usuário'
+                const motivo = n.motivo || n.Motivo || 'Não informado'
+                const descricao = n.descricao || n.Descricao || '-'
+                const resposta = n.respostaUsuario || n.resposta || n.resposta_usuario
+                const data = n.dataEnvio || n.data_envio || n.createdAt
+
+                return (
+                  <tr 
+                    key={id} 
+                    onClick={() => onSelectNotificacao(n)} 
+                    style={{ cursor: 'pointer' }}
+                    className="admin-table-row-hover"
+                  >
+                    <td className="admin-id">{id}</td>
+                    <td><strong>{usuario}</strong></td>
+                    <td><span className="admin-badge admin-badge-inactive">{motivo}</span></td>
+                    <td>{descricao}</td>
+                    <td>
+                      {resposta ? (
+                        <div className="admin-user-response-bubble">
+                          <i className="bi bi-chat-left-text-fill"></i> {resposta}
+                        </div>
+                      ) : (
+                        <span style={{ color: '#999', fontSize: '0.85rem' }}>Aguardando usuário...</span>
+                      )}
+                    </td>
+                    <td>{data ? new Date(data).toLocaleDateString('pt-BR') : '-'}</td>
+                  </tr>
+                )
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
@@ -79,7 +377,7 @@ function AdminUsers({ data, onView, onToggle, onOpenImage }) {
                 <td>{u.birthDate}</td>
                 <td><StatusBadge active={u.active} /></td>
                 <td>
-                  <ToggleBtn active={u.active} onToggle={() => onToggle(u)} />
+                  <ToggleBtn active={u.active} onToggle={() => onToggle(u, 'user')} />
                 </td>
               </tr>
             ))}
@@ -128,7 +426,7 @@ function AdminChefs({ data, onView, onToggle, onOpenImage }) {
                 <td><span className="admin-count"><i className="bi bi-journal-richtext"></i> {c.recipes}</span></td>
                 <td><StatusBadge active={c.active} /></td>
                 <td>
-                  <ToggleBtn active={c.active} onToggle={() => onToggle(c)} />
+                  <ToggleBtn active={c.active} onToggle={() => onToggle(c, 'chef')} />
                 </td>
               </tr>
             ))}
@@ -182,7 +480,7 @@ function AdminRecipes({ data, onView, onToggle, onOpenImage }) {
                 </td>
                 <td><StatusBadge active={r.active} /></td>
                 <td>
-                  <ToggleBtn active={r.active} onToggle={() => onToggle(r)} />
+                  <ToggleBtn active={r.active} onToggle={() => onToggle(r, 'recipe')} />
                 </td>
               </tr>
             ))}
@@ -456,39 +754,68 @@ function AdminDashboard() {
     loadCategorias,
     createCategoria,
     loadAllUsers,
-    toggleRecipeStatus,
     logout,
     loadRecipes,
-    toggleUserBlock
+    toggleUserBlock,
+    registrarBloqueio,
+    loadTodasNotificacoes,
+    notificacoesRaw,
   } = useUser()
 
   const [zoomImage, setZoomImage] = useState(null)
   const [activeTab, setActiveTab] = useState('users')
   const [rawUsers, setRawUsers] = useState([])
+  const [notificacoes, setNotificacoes] = useState([])
   const [modal, setModal] = useState(null)
+  const [modalBloqueio, setModalBloqueio] = useState(null)
   const [loadingData, setLoadingData] = useState(true)
+  const [notificacaoSelecionada, setNotificacaoSelecionada] = useState(null)
+  const { deleteNotificacao } = useUser() // Pega do hook
+
+  async function carregarTudo() {
+    setLoadingData(true)
+    const [usersData, notifsData] = await Promise.all([
+      loadAllUsers(),
+      loadCategorias(),
+      loadTodasNotificacoes()
+    ])
+    setRawUsers(Array.isArray(usersData) ? usersData : [])
+    setNotificacoes(Array.isArray(notifsData) ? notifsData : [])
+    setLoadingData(false)
+  }
 
   useEffect(() => {
-    async function carregarTudo() {
-      setLoadingData(true)
-      const [usersData] = await Promise.all([loadAllUsers(), loadCategorias()])
-      console.log(usersData)
-      setRawUsers(Array.isArray(usersData) ? usersData : [])
-      setLoadingData(false)
-    }
     carregarTudo()
     loadRecipes()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  async function handleDesbloquearEDeletar(idUsuario, idNotificacao) {
+  // 1. Alterna o status de bloqueio do usuário (desbloqueia)
+  await toggleUserBlock(idUsuario)
+  
+  // 2. Deleta a notificação
+  if (deleteNotificacao) {
+    await deleteNotificacao(idNotificacao)
+  }
+  
+  // 3. Atualiza a tela
+  await carregarTudo()
+}
   function formatDate(dateString) {
     if (!dateString) return 'N/A'
+    const cleanString = dateString.split('T')[0].replace(/\//g, '-')
+    const parts = cleanString.split('-')
+    
+    if (parts.length === 3) {
+      const [year, month, day] = parts
+      return `${day}/${month}/${year}`
+    }
+
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return dateString
     return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
   }
 
-  // 1. Padroniza a lista de receitas extraindo e comparando corretamente os IDs do chefe
   const recipesNormalized = recipes.map(r => {
     let catName = 'Não especificado'
     const rawCat = r.category || r.categorias || r.categoria
@@ -499,8 +826,7 @@ function AdminDashboard() {
     } else if (typeof rawCat === 'string' && rawCat) {
       catName = rawCat
     }
-    console.log(recipes)
-    // Extrai o ID do chefe do objeto usuario ou do atributo chefId
+
     const resolvedChefId = r.usuario?.codUser || r.usuario?.id || r.chefId || r.codUser
 
     return {
@@ -512,7 +838,7 @@ function AdminDashboard() {
       photo: r.fotoReceita || r.foto || r.image || r.photo,
       ingredientes: r.ingredientes || r.ingredientes_receita || r.itens || [],
       categoryName: catName,
-      active: r.active ?? true
+      active: r.statusReceita ? r.statusReceita.toUpperCase() === 'ATIVO' : (r.active ?? true)
     }
   })
 
@@ -523,25 +849,23 @@ function AdminDashboard() {
       id: u.codUser,
       name: u.nome_completo,
       email: u.gmail,
-    birthDate: formatDate(u.idade || u.data_nascimento || u.nascimento || u.dataNascimento), // Adicionado u.idade      photo: u.fotoPerfil || u.photo || u.foto,
+      birthDate: formatDate(u.idade || u.data_nascimento || u.nascimento || u.dataNascimento),
+      photo: u.fotoPerfil || u.photo || u.foto,
       active: u.bloqueado === 0,
     }))
 
-  // 2. Filtra as receitas vinculadas comparando como String os IDs
   const chefs = rawUsers
     .filter(u => u.funcao === 'Chefe')
     .filter(u => u.funcao !== 'ADMIN')
     .map(u => {
-      // Conta quantas receitas pertencem a este chefe comparando como String
       const totalReceitas = recipesNormalized.filter(r => 
         String(r.chefId) === String(u.codUser)
       ).length
-      console.log(recipesNormalized)
       return {
         id: u.codUser,
         name: u.nome_completo,
         email: u.gmail,
-        recipes: totalReceitas, // Recebe a contagem exata
+        recipes: totalReceitas,
         photo: u.fotoPerfil || u.photo || u.foto,
         active: u.bloqueado === 0,
       }
@@ -553,25 +877,24 @@ function AdminDashboard() {
     { label: 'Receitas', value: recipesNormalized.length, active: recipesNormalized.filter(r => r.active).length, icon: 'bi-journal-richtext', tab: 'recipes' },
   ]
 
-  async function handleToggleUser(u) {
-    const result = await toggleUserBlock(u.id)
-
-    if (result?.ok) {
-      setRawUsers(prev => prev.map(x => {
-        if (x.codUser === u.id) {
-          return {
-            ...x,
-            bloqueado: u.active ? 1 : 0
-          }
-        }
-        return x
-      }))
+  function handleSolicitarToggle(item, type) {
+    if (item.active) {
+      setModalBloqueio({ item, type })
+    } else {
+      toggleUserBlock(item.id).then(() => {
+        carregarTudo()
+        loadRecipes()
+      })
     }
   }
 
-  async function handleToggleRecipe(r) {
-    await toggleRecipeStatus(r.id, r.active)
-    await loadRecipes()
+  async function handleConfirmarBloqueio(payload) {
+    const result = await registrarBloqueio(payload)
+    if (result.ok) {
+      await carregarTudo()
+      await loadRecipes()
+    }
+    return result
   }
 
   async function handleCreateCategoria(nome, grupo) {
@@ -595,7 +918,7 @@ function AdminDashboard() {
       <header className="admin-header">
         <div className="admin-header-left">
           <h1>Painel Administrativo</h1>
-          <p>Gerencie usuários, chefes, receitas e categorias</p>
+          <p>Gerencie usuários, chefes, receitas, categorias e contestações</p>
         </div>
         <div className="admin-header-right">
           <div className="admin-header-badge">
@@ -641,7 +964,7 @@ function AdminDashboard() {
               <AdminUsers
                 data={users}
                 onView={u => setModal({ item: u, type: 'user' })}
-                onToggle={handleToggleUser}
+                onToggle={handleSolicitarToggle}
                 onOpenImage={setZoomImage}
               />
             )}
@@ -650,7 +973,7 @@ function AdminDashboard() {
               <AdminChefs
                 data={chefs}
                 onView={c => setModal({ item: c, type: 'chef' })}
-                onToggle={handleToggleUser}
+                onToggle={handleSolicitarToggle}
                 onOpenImage={setZoomImage}
               />
             )}
@@ -659,7 +982,7 @@ function AdminDashboard() {
               <AdminRecipes
                 data={recipesNormalized}
                 onView={r => setModal({ item: r, type: 'recipe' })}
-                onToggle={handleToggleRecipe}
+                onToggle={handleSolicitarToggle}
                 onOpenImage={setZoomImage}
               />
             )}
@@ -670,6 +993,22 @@ function AdminDashboard() {
                 onCreate={handleCreateCategoria}
               />
             )}
+
+            {activeTab === 'notificacoes' && (
+              <AdminNotificacoes
+                notificacoes={notificacoesRaw}
+                onRefresh={carregarTudo}
+                onSelectNotificacao={setNotificacaoSelecionada}
+              />
+            )}
+            {/* Modal de Detalhes da Notificação */}
+            {notificacaoSelecionada && (
+              <ModalDetalhesNotificacao
+                notificacao={notificacaoSelecionada}
+                onClose={() => setNotificacaoSelecionada(null)}
+                onDesbloquear={handleDesbloquearEDeletar}
+              />
+            )}
           </>
         )}
       </div>
@@ -677,6 +1016,16 @@ function AdminDashboard() {
       {modal && (
         <DetailModal item={modal.item} type={modal.type} onClose={() => setModal(null)} navigate={navigate} />
       )}
+
+      {modalBloqueio && (
+        <ModalBloqueio
+          item={modalBloqueio.item}
+          type={modalBloqueio.type}
+          onClose={() => setModalBloqueio(null)}
+          onConfirm={handleConfirmarBloqueio}
+        />
+      )}
+
       <ImageZoomModal imageSrc={zoomImage} onClose={() => setZoomImage(null)} />
     </div>
   )

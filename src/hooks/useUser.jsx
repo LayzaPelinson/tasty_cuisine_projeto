@@ -74,6 +74,7 @@ export function UserProvider({ children }) {
   const [recipeStats, setRecipeStats] = useState({})
   const [favoritos, setFavoritos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [notificacoesRaw, setNotificacoesRaw] = useState([])
 
   useEffect(() => {
     loadRecipes()
@@ -333,7 +334,6 @@ async function getRecipeRatingStats(recipeId) {
       if (!res.ok) throw new Error('Falha ao carregar receitas')
       const data = await res.json()
       const normalized = Array.isArray(data) ? data.map(normalizeApiRecipe) : []
-      console.log(normalized)
       setRecipes(normalized)
       setRecipesLoaded(true)
       return normalized
@@ -532,7 +532,6 @@ async function getRecipeRatingStats(recipeId) {
       const saved = await res.json()
       const idReceitaSalva = saved.codReceitas || saved.id;
       const normalized = normalizeApiRecipe(saved);
-      console.log(normalized)
       normalized.usuario = {
         ...normalized.usuario,
         codUser: user?.codUser
@@ -576,7 +575,6 @@ async function getRecipeRatingStats(recipeId) {
     if (recipeRes.ok) {
       const recipeData = await recipeRes.json()
       const fotoParaDeletar = recipeData.fotoReceita || recipeData.image
-      console.log("aq oia: "+fotoParaDeletar)
       // 2. Se houver link de foto, apaga do Supabase Storage
       if (fotoParaDeletar) {
         await deleteImage(fotoParaDeletar)
@@ -630,6 +628,122 @@ async function getRecipeRatingStats(recipeId) {
     })
   }
 
+  const registrarBloqueio = async (payload) => {
+  try {
+    const response = await fetch('http://localhost:8080/notificacoes/bloquear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    
+    if (!response.ok) throw new Error('Falha ao registrar bloqueio')
+    const data = await response.json()
+    return { ok: true, data }
+  } catch (err) {
+    console.error('Erro ao bloquear:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+// 2. Buscar notificação específica do usuário logado
+const loadNotificacaoUsuario = async (userId) => {
+  try {
+    const response = await fetch(`http://localhost:8080/notificacoes/usuario/${userId}`)
+    if (!response.ok) return null
+    console.log(response  )
+    return await response.json()
+  } catch (err) {
+    console.error('Erro ao carregar notificação do usuário:', err)
+    return null
+  }
+}
+
+// 3. Enviar a contestação/resposta do usuário
+const enviarContestacao = async (codNotificacao, resposta) => {
+  try {
+    const response = await fetch(`http://localhost:8080/notificacoes/${codNotificacao}/contestar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resposta })
+    })
+    if (!response.ok) throw new Error('Falha ao enviar contestação')
+    const data = await response.json()
+    return { ok: true, data }
+  } catch (err) {
+    console.error('Erro ao contestar:', err)
+    return { ok: false, error: err.message }
+  }
+}
+
+// 4. Função para normalizar e separar uma lista de notificações por categoria
+const normalizarNotificacoes = (listaNotificacoes = []) => {
+  const normalizadas = {
+    usuarios: [],
+    chefes: [],
+    receitas: []
+  }
+
+  listaNotificacoes.forEach(n => {
+    const item = {
+      id: n.codNotificacao,
+      tipo: n.tipoEntidade, // 'USUARIO', 'CHEFE' ou 'RECEITA'
+      motivo: n.motivo,
+      descricao: n.descricao,
+      respostaUsuario: n.respostaUsuario || null,
+      status: n.statusNotificacao,
+      dataEnvio: n.dataEnvio,
+      usuarioId: n.usuario?.codUser || null,
+      nomeUsuario: n.usuario?.nome_completo || 'N/A',
+      receitaId: n.receita?.codReceitas || null,
+      tituloReceita: n.receita?.nomeReceita || 'N/A'
+    }
+
+    if (item.tipo === 'USUARIO') {
+      normalizadas.usuarios.push(item)
+    } else if (item.tipo === 'CHEFE') {
+      normalizadas.chefes.push(item)
+    } else if (item.tipo === 'RECEITA') {
+      normalizadas.receitas.push(item)
+    }
+  })
+
+  return normalizadas
+}
+
+const loadTodasNotificacoes = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/notificacoes/findAll`)
+    if (!response.ok) return []
+    
+    const data = await response.json()
+    const lista = Array.isArray(data) ? data : (data?.content || data?.data || [])
+    
+    // Salva no estado global do contexto!
+    setNotificacoesRaw(lista)
+    return lista
+  } catch (err) {
+    console.error('Erro ao buscar notificações:', err)
+    return []
+  }
+}
+
+const deleteNotificacao = async (idNotificacao) => {
+  try {
+    const res = await fetch(`${API_BASE}/notificacoes/${idNotificacao}`, {
+      method: 'DELETE',
+    })
+    if (res.ok) {
+      // Remove do estado local instantaneamente
+      setNotificacoesRaw(prev => prev.filter(n => (n.codNotificacao || n.id_notificacao || n.id) !== idNotificacao))
+      return { ok: true }
+    }
+    return { ok: false, error: 'Falha ao deletar notificação' }
+  } catch (err) {
+    console.error('Erro ao deletar notificação:', err)
+    return { ok: false, error: 'Erro de conexão com o servidor' }
+  }
+}
+
   return (
     <UserContext.Provider value={{
       user, token, setUser,
@@ -644,6 +758,9 @@ async function getRecipeRatingStats(recipeId) {
       categorias, loadCategorias, createCategoria,
       loadRecipes, loadChefRecipes, toggleUserBlock,
       getRecipeFavoritesCount, getRecipeRatingStats,
+      enviarContestacao,normalizarNotificacoes,loadNotificacaoUsuario,
+      registrarBloqueio,loadTodasNotificacoes,notificacoesRaw,
+      deleteNotificacao,
     }}>
       {children}
     </UserContext.Provider>
