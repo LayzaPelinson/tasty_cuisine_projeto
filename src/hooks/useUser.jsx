@@ -150,18 +150,20 @@ export function UserProvider({ children }) {
     }
   }
 
-  async function toggleRecipeStatus(recipeId, currentlyActive) {
-    try {
-      const endpoint = currentlyActive
-        ? `${API_BASE}/receita/${recipeId}/inativar`
-        : `${API_BASE}/receita/${recipeId}/ativar`
-      const res = await fetch(endpoint, { method: 'PUT', cache: 'no-store' })
-      if (!res.ok) return { ok: false }
-      return { ok: true }
-    } catch {
-      return { ok: false }
-    }
+  const toggleRecipeStatus = async (recipeId, isActive) => {
+  try {
+    const endpoint = isActive 
+      ? `${API_BASE}/receita/${recipeId}/inativar` 
+      : `${API_BASE}/receita/${recipeId}/ativar`
+
+    const response = await fetch(endpoint, { method: 'PUT' })
+    console.log(response)
+    return { ok: true, data: response.data }
+  } catch (error) {
+    console.error('Erro ao alterar status da receita:', error)
+    return { ok: false, error: 'Falha ao alterar status da receita.' }
   }
+}
 
   async function toggleCommentStatus(commentId, currentlyActive) {
     try {

@@ -759,7 +759,7 @@ function AdminDashboard() {
     logout,
     loadRecipes,
     toggleUserBlock,
-    registrarBloqueio,
+    registrarBloqueio,toggleRecipeStatus,
     loadTodasNotificacoes,
     notificacoesRaw,
   } = useUser()
@@ -879,17 +879,26 @@ function AdminDashboard() {
     { label: 'Receitas', value: recipesNormalized.length, active: recipesNormalized.filter(r => r.active).length, icon: 'bi-journal-richtext', tab: 'recipes' },
   ]
 
-  function handleSolicitarToggle(item, type) {
-    if (item.active) {
-      setModalBloqueio({ item, type })
-    } else {
-      toggleUserBlock(item.id).then(() => {
-        carregarTudo()
-        loadRecipes()
-      })
-    }
+  async function handleSolicitarToggle(item, type) {
+  // CASO 1: SE FOR RECEITA (usa os endpoints /ativar e /inativar diretamente)
+  if (type === 'recipe') {
+    await toggleRecipeStatus(item.id, item.active)
+    await carregarTudo()
+    await loadRecipes()
+    return
   }
 
+  // CASO 2: SE FOR USUÁRIO OU CHEFE
+  if (item.active) {
+    // Abre modal para informar o motivo do bloqueio do usuário
+    setModalBloqueio({ item, type })
+  } else {
+    // Desbloqueia o usuário diretamente
+    await toggleUserBlock(item.id)
+    await carregarTudo()
+    await loadRecipes()
+  }
+}
   async function handleConfirmarBloqueio(payload) {
     const result = await registrarBloqueio(payload)
     if (result.ok) {
