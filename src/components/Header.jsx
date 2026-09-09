@@ -54,8 +54,10 @@ function Header() {
                     <Link to="/login">Login</Link>
                 ) : (
                     <>
-                    {/* Ícone de Notificação */}
-                        <div className="notification-container">
+                        <>
+                    {user.funcao == 'Chefe' ? (<>
+                        {/* Ícone de Notificação */}
+                         <div className="notification-container">
                             <button 
                                 className="notification-btn" 
                                 onClick={() => setShowModal(!showModal)}
@@ -104,6 +106,14 @@ function Header() {
                                 </div>
                             )}
                         </div> 
+                    </> 
+                        
+                    ): (null)
+                    }
+                    
+                       
+                    </>
+                    
                         {user.funcao !== 'Chefe' && <Link to="/">Home</Link>}
                         <Link to="/recipes">Receitas</Link>
                         {user.funcao === 'Chefe' ? (
