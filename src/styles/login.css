@@ -52,22 +52,20 @@
 /* ÍCONE */
 .login-icon {
   font-size: 44px;
-  color: #5a2ca0;
   margin-bottom: 6px;
 }
 /* TÍTULO */
 .login-card h1 {
   margin: 0;
-  color: #954e26;
+  color: #C4703A;
   font-size: 38px;
-  font-family: inherit;
   font-weight: 600;
 }
 /* TEXTO */
 .login-card p {
   margin-top: 6px;
   margin-bottom: 14px;
-  color: #6b7280;
+  color: #6d625c;
   font-size: 15px;
   line-height: 1.4;
 }
@@ -80,27 +78,29 @@
 .login-card label {
   margin-bottom: 5px;
   font-weight: 600;
-  color: #4b5563;
+  color: #3D2010;
   font-size: 15px;
 }
 .login-card input {
   height: 44px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #F0C8A0;
   border-radius: 14px;
   padding: 0 16px;
   font-size: 15px;
   margin-bottom: 12px;
   outline: none;
+  background: #FBF5EF;
+  color: #3D2010;
 }
 .login-card input:focus {
-  border-color: #1f6b34;
+  border-color: #C4703A;
 }
 /* BOTÃO */
 .login-btn {
   height: 46px;
   border: none;
   border-radius: 16px;
-  background: #e07a3e;
+  background: #C4703A;
   color: white;
   font-size: 18px;
   font-weight: 600;
@@ -109,19 +109,17 @@
   transition: .3s ease;
 }
 .login-btn:hover {
-  background: #954e26;
-  background-image: linear-gradient(to bottom , #e07a3e, #954e26); 
-  box-shadow:0 8px 20px rgba(0,0,0,.05);
-  transform: scale(1.1);
+  background: #A95C2C;
+  box-shadow: 0 8px 20px rgba(0,0,0,.05);
 }
 /* LINK */
 .register-link {
   margin-top: 14px;
-  color: #8b8b8b;
+  color: #6d625c;
   font-size: 15px;
 }
 .register-link span {
-  color: #1f6b34;
+  color: #C4703A;
   font-weight: 600;
   cursor: pointer;
 }
@@ -157,27 +155,28 @@
 }
 .reactivate-modal h3 {
   margin: 0;
-  color: #954e26;
+  color: #C4703A;
   font-size: 22px;
-  font-family: inherit;
 }
 .reactivate-modal p {
-  color: #555;
+  color: #6d625c;
   font-size: 14px;
   margin: 0;
 }
 .reactivate-modal input {
   height: 44px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #F0C8A0;
   border-radius: 12px;
   padding: 0 16px;
   font-size: 15px;
   outline: none;
   width: 100%;
   box-sizing: border-box;
+  background: #FBF5EF;
+  color: #3D2010;
 }
 .reactivate-modal input:focus {
-  border-color: #1f6b34;
+  border-color: #C4703A;
 }
 .reactivate-actions {
   display: flex;
@@ -190,11 +189,12 @@
 }
 .reactivate-actions button:last-child {
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid #F0C8A0;
   border-radius: 12px;
   padding: 12px 24px;
   cursor: pointer;
   font-size: 15px;
+  color: #C4703A;
 }
 /* BOTÃO ADMIN */
 .admin-access-btn {
@@ -206,8 +206,8 @@
   gap: 8px;
   padding: 10px 20px;
   background: #1a1a2e;
-  color: #954e26;
-  border: 1.5px solid rgba(244,124,32,0.3);
+  color: #C4703A;
+  border: 1.5px solid rgba(196,112,58,0.3);
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
@@ -220,45 +220,47 @@
   font-size: 16px;
 }
 .admin-access-btn:hover {
-  background: #f47c20;
+  background: #C4703A;
   color: white;
-  border-color: #f47c20;
-  box-shadow: 0 4px 16px rgba(244,124,32,0.35);
+  border-color: #C4703A;
+  box-shadow: 0 4px 16px rgba(196,112,58,0.35);
   transform: translateY(-1px);
-  box-shadow:0 8px 20px rgba(0,0,0,.05);
 }
 
-/* PREFERÊNCIAS */.preferences-grid {
+/* PREFERÊNCIAS */
+.preferences-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 14px;
 }
 .pref-btn {
-  border: 1.5px solid #d9d9d9;
+  border: 1px solid #F0C8A0;
   border-radius: 20px;
-  background: white;
+  background: #FFF0E8;
   padding: 6px 14px;
   font-size: 14px;
   cursor: pointer;
   transition: .2s;
-  color: #4b5563;
+  color: #C4703A;
 }
 .pref-btn.active {
-  background: #1f6b34;
+  background: #C4703A;
   color: white;
-  border-color: #1f6b34;
+  border-color: #C4703A;
 }
 
-.confirm-btn{
-  background: #1a1a2e;
-  color: #f42020;
-  border: 1.5px solid rgba(244,124,32,0.3);
+.confirm-btn {
+  background: #C4703A;
+  color: white;
+  border: none;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all .25s;
   letter-spacing: 0.3px;
-  z-index: 10;
+}
+.confirm-btn:hover {
+  background: #A95C2C;
 }

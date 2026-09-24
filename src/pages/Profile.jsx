@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { FiHeart, FiSliders } from 'react-icons/fi'
 
 import '../styles/global.css'
 import '../styles/profile.css'
@@ -20,11 +21,20 @@ function Profile() {
 
   return (
     <div className="profile-page">
-      <ProfileHeader setActiveTab={() => setEditing(e => !e)} activeTab={activeTab} setTab={setActiveTab} />
-      <EditProfilePanel editing={editing} setEditing={setEditing} />
-      {activeTab === 'favorites' && <FavoriteRecipes />}
-      {activeTab === 'history' && <HistoryPanel />}
-      {activeTab === 'preferences' && <PreferencesPanel />}
+      <ProfileHeader setActiveTab={() => setEditing(e => !e)} activeTab={activeTab} setTab={setActiveTab}>
+        <div className="profile-tabs">
+          <button className={activeTab === 'favorites' ? 'active' : ''} onClick={() => setActiveTab('favorites')}>
+            <FiHeart /> Favoritos
+          </button>
+          <button className={activeTab === 'preferences' ? 'active' : ''} onClick={() => setActiveTab('preferences')}>
+            <FiSliders /> Preferências
+          </button>
+        </div>
+        <EditProfilePanel editing={editing} setEditing={setEditing} />
+        {activeTab === 'favorites' && <FavoriteRecipes />}
+        {activeTab === 'history' && <HistoryPanel />}
+        {activeTab === 'preferences' && <PreferencesPanel />}
+      </ProfileHeader>
     </div>
   )
 }

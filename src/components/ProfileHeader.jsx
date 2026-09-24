@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '../hooks/useUser'
-import { FiUser, FiCamera, FiEdit2, FiHeart, FiSliders } from 'react-icons/fi'
+import { FiUser, FiCamera, FiEdit2 } from 'react-icons/fi'
 import '../styles/profileHeader.css'
 import { uploadImage } from '../services/supabase'
 
 
-function ProfileHeader({ setActiveTab, activeTab, setTab }) {
+function ProfileHeader({ setActiveTab, activeTab, setTab, children }) {
   const { user, setUser } = useUser()
   const [aberto, setAberto] = useState(false)
   const [imageFile, setImageFile] = useState(null)
@@ -90,14 +90,7 @@ const API_BASE = 'http://localhost:8080'
         </button>
       </section>
 
-      <div className="profile-tabs">
-        <button className={activeTab === 'favorites' ? 'active' : ''} onClick={() => setTab('favorites')}>
-          <FiHeart /> Favoritos
-        </button>
-        <button className={activeTab === 'preferences' ? 'active' : ''} onClick={() => setTab('preferences')}>
-          <FiSliders /> Preferências
-        </button>
-      </div>
+      {children}
 
       {aberto && (
   <div className="edit-profile-modal-overlay">

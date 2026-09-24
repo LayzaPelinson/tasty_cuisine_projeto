@@ -1,3 +1,25 @@
+.chef-stats-page {
+  padding: 0 48px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.chef-stats-overview {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid #EDE0D4;
+  box-shadow: 0 4px 16px rgba(139,80,40,.08);
+}
+
+.chef-stats-overview h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2d1b12;
+  margin-bottom: 4px;
+}
+
 /* Estilos da Tabela de Desempenho */
 .chef-table-wrapper {
   width: 100%;
@@ -46,8 +68,8 @@
 }
 
 .rating-badge {
-  background: #fff3eb;
-  color: #f47b20;
+  background: #FFF0E8;
+  color: #C4703A;
   padding: 4px 10px;
   border-radius: 8px;
   font-weight: bold;
@@ -127,7 +149,7 @@
 }
 
 .img-modal-close:hover {
-  background: rgba(244, 123, 32, 0.9);
+  background: rgba(196, 112, 58, 0.9);
 }
 
 .chef-stats-cards {
@@ -155,7 +177,7 @@
 .stat-value {
   font-size: 2.8rem;
   font-weight: 700;
-  color: #f47b20;
+  color: #C4703A;
   font-family: inherit;
   line-height: 1;
   margin-bottom: 6px;

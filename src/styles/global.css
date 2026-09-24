@@ -11,8 +11,16 @@ html {
 body {
   background: #F5EDE3;
   color: #3D2010;
-  font-family: inherit;
+  font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+}
+
+h2, h3, p, span, label, button, input, textarea, select {
+  font-family: 'Poppins', sans-serif;
 }
 
 button,

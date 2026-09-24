@@ -12,8 +12,8 @@
   margin-bottom: 24px;
   padding: 8px 18px;
   background: transparent;
-  border: 2px solid #f47c20;
-  color: #f47c20;
+  border: 2px solid #C4703A;
+  color: #C4703A;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
@@ -23,7 +23,7 @@
 }
 
 .back-btn:hover {
-  background: #f47c20;
+  background: #C4703A;
   color: white;
 }
 
@@ -55,8 +55,7 @@
   margin: 0;
   font-size: 56px;
   line-height: 1.1;
-  color: #c4703a;
-  font-family: inherit;
+  color: #C4703A;
   font-weight: 600;
 }
 

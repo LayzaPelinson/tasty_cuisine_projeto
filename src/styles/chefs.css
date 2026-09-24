@@ -40,7 +40,7 @@
 .chef-overlay h3 {
   font-size: 32px;
   margin-bottom: 6px;
-  color: #ff8b38;
+  color: #C4703A;
 }
 .chef-overlay p {
   font-size: 17px;
@@ -103,8 +103,8 @@
   margin-bottom: 24px;
   padding: 8px 18px;
   background: transparent;
-  border: 2px solid #f47c20;
-  color: #f47c20;
+  border: 2px solid #C4703A;
+  color: #C4703A;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
@@ -114,7 +114,7 @@
 }
 
 .chefs-voltar-btn:hover {
-  background: #f47c20;
+  background: #C4703A;
   color: white;
 }
 
@@ -130,13 +130,12 @@
 }
 
 .chefs-section-header span {
-  color: #f47c12;
+  color: #C4703A;
   font-size: 18px;
   font-weight: 600;
 }
 
 .chefs-section-header h1 {
-  font-family: inherit;
   font-size: 72px;
   line-height: 1.05;
   color: #2c1d18;
@@ -158,7 +157,7 @@
 
 .chefs-ver-mais-btn {
   padding: 12px 28px;
-  background: #f47c20;
+  background: #C4703A;
   color: white;
   border: none;
   border-radius: 14px;
@@ -171,7 +170,7 @@
 }
 
 .chefs-ver-mais-btn:hover {
-  background: #c96010;
+  background: #A95C2C;
   transform: translateY(-2px);
-  box-shadow:0 8px 20px rgba(0,0,0,.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,.05);
 }
