@@ -2,15 +2,13 @@
   width: 100%;
   min-height: 100vh;
   background: #f3efe6;
-  padding-bottom: 200px;
-  padding-right: 8%;
-  margin-bottom: 100px;
+  padding: 0 8% 100px;
 }
 
 .chef-recipes-header {
   text-align: center;
   max-width: 800px;
-  margin-bottom: 250px;
+  margin: 0 auto 48px;
 }
 
 .chef-recipes-header span {
@@ -24,7 +22,7 @@
   font-size: 72px;
   line-height: 1.05;
   color: #2c1d18;
-  margin: 50px 0 24px;
+  margin: 24px 0 24px;
 }
 
 .chef-recipes-header p {
