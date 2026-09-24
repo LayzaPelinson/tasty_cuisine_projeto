@@ -2,56 +2,20 @@
    HERO / HEADER (Mobile Matching)
 ========================= */
 .profile-header {
-  /* Gradiente idêntico ao mobile: #C4703A -> #A95C2C -> #7A3B1E */
-  background: linear-gradient(135deg, #C4703A 0%, #A95C2C 50%, #7A3B1E 100%);
-  border-bottom-left-radius: 40px;
-  border-bottom-right-radius: 40px;
-  padding: 50px 48px 40px;
-  position: relative;
-  overflow: hidden;
-
+  background: transparent;
+  padding: 50px 48px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 30px rgba(122, 59, 30, 0.25);
 }
 
-/* Blob 1 (Canto Superior Direito) */
-.profile-header::before {
-  content: "";
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  top: -50px;
-  right: -30px;
-  pointer-events: none;
-}
-
-/* Blob 2 (Canto Inferior Esquerdo) */
+.profile-header::before,
 .profile-header::after {
-  content: "";
-  position: absolute;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  bottom: -30px;
-  left: -20px;
-  pointer-events: none;
+  display: none;
 }
 
-/* Blob 3 (Meio Inferior / Direito) */
 .hero-blob-3 {
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  bottom: 10px;
-  right: 250px;
-  pointer-events: none;
+  display: none;
 }
 
 /* =========================
@@ -70,25 +34,23 @@
   border-radius: 50%;
   overflow: hidden;
   position: relative;
-  border: none;
-  box-shadow: none;
-  background: rgba(255, 255, 255, 0.452); /* Fundo sutil transparente caso queira, ou troque por transparent */
+  border: 3px solid #F0C8A0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #FFF0E8;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Aplicado SOMENTE quando o usuário tiver foto */
 .profile-avatar.has-photo {
   background: #FFFFFF;
-  border: 3.5px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  border: 3px solid #C4703A;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Cor do ícone padrão quando não tem foto */
 .avatar-placeholder-icon {
   font-size: 42px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #C4703A;
 }
 .profile-avatar.clickable {
   cursor: pointer;
@@ -127,44 +89,58 @@
 
 .profile-info-text h1 {
   font-size: 38px;
-  color: #FFFFFF;
+  color: #2d1b12;
   margin: 0 0 4px 0;
   font-weight: 700;
   line-height: 1.1;
 }
 
 .profile-info-text p {
-  color: rgba(255, 235, 220, 0.9);
+  color: #6d625c;
   font-size: 15px;
   margin: 0;
+}
+
+.profile-prefs-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.profile-prefs-tags span {
+  background: #FFF0E8;
+  border: 1px solid #F0C8A0;
+  color: #C4703A;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
 }
 
 /* =========================
    BOTÃO EDITAR PERFIL
 ========================= */
 .edit-profile-btn {
-  z-index: 2;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #FFFFFF;
-  padding: 12px 20px;
-  border-radius: 16px;
+  background: #FFF0E8;
+  border: 1px solid #F0C8A0;
+  color: #C4703A;
+  padding: 10px 18px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  font-family: 'Poppins' !important;
+  transition: 0.2s;
+  font-family: inherit;
 }
 
 .edit-profile-btn:hover {
-  background: rgba(255, 255, 255, 0.28);
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  background: #C4703A;
+  color: white;
+  border-color: #C4703A;
 }
 
 /* =========================

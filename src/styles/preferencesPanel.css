@@ -1,28 +1,38 @@
 .preferences-page{
   display:flex;
-  flex-direction:column;
+  flex-direction: row;
   gap:24px;
+  padding: 0 48px 40px;
+  align-items: flex-start;
 }
-.preferences-card,
+.preferences-card{
+  background:#fff;
+  border-radius:20px;
+  padding:28px;
+  box-shadow: 0 4px 16px rgba(139,80,40,.08);
+  border: 1px solid #EDE0D4;
+  max-width: 480px;
+}
 .account-card{
   background:#fff;
-  border-radius:24px;
+  border-radius:20px;
   padding:28px;
-  margin-left: 100px;
-  margin-right: 100px;
-  box-shadow:0 8px 20px rgba(0,0,0,.05);
+  box-shadow: 0 4px 16px rgba(139,80,40,.08);
+  border: 1px solid #EDE0D4;
+  max-width: 480px;
 }
 .preferences-card h2,
 .account-card h2{
-  color:#A95C2C;
-  font-size:2rem;
-  margin-bottom:10px;
+  color:#2d1b12;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom:16px;
   font-family: inherit;
 }
 .preferences-card p{
   font-size:1rem;
   margin-bottom:24px;
-  color:#333;
+  color:#6d625c;
 }
 .diet-tags{
   display:flex;
@@ -31,57 +41,68 @@
 }
 .diet-tags button,
 .diet-tags span {
-  border: 2px solid #ddd;
-  background: #ffffff;
-  color: #000000;
-  padding: 12px 20px;
+  border: 1px solid #F0C8A0;
+  background: #FFF0E8;
+  color: #C4703A;
+  padding: 10px 18px;
   border-radius: 999px;
   cursor: default;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 600;
 }
 .diet-tags button {
   cursor: pointer;
 }
 .diet-tags button.active,
 .diet-tags span.active {
-  background: #ffffff;
-  color: #1d6b38;
-  border: 2px solid #1d6b38;
-  font-weight: 600;
+  background: #C4703A;
+  color: white;
+  border-color: #C4703A;
 }
 .account-actions{
   display:flex;
-  gap:16px;
+  gap:12px;
   margin-top:16px;
+  flex-wrap: wrap;
 }
 .account-actions button{
-  padding:12px 22px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  background:white;
-  color:#000000;
-  cursor:pointer;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid #F0C8A0;
+  background: #FFF0E8;
+  color: #C4703A;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  transition: 0.2s;
+}
+.account-actions button:hover {
+  background: #C4703A;
+  color: white;
+  border-color: #C4703A;
 }
 .account-actions button.change-pwd {
-  background: #f58220;
+  background: #C4703A;
   color: #ffffff;
-  border: none;
+  border-color: #C4703A;
 }
-
+.account-actions button.change-pwd:hover {
+  background: #A95C2C;
+}
 .account-actions button.deactivate {
-  background: #c96010;
-  color: #ffffff;
+  background: #FFF0E8;
+  color: #C4703A;
+  border-color: #F0C8A0;
 }
-
 .account-actions button.logout {
-  background: #b45309;
-  color: #ffffff;
-  border: none;
+  background: #FFF0E8;
+  color: #C4703A;
+  border-color: #F0C8A0;
 }
-
 .deactivate-confirm p {
   font-size: 14px;
-  color: #555;
+  color: #6d625c;
   margin-bottom: 12px;
 }
 .pwd-form {
@@ -99,17 +120,19 @@
   color: #555;
 }
 .pwd-form input {
-  padding: 9px 13px;
+  padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #F0C8A0;
+  background: #FBF5EF;
   font-size: 14px;
   outline: none;
+  color: #3D2010;
 }
 .pwd-form input:focus {
-  border-color: #f58220;
+  border-color: #C4703A;
 }
 .login-error {
-  color: #ff4d4d;
+  color: #c62828;
   font-size: 13px;
 }
 .profile-form {
@@ -128,24 +151,31 @@
 .profile-form input {
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #F0C8A0;
+  background: #FBF5EF;
   font-size: 15px;
   outline: none;
+  color: #3D2010;
 }
 .profile-form input:focus {
-  border-color: #f58220;
+  border-color: #C4703A;
 }
 .save-btn {
   align-self: flex-end;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #f58220;
+  background: #C4703A;
   color: white;
   border: none;
-  padding: 14px 28px;
+  padding: 12px 24px;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
   font-weight: 600;
+  font-family: inherit;
+  transition: 0.2s;
+}
+.save-btn:hover {
+  background: #A95C2C;
 }

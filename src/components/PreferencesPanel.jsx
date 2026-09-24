@@ -1,16 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUser } from '../hooks/useUser'
 import { useNavigate } from 'react-router-dom'
 import '../styles/preferencesPanel.css'
 
 function PreferencesPanel() {
-  const { user, logout, changePassword, deactivateAccount } = useUser()
+  const { user, logout, changePassword, deactivateAccount, updateUserProfile, DIET_OPTIONS } = useUser()
   const navigate = useNavigate()
+  const [prefs, setPrefs] = useState([])
+  const [savingPrefs, setSavingPrefs] = useState(false)
   const [changingPwd, setChangingPwd] = useState(false)
   const [pwdForm, setPwdForm] = useState({ current: '', next: '', confirm: '' })
   const [pwdError, setPwdError] = useState('')
   const [confirmDeactivate, setConfirmDeactivate] = useState(false)
   const [deactivateError, setDeactivateError] = useState('')
+
+  useEffect(() => {
+    setPrefs(user?.preferences ?? [])
+  }, [user])
+
+  function togglePref(pref) {
+    setPrefs(p => p.includes(pref) ? p.filter(x => x !== pref) : [...p, pref])
+  }
+
+  async function handleSavePrefs() {
+    setSavingPrefs(true)
+    await updateUserProfile({ name: user?.name, email: user?.email, age: user?.age, preferences: prefs })
+    setSavingPrefs(false)
+  }
 
   function handleLogout() {
     logout()
@@ -36,15 +52,26 @@ function PreferencesPanel() {
 
   return (
     <div className="preferences-page">
-      {/* <div className="preferences-card">
+      <div className="preferences-card">
         <h2>Preferências Alimentares</h2>
         <p>Selecione suas preferências para receber sugestões personalizadas.</p>
         <div className="diet-tags">
-          {user.preferences?.map(pref => (
-            <span key={pref} className="active">{pref}</span>
+          {DIET_OPTIONS.map(opt => (
+            <button
+              key={opt}
+              className={prefs.includes(opt) ? 'active' : ''}
+              onClick={() => togglePref(opt)}
+            >
+              {opt}
+            </button>
           ))}
         </div>
-      </div> */}
+        <div className="account-actions" style={{ marginTop: '20px' }}>
+          <button className="change-pwd" onClick={handleSavePrefs} disabled={savingPrefs}>
+            {savingPrefs ? 'Salvando...' : 'Salvar Preferências'}
+          </button>
+        </div>
+      </div>
 
       <div className="account-card">
         <h2>Conta</h2>

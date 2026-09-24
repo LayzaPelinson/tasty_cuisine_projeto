@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '../hooks/useUser'
-import { FiUser, FiCamera, FiEdit2 } from 'react-icons/fi'
+import { FiUser, FiCamera, FiEdit2, FiHeart, FiSliders } from 'react-icons/fi'
 import '../styles/profileHeader.css'
 import { uploadImage } from '../services/supabase'
 
 
-function ProfileHeader({ setActiveTab, isChefe }) {
+function ProfileHeader({ setActiveTab, activeTab, setTab }) {
   const { user, setUser } = useUser()
   const [aberto, setAberto] = useState(false)
   const [imageFile, setImageFile] = useState(null)
@@ -75,6 +75,13 @@ const API_BASE = 'http://localhost:8080'
           <div className="profile-info-text">
             <h1>{user.name ?? user.fullName ?? user.nomeCompleto}</h1>
             <p>{user.email ?? user.gmail}</p>
+            {user.preferences?.length > 0 && (
+              <div className="profile-prefs-tags">
+                {user.preferences.map(pref => (
+                  <span key={pref}>{pref}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -82,6 +89,15 @@ const API_BASE = 'http://localhost:8080'
           <FiEdit2 /> Editar Perfil
         </button>
       </section>
+
+      <div className="profile-tabs">
+        <button className={activeTab === 'favorites' ? 'active' : ''} onClick={() => setTab('favorites')}>
+          <FiHeart /> Favoritos
+        </button>
+        <button className={activeTab === 'preferences' ? 'active' : ''} onClick={() => setTab('preferences')}>
+          <FiSliders /> Preferências
+        </button>
+      </div>
 
       {aberto && (
   <div className="edit-profile-modal-overlay">

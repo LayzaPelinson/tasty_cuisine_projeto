@@ -35,9 +35,8 @@ const convertToDatabaseFormat = (displayDate) => {
 }
 
 function EditProfilePanel({ editing, setEditing }) {
-  const { user, updateUserProfile, DIET_OPTIONS } = useUser()
+  const { user, updateUserProfile } = useUser()
   const [form, setForm] = useState({ name: '', email: '', age: '' })
-  const [prefs, setPrefs] = useState([])
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -45,29 +44,19 @@ function EditProfilePanel({ editing, setEditing }) {
       setForm({
         name: user?.name ?? '',
         email: user?.email ?? '',
-        // Converte a data do BD para DD/MM/AAAA ao abrir a edição
         age: convertToDisplayFormat(user?.age) 
       })
-      setPrefs(user?.preferences ?? [])
       setError('')
     }
   }, [editing, user])
 
-  function togglePref(pref) {
-    setPrefs(p => p.includes(pref) ? p.filter(x => x !== pref) : [...p, pref])
-  }
-
   async function handleSave() {
     setError('')
-    
-    // Converte de volta para YYYY-MM-DD antes de salvar
     const formattedAge = convertToDatabaseFormat(form.age)
-
     const result = await updateUserProfile({
       name: form.name,
       email: form.email,
       age: formattedAge,
-      preferences: prefs,
     })
 
     if (!result.ok) {
@@ -101,21 +90,6 @@ function EditProfilePanel({ editing, setEditing }) {
       </div>
 
       {error && <p className="login-error">{error}</p>}
-
-      <div className="edit-profile-prefs">
-        <span className="edit-prefs-label">Preferências</span>
-        <div className="edit-diet-tags">
-          {DIET_OPTIONS.map(opt => (
-            <button
-              key={opt}
-              className={prefs.includes(opt) ? 'active' : ''}
-              onClick={() => togglePref(opt)}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      </div>
 
       <button className="edit-save-btn" onClick={handleSave}>
         <FiSave /> Salvar

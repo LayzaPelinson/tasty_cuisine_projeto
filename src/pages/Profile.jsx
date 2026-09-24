@@ -5,7 +5,6 @@ import '../styles/global.css'
 import '../styles/profile.css'
 
 import ProfileHeader from '../components/ProfileHeader'
-import ProfileTabs from '../components/ProfileTabs'
 import EditProfilePanel from '../components/EditProfilePanel'
 import FavoriteRecipes from '../components/FavoriteRecipes'
 import HistoryPanel from '../components/HistoryPanel'
@@ -21,9 +20,8 @@ function Profile() {
 
   return (
     <div className="profile-page">
-      <ProfileHeader setActiveTab={() => setEditing(e => !e)} />
+      <ProfileHeader setActiveTab={() => setEditing(e => !e)} activeTab={activeTab} setTab={setActiveTab} />
       <EditProfilePanel editing={editing} setEditing={setEditing} />
-      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === 'favorites' && <FavoriteRecipes />}
       {activeTab === 'history' && <HistoryPanel />}
       {activeTab === 'preferences' && <PreferencesPanel />}
