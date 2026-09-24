@@ -6,39 +6,12 @@
 }
 
 .publish-page-header {
-  background: linear-gradient(135deg, #C4703A 0%, #A95C2C 50%, #7A3B1E 100%);
-  border-bottom-left-radius: 32px;
-  border-bottom-right-radius: 32px;
   padding: 70px 32px 40px;
   text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.publish-page-header::before {
-  content: "";
-  position: absolute;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.07);
-  top: -70px;
-  right: -50px;
-}
-
-.publish-page-header::after {
-  content: "";
-  position: absolute;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: rgba(255, 180, 100, 0.10);
-  bottom: -40px;
-  left: -30px;
 }
 
 .publish-page h1 {
-  color: white;
+  color: #3D2010;
   font-size: 60px;
   font-family: inherit;
   margin-bottom: 10px;
@@ -47,7 +20,7 @@
 }
 
 .publish-subtitle {
-  color: rgba(255, 230, 200, 0.9);
+  color: #B8906A;
   font-size: 17px;
   max-width: 600px;
   margin: 0 auto;
