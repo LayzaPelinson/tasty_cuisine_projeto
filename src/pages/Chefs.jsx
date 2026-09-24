@@ -36,6 +36,7 @@ function Chefs({ chefeId }) {
 
   return (
     <section className="chefs-page">
+      <button className="chefs-voltar-btn" onClick={() => navigate(-1)}>← Voltar</button>
       <div className="chefs-section-header">
         <span>Conheça nossos especialistas</span>
         <h1>Nossos Chefes</h1>

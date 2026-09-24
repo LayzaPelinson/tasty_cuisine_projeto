@@ -96,6 +96,28 @@
   border-radius: 24px;
 }
 
+.chefs-voltar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 8px 18px;
+  background: transparent;
+  border: 2px solid #f47c20;
+  color: #f47c20;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: 0.2s;
+}
+
+.chefs-voltar-btn:hover {
+  background: #f47c20;
+  color: white;
+}
+
 /* BOTÃO VER MAIS */
 .chefs-section-header {
   text-align: center;

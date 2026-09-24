@@ -5,6 +5,28 @@
   padding: 60px;
 }
 
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 8px 18px;
+  background: transparent;
+  border: 2px solid #f47c20;
+  color: #f47c20;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: 0.2s;
+}
+
+.back-btn:hover {
+  background: #f47c20;
+  color: white;
+}
+
 .chef-details-header {
   display: flex;
   gap: 50px;
