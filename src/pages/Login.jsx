@@ -104,9 +104,8 @@ function Login() {
       setError(validationError)
       return
     }
-    form.age = convertToDatabaseFormat(form.age)
     if (mode === 'register') {
-      register({ ...form, funcao: activeTab }).then(res => {
+      register({ ...form, age: convertToDatabaseFormat(form.age), funcao: activeTab }).then(res => {
         if (res && res.ok) {
           navigate(activeTab === 'Chefe' ? '/chef-profile' : '/')
         } else {
