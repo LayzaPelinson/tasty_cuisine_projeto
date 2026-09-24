@@ -1,6 +1,6 @@
 .footer {
   width: 100%;
-  background: linear-gradient(135deg, #C4703A 0%, #A95C2C 50%, #7A3B1E 100%); 
+  background: #F27A1A;
   padding: 20px 20px 10px;
 }
 .footer-content {
@@ -16,7 +16,7 @@
 }
 .footer-content p {
   font-size: 15px;
-  color: #ffffff
+  color: #ffffff;
 }
 .footer-content a {
   color: #ffffff;
@@ -26,13 +26,13 @@
   display: flex;
   gap: 15px;
   margin-top: 5px;
-  COLOR: #ffffff;
+  color: #ffffff;
 }
 .footer-bottom {
   margin-top: 15px;
   padding-top: 10px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid rgba(255,255,255,0.4);
   text-align: center;
   font-size: 13px;
-  color: #ffffff
+  color: #ffffff;
 }

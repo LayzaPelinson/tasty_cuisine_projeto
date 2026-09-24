@@ -1,20 +1,15 @@
 :root {
-  /* Cores Principais */
-  --c-bg: #F5EDE3;
-  --c-surface: #FFFFFF;
-  --c-hero: #C4703A;
-  --c-accent: #C4703A;
-  --c-accent-hover: #A95C2C;
-  --c-accent-soft: #FFF0E8;
-  --c-accent-border: #F0C8A0;
-
-  /* Textos */
-  --c-text-primary: #3D2010;
-  --c-text-sub: #8A5A35;
-  --c-text-muted: #B8906A;
-
-  /* Estados e Ícones */
-  --c-error: #D32F2F;
-  --c-favorite: #E53935;
-  --c-shadow: rgba(61, 32, 16, 0.08);
+  --c-bg: #ffffff;
+  --c-surface: #ffffff;
+  --c-hero: #F27A1A;
+  --c-accent: #F27A1A;
+  --c-accent-hover: #F27A1A;
+  --c-accent-soft: #ffffff;
+  --c-accent-border: #F27A1A;
+  --c-text-primary: #F27A1A;
+  --c-text-sub: #F27A1A;
+  --c-text-muted: #F27A1A;
+  --c-error: #F27A1A;
+  --c-favorite: #F27A1A;
+  --c-shadow: rgba(242, 122, 26, 0.12);
 }
