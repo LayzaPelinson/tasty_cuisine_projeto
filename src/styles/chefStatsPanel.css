@@ -1,3 +1,7 @@
+.chef-settings-card {
+  margin: 0 48px;
+}
+
 .chef-stats-page {
   padding: 0 48px 40px;
   display: flex;
